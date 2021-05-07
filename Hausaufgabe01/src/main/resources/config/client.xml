@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<import resource="classpath:de/dailab/jiactng/agentcore/conf/AgentNode.xml" />
+	<import resource="classpath:de/dailab/jiactng/agentcore/conf/Agent.xml" />
+
+	<import resource="classpath:config/settings.xml" />
+
+	<bean name="ClientNode" parent="AotNode" scope="singleton">
+		<property name="logLevel" value="WARN" />
+		<property name="agents">
+			<list>
+				<!-- change which broker and worker agents will be used -->
+				<ref bean="BrokerAgent" />
+				
+				<bean parent="WorkerAgent" />
+				<bean parent="WorkerAgent" />
+				<bean parent="WorkerAgent" />
+				<bean parent="WorkerAgent" />
+				<bean parent="WorkerAgent" />
+<!--				<bean parent="WorkerAgent_variation" />-->
+			</list>
+		</property>
+	</bean>
+
+	<bean name="BrokerAgent" parent="SimpleAgent" scope="prototype">
+		<property name="agentBeans">
+			<list>
+				<bean name="BrokerBean" class="de.dailab.jiactng.aot.gridworld.client.BrokerBean" scope="prototype">
+					<property name="logLevel" value="INFO" />
+					<property name="executionInterval" value="1000" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	<bean name="WorkerAgent" parent="SimpleAgent" scope="prototype">
+		<property name="agentBeans">
+			<list>
+				<bean name="WorkerBean" class="de.dailab.jiactng.aot.gridworld.client.WorkerBean" scope="prototype">
+					<property name="logLevel" value="INFO" />
+					<property name="executionInterval" value="1000" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<!-- use this method to include your variations of workers and brokers -->
+	<bean name="WorkerAgent_variation" parent="SimpleAgent" scope="prototype">
+		<property name="agentBeans">
+			<list>
+				<bean name="WorkerBean_variation" class="de.dailab.jiactng.aot.gridworld.client.WorkerBean_variation" scope="prototype">
+					<property name="logLevel" value="INFO" />
+					<property name="executionInterval" value="1000" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+</beans>
