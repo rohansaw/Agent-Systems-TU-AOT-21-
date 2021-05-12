@@ -1,0 +1,21 @@
+5 5 10 1 1 1
+w.o..
+.....
+..o..
+.....
+....o
+o1  0 0  0   5 10 1
+w11 0 0 999
+
+
+move one of those orders to the top
+o1  0 0  0   5 10 1
+o2  2 0  1   5 10 1
+o3  2 2  4   5 10 1
+o4  4 4  2  10 10 5
+
+small grid for testing order value function
+- o1 can be completed in the same turn --> reward 10 -0 steps -> 10
+- o2 is a normal order, can be comfortably completed --> reward 8 -2 steps -> 6
+- o3 can not be completed before the deadline --> reward -10 -4 steps -> -14
+- o4 can be completed, but penalty is higher than value --> reward -8 -8 steps -> -8

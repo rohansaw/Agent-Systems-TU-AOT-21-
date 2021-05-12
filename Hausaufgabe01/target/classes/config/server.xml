@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<import resource="classpath:de/dailab/jiactng/agentcore/conf/AgentNode.xml" />
+	<import resource="classpath:de/dailab/jiactng/agentcore/conf/Agent.xml" />
+	
+	<import resource="classpath:config/settings.xml" />
+
+	<!-- Students: do NOT start the server for final competition! -->
+	<bean name="ServerNode" parent="AotNode" scope="singleton">
+		<property name="logLevel" value="WARN" />
+		<property name="agents">
+			<list>
+				<ref bean="ServerAgent" />
+				
+				<!-- for testing only -->
+<!-- 				<ref bean="ClientAgent" /> -->
+			</list>
+		</property>
+	</bean>
+
+	<bean name="ServerAgent" parent="NonBlockingAgent" scope="prototype">
+		<property name="agentBeans">
+			<list>
+				<bean name="ServerMetaBean" class="de.dailab.jiactng.aot.gridworld.server.ServerBean" scope="prototype">
+					<property name="logLevel" value="INFO" />
+					<property name="executionInterval" value="1000" />
+					
+					<!-- parameters, e.g. for grid size, number of turns, etc. -->
+					<property name="takeOrderTimeout" value="3" />
+					<property name="stepPenalty" value="1.0" />
+					<property name="revealObstacles" value="true" />
+<!-- 					<property name="numOrders" value="10" />					 -->
+<!-- 					<property name="numWorkers" value="5" /> -->
+<!-- 					<property name="gridSize" value="10" /> -->
+<!-- 					<property name="numTurns" value="100" /> -->
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	
+	<!-- FOR TESTING, ALL ON ONE NODE -->
+
+	<bean name="ClientAgent" parent="SimpleAgent" scope="prototype">
+		<property name="agentBeans">
+			<list>
+				<bean name="ClientBean" class="de.dailab.jiactng.aot.gridworld.client.ClientBean" scope="prototype">
+					<property name="logLevel" value="INFO" />
+					<property name="executionInterval" value="1000" />
+					
+					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+</beans>
