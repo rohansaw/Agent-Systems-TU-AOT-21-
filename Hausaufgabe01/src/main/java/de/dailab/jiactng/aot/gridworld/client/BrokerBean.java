@@ -201,6 +201,49 @@ public class BrokerBean extends AbstractAgentBean {
 		return null;
 	}
 
+	class PossibleProfit {
+		public int profit;
+		public Worker worker;
+		public Order order;
+	}
+
+	private void findBestStrat() {
+		ArrayList<PossibleProfit> profits = new ArrayList<>();
+		for(int i = 0; i < 3; i++) {
+			for (Order order : receivedOrders.get(i)) {
+				profits.add(maxWinForOrder(order));
+			}
+		}
+	}
+
+	private PossibleProfit maxWinForOrder(Order order) {
+		PossibleProfit possibleProfit = new PossibleProfit();
+		possibleProfit.profit = 0;
+		possibleProfit.order = order;
+		for(Worker worker : workers) {
+			if(isAssigned(worker)) {
+				/** Andere Metrik die berechnet ob sichs lohnt den worker abbrechen zu lassen **/
+
+			} else {
+				int distance = worker.position.distance(order.position);
+				if(distance > (order.deadline - turn)) {
+					// it never makes sense to accept a order that cant be completed
+					break;
+				} else {
+					int curProfit = Math.max(order.value - distance * order.turnPenalty, 0);
+					// The distance are the turns needed to reach the order, and this will be subtracted from the profit
+					curProfit = curProfit - distance;
+					if(curProfit > possibleProfit.profit) {
+						possibleProfit.profit = curProfit;
+						possibleProfit.worker = worker;
+					}
+				}
+			}
+		}
+		/** Mitbetrachten wie es wäre wenn ich orders in der runde danach akzeptiere **/
+		return possibleProfit;
+	}
+
 	private boolean shouldAcceptOrder(Order order) {
 		Worker bestWorker = getBestWorkerForOrder(order);
 		if(bestWorker!= null) {
@@ -307,6 +350,10 @@ public class BrokerBean extends AbstractAgentBean {
 		log.info(message);
 
 		sendMessage(workerAddresses.get(worker.id), message);
+	}
+
+	private boolean isAssigned(Worker worker) {
+		return orderAssignments.containsValue(worker);
 	}
 
 	/** This is an example of using the SpaceObeserver for message processing. */
