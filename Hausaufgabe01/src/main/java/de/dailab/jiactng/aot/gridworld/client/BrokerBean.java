@@ -99,7 +99,7 @@ public class BrokerBean extends AbstractAgentBean {
 
 	/** -------------- Message handling -------------- **/
 
-	private void handleIncomingMessages(JiacMessage message) {
+	private void handleIncomingMessage(JiacMessage message) {
 		Object payload = message.getPayload();
 		if (state == BrokerState.AWAIT_GAME_START_RESPONSE) {
 
@@ -140,6 +140,7 @@ public class BrokerBean extends AbstractAgentBean {
 		log.info(message.initialWorkers);
 		obstacles = message.obstacles;
 		setWorkerAddresses(workers);
+		initializeWorkerBeans();
 		state = BrokerState.GAME_STARTED;
 		turn = 0;
 	}
@@ -249,6 +250,20 @@ public class BrokerBean extends AbstractAgentBean {
 		}
 	}
 
+	private void initializeWorkerBeans() {
+		workers.forEach(worker -> {
+			initWorkerBean(worker);
+		});
+	}
+
+	private void initWorkerBean(Worker worker) {
+		WorkerInitialize message = new WorkerInitialize();
+		message.gameId = gameId;
+		message.brokerId = BROKER_ID;
+		message.worker = worker;
+		sendMessage(workerAddresses.get(worker.id), message);
+	}
+
 	private void endGame(EndGameMessage message) {
 		log.info("Game ended: " + message);
 		state = BrokerState.AWAIT_GAME_START;
@@ -302,7 +317,7 @@ public class BrokerBean extends AbstractAgentBean {
 		public void notify(SpaceEvent<? extends IFact> event) {
 			if (event instanceof WriteCallEvent) {
 				JiacMessage message = (JiacMessage) ((WriteCallEvent) event).getObject();
-				handleIncomingMessages(message);
+				handleIncomingMessage(message);
 			}
 		}
 	}

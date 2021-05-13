@@ -13,6 +13,6 @@ public class OrderAssignConfirm extends GameMessage{
 
     @Override
     public String toString() {
-        return String.format("OrderAssignConfirm(game=%d, orderId=%s, , workerId=%s, state=%s)", gameId, orderId, workerId, state);
+        return String.format("OrderAssignConfirm(game=%d, orderId=%s, workerId=%s, state=%s)", gameId, orderId, workerId, state);
     }
 }

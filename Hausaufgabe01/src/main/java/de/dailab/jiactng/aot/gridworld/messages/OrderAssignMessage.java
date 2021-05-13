@@ -15,6 +15,6 @@ public class OrderAssignMessage extends GameMessage{
 
     @Override
     public String toString() {
-        return String.format("OrderAssignMessage(game=%d, order=%s, , workerId=%s)", gameId, order, workerId);
+        return String.format("OrderAssignMessage(game=%d, order=%s, workerId=%s)", gameId, order, workerId);
     }
 }
