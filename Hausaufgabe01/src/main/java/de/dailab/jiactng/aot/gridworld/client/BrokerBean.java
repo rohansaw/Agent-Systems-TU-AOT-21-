@@ -13,6 +13,9 @@ import de.dailab.jiactng.aot.gridworld.model.Order;
 import de.dailab.jiactng.aot.gridworld.model.Position;
 import de.dailab.jiactng.aot.gridworld.model.Worker;
 import de.dailab.jiactng.aot.gridworld.util.BrokerState;
+import org.sercho.masp.space.event.SpaceEvent;
+import org.sercho.masp.space.event.SpaceObserver;
+import org.sercho.masp.space.event.WriteCallEvent;
 
 
 import java.io.Serializable;
@@ -62,6 +65,7 @@ public class BrokerBean extends AbstractAgentBean {
 		workerAddresses = new HashMap<String, ICommunicationAddress>();
 		orderAssignments = new HashMap<>();
 		acceptedOrders = new HashMap<String, Order>();
+		memory.attach(new BrokerBean.MessageObserver(), new JiacMessage());
 	}
 
 
@@ -88,7 +92,6 @@ public class BrokerBean extends AbstractAgentBean {
 			startGame();
 		} else {
 			updateOrders();
-			handleIncomingMessages();
 			decideOnAcceptingOrders();
 			turn++;
 		}
@@ -96,32 +99,30 @@ public class BrokerBean extends AbstractAgentBean {
 
 	/** -------------- Message handling -------------- **/
 
-	private void handleIncomingMessages() {
-		for (JiacMessage message : memory.removeAll(new JiacMessage())) {
-			Object payload = message.getPayload();
-			if (state == BrokerState.AWAIT_GAME_START_RESPONSE) {
+	private void handleIncomingMessages(JiacMessage message) {
+		Object payload = message.getPayload();
+		if (state == BrokerState.AWAIT_GAME_START_RESPONSE) {
 
-				if (payload instanceof StartGameResponse) {
-					handleStartGameResponse((StartGameResponse) payload);
-				}
+			if (payload instanceof StartGameResponse) {
+				handleStartGameResponse((StartGameResponse) payload);
+			}
 
-			} else if (state == BrokerState.GAME_STARTED) {
+		} else if (state == BrokerState.GAME_STARTED) {
 
-				if (payload instanceof OrderMessage) {
-					handleIncomingOrder(((OrderMessage) payload).order);
-				}
+			if (payload instanceof OrderMessage) {
+				handleIncomingOrder(((OrderMessage) payload).order);
+			}
 
-				if (payload instanceof TakeOrderConfirm) {
-					handleTakeOrderConfirm((TakeOrderConfirm) payload);
-				}
+			if (payload instanceof TakeOrderConfirm) {
+				handleTakeOrderConfirm((TakeOrderConfirm) payload);
+			}
 
-				if (payload instanceof OrderCompleted) {
-					handleOrderCompleted((OrderCompleted) payload);
-				}
+			if (payload instanceof OrderCompleted) {
+				handleOrderCompleted((OrderCompleted) payload);
+			}
 
-				if (payload instanceof EndGameMessage) {
-					endGame((EndGameMessage) payload);
-				}
+			if (payload instanceof EndGameMessage) {
+				endGame((EndGameMessage) payload);
 			}
 		}
 	}
@@ -192,7 +193,7 @@ public class BrokerBean extends AbstractAgentBean {
 	private Worker getBestWorkerForOrder(Order order) {
 		/** Currently very simple. ToDo use proper Metric **/
 		for (Worker worker : workers) {
-			if(!orderAssignments.containsValue(worker.id)) {
+			if(!orderAssignments.containsValue(worker)) {
 				return worker;
 			}
 		}
@@ -293,4 +294,19 @@ public class BrokerBean extends AbstractAgentBean {
 		sendMessage(workerAddresses.get(worker.id), message);
 	}
 
+	/** This is an example of using the SpaceObeserver for message processing. */
+	@SuppressWarnings({"serial", "rawtypes"})
+	class MessageObserver implements SpaceObserver<IFact> {
+
+		@Override
+		public void notify(SpaceEvent<? extends IFact> event) {
+			if (event instanceof WriteCallEvent) {
+				JiacMessage message = (JiacMessage) ((WriteCallEvent) event).getObject();
+				handleIncomingMessages(message);
+			}
+		}
+	}
+
 }
+
+
