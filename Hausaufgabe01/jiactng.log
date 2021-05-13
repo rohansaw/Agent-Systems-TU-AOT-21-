@@ -1,0 +1,1002 @@
+2021-05-13 13:09:04,402 WARN [n-6061b68fc663.a-60621245aabb.CommunicationBean.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-6061b68fc663StandardJMSBroker#11) stopped.
+	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
+	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
+	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:103)
+	at de.dailab.jiactng.agentcore.comm.CommunicationBean.doCleanup(CommunicationBean.java:172)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.Agent.doCleanup(Agent.java:370)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doCleanup(SimpleAgentNode.java:996)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-6061b68fc663StandardJMSBroker#11) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:09:04,403 WARN [n-6061b68fc663.a-606206ef78eb.CommunicationBean.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-6061b68fc663StandardJMSBroker#13) stopped.
+	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
+	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
+	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:103)
+	at de.dailab.jiactng.agentcore.comm.CommunicationBean.doCleanup(CommunicationBean.java:172)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.Agent.doCleanup(Agent.java:370)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doCleanup(SimpleAgentNode.java:996)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-6061b68fc663StandardJMSBroker#13) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:09:04,403 WARN [n-6061b68fc663.IDirectory.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-6061b68fc663StandardJMSBroker#1) stopped.
+	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
+	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
+	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:103)
+	at de.dailab.jiactng.agentcore.directory.DirectoryAgentNodeBean.doCleanup(DirectoryAgentNodeBean.java:311)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doCleanup(SimpleAgentNode.java:1011)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-6061b68fc663StandardJMSBroker#1) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:10:23,597 ERROR [n-607942e49ae8.JmxConnectorManager] - Unable to leave multicast group 226.6.6.7
+2021-05-13 13:10:23,879 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - starting...
+2021-05-13 13:10:23,884 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - starting...
+2021-05-13 13:10:23,887 INFO [n-607942e49ae8.a-607963bad917.WorkerBean] - starting...
+2021-05-13 13:10:23,888 INFO [n-607942e49ae8.a-607939b89909.WorkerBean] - starting...
+2021-05-13 13:10:23,888 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - starting...
+2021-05-13 13:10:23,889 INFO [n-607942e49ae8.a-607993f95ace.WorkerBean] - starting...
+2021-05-13 13:10:24,464 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:24,464 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Turn 0
+2021-05-13 13:10:24,465 WARN [n-607942e49ae8.a-60794542b2de.WorkerBean] - Worker could not connect to Server!
+2021-05-13 13:10:24,465 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:24,466 WARN [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Broker could not connect to Server!
+2021-05-13 13:10:24,473 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:24,474 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:24,474 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:24,473 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:24,474 WARN [n-607942e49ae8.a-607993f95ace.WorkerBean] - Worker could not connect to Server!
+2021-05-13 13:10:24,474 WARN [n-607942e49ae8.a-607963bad917.WorkerBean] - Worker could not connect to Server!
+2021-05-13 13:10:24,474 WARN [n-607942e49ae8.a-607939b89909.WorkerBean] - Worker could not connect to Server!
+2021-05-13 13:10:24,477 WARN [n-607942e49ae8.a-60799f4892af.WorkerBean] - Worker could not connect to Server!
+2021-05-13 13:10:25,470 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Turn 0
+2021-05-13 13:10:25,470 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:25,471 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:25,471 WARN [n-607942e49ae8.a-60794542b2de.WorkerBean] - Worker could not connect to Server!
+2021-05-13 13:10:25,472 WARN [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Broker could not connect to Server!
+2021-05-13 13:10:25,481 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:25,481 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:25,481 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:25,481 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:25,482 WARN [n-607942e49ae8.a-607963bad917.WorkerBean] - Worker could not connect to Server!
+2021-05-13 13:10:25,482 WARN [n-607942e49ae8.a-60799f4892af.WorkerBean] - Worker could not connect to Server!
+2021-05-13 13:10:25,481 WARN [n-607942e49ae8.a-607939b89909.WorkerBean] - Worker could not connect to Server!
+2021-05-13 13:10:25,482 WARN [n-607942e49ae8.a-607993f95ace.WorkerBean] - Worker could not connect to Server!
+2021-05-13 13:10:26,472 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:26,472 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Turn 0
+2021-05-13 13:10:26,473 WARN [n-607942e49ae8.a-60794542b2de.WorkerBean] - Worker could not connect to Server!
+2021-05-13 13:10:26,473 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:26,474 WARN [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Broker could not connect to Server!
+2021-05-13 13:10:26,483 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:26,483 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:26,483 WARN [n-607942e49ae8.a-607963bad917.WorkerBean] - Worker could not connect to Server!
+2021-05-13 13:10:26,483 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:26,484 WARN [n-607942e49ae8.a-607939b89909.WorkerBean] - Worker could not connect to Server!
+2021-05-13 13:10:26,483 WARN [n-607942e49ae8.IDirectory] - Cannot find agent:
+Agent:
+ name='ServerAgent'
+ aid=null
+ owner=null
+ state=null
+ messageBoxAddress=null
+ mobile=false
+
+2021-05-13 13:10:26,485 WARN [n-607942e49ae8.a-607993f95ace.WorkerBean] - Worker could not connect to Server!
+2021-05-13 13:10:26,483 WARN [n-607942e49ae8.a-60799f4892af.WorkerBean] - Worker could not connect to Server!
+2021-05-13 13:10:27,472 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Turn 0
+2021-05-13 13:10:28,482 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Turn 0
+2021-05-13 13:10:28,511 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Start Game Response received
+2021-05-13 13:10:28,511 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - [W(w1, Pos(5, 7)), W(w2, Pos(3, 4))]
+2021-05-13 13:10:28,763 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Order received: O(o2, Pos(7, 6), cr=0, dl=10, cp=-1, val=10, tp=1)
+2021-05-13 13:10:28,772 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Order received: O(o1, Pos(3, 7), cr=0, dl=10, cp=-1, val=10, tp=1)
+2021-05-13 13:10:29,487 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Turn 0
+2021-05-13 13:10:29,488 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Order accepted
+2021-05-13 13:10:29,490 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Order accepted
+2021-05-13 13:10:29,511 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - msgbox:n-607942e49ae8/a-60799f4892af
+2021-05-13 13:10:29,512 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - OrderAssignMessage(game=806005693, order=O(o1, Pos(3, 7), cr=0, dl=10, cp=-1, val=10, tp=1), workerId=w2)
+2021-05-13 13:10:29,517 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - msgbox:n-607942e49ae8/a-60794542b2de
+2021-05-13 13:10:29,517 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - OrderAssignMessage(game=806005693, order=O(o2, Pos(7, 6), cr=0, dl=10, cp=-1, val=10, tp=1), workerId=w1)
+2021-05-13 13:10:30,488 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(5, 7)
+2021-05-13 13:10:30,488 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Turn 1
+2021-05-13 13:10:30,489 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(7, 6)
+2021-05-13 13:10:30,490 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - -----------
+2021-05-13 13:10:30,499 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 4)
+2021-05-13 13:10:30,499 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 7)
+2021-05-13 13:10:30,500 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - -----------
+2021-05-13 13:10:30,500 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 4
+2021-05-13 13:10:30,500 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 7
+2021-05-13 13:10:30,512 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - WorkerConfirm(game=806005693, worker=w1, action=EAST, SUCCESS)
+2021-05-13 13:10:30,518 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - WorkerConfirm(game=806005693, worker=w2, action=NORTH, SUCCESS)
+2021-05-13 13:10:31,054 ERROR [n-607942e49ae8.JmxConnectorManager] - Unable to join multicast group 226.6.6.7
+2021-05-13 13:10:31,492 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(6, 7)
+2021-05-13 13:10:31,492 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(7, 6)
+2021-05-13 13:10:31,493 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - -----------
+2021-05-13 13:10:31,495 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Turn 2
+2021-05-13 13:10:31,502 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 3)
+2021-05-13 13:10:31,503 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 7)
+2021-05-13 13:10:31,503 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - -----------
+2021-05-13 13:10:31,503 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 3
+2021-05-13 13:10:31,503 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 7
+2021-05-13 13:10:31,507 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - WorkerConfirm(game=806005693, worker=w1, action=EAST, SUCCESS)
+2021-05-13 13:10:31,517 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - WorkerConfirm(game=806005693, worker=w2, action=NORTH, SUCCESS)
+2021-05-13 13:10:32,500 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(7, 7)
+2021-05-13 13:10:32,500 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(7, 6)
+2021-05-13 13:10:32,500 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - -----------
+2021-05-13 13:10:32,500 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Turn 3
+2021-05-13 13:10:32,510 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 2)
+2021-05-13 13:10:32,511 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 7)
+2021-05-13 13:10:32,511 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - -----------
+2021-05-13 13:10:32,511 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 2
+2021-05-13 13:10:32,511 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 7
+2021-05-13 13:10:32,511 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - WorkerConfirm(game=806005693, worker=w1, action=SOUTH, SUCCESS)
+2021-05-13 13:10:32,521 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - WorkerConfirm(game=806005693, worker=w2, action=NORTH, SUCCESS)
+2021-05-13 13:10:33,506 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(7, 8)
+2021-05-13 13:10:33,506 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(7, 6)
+2021-05-13 13:10:33,507 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - -----------
+2021-05-13 13:10:33,506 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Turn 4
+2021-05-13 13:10:33,516 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 1)
+2021-05-13 13:10:33,517 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 7)
+2021-05-13 13:10:33,517 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - -----------
+2021-05-13 13:10:33,517 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 1
+2021-05-13 13:10:33,517 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 7
+2021-05-13 13:10:33,521 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - WorkerConfirm(game=806005693, worker=w1, action=SOUTH, SUCCESS)
+2021-05-13 13:10:33,529 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - WorkerConfirm(game=806005693, worker=w2, action=NORTH, SUCCESS)
+2021-05-13 13:10:34,515 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Turn 5
+2021-05-13 13:10:34,515 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(7, 9)
+2021-05-13 13:10:34,516 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(7, 6)
+2021-05-13 13:10:34,516 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - -----------
+2021-05-13 13:10:34,519 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 0)
+2021-05-13 13:10:34,519 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 7)
+2021-05-13 13:10:34,520 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - -----------
+2021-05-13 13:10:34,520 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 0
+2021-05-13 13:10:34,520 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 7
+2021-05-13 13:10:34,530 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - WorkerConfirm(game=806005693, worker=w1, action=SOUTH, FAIL)
+2021-05-13 13:10:34,540 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - WorkerConfirm(game=806005693, worker=w2, action=NORTH, FAIL)
+2021-05-13 13:10:35,444 WARN [org.apache.activemq.broker.TransportConnection.Transport] - Transport Connection to: tcp://192.168.188.21:52624 failed: java.io.EOFException
+2021-05-13 13:10:35,518 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(7, 9)
+2021-05-13 13:10:35,519 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(7, 6)
+2021-05-13 13:10:35,520 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - -----------
+2021-05-13 13:10:35,520 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 0)
+2021-05-13 13:10:35,521 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Turn 6
+2021-05-13 13:10:35,521 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 7)
+2021-05-13 13:10:35,521 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - -----------
+2021-05-13 13:10:35,521 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 0
+2021-05-13 13:10:35,522 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 7
+2021-05-13 13:10:36,521 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Turn 7
+2021-05-13 13:10:36,528 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 0)
+2021-05-13 13:10:36,528 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 7)
+2021-05-13 13:10:36,529 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - -----------
+2021-05-13 13:10:36,529 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 0
+2021-05-13 13:10:36,529 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 7
+2021-05-13 13:10:36,528 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(7, 9)
+2021-05-13 13:10:36,530 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(7, 6)
+2021-05-13 13:10:36,530 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - -----------
+2021-05-13 13:10:37,524 INFO [n-607942e49ae8.a-60794e0ba806.BrokerBean] - Turn 8
+2021-05-13 13:10:37,528 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 0)
+2021-05-13 13:10:37,528 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - Pos(3, 7)
+2021-05-13 13:10:37,528 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - -----------
+2021-05-13 13:10:37,528 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 0
+2021-05-13 13:10:37,529 INFO [n-607942e49ae8.a-60799f4892af.WorkerBean] - 7
+2021-05-13 13:10:37,536 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(7, 9)
+2021-05-13 13:10:37,537 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - Pos(7, 6)
+2021-05-13 13:10:37,537 INFO [n-607942e49ae8.a-60794542b2de.WorkerBean] - -----------
+2021-05-13 13:10:38,212 ERROR [n-607942e49ae8.IDirectory.jms] - Sending of Message to address 'group:df@dfgroup' through JMS failed!
+javax.jms.JMSException: peer (vm://n-607942e49ae8StandardJMSBroker#1) stopped.
+	at org.apache.activemq.util.JMSExceptionSupport.create(JMSExceptionSupport.java:54)
+	at org.apache.activemq.ActiveMQConnection.syncSendPacket(ActiveMQConnection.java:1398)
+	at org.apache.activemq.ActiveMQConnection.syncSendPacket(ActiveMQConnection.java:1324)
+	at org.apache.activemq.ActiveMQSession.send(ActiveMQSession.java:1971)
+	at org.apache.activemq.ActiveMQMessageProducer.send(ActiveMQMessageProducer.java:288)
+	at org.apache.activemq.ActiveMQMessageProducer.send(ActiveMQMessageProducer.java:223)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSSender.sendMessage(JMSSender.java:52)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSSender.send(JMSSender.java:43)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.send(JMSMessageTransport.java:215)
+	at de.dailab.jiactng.agentcore.directory.DirectoryAgentNodeBean.sendMessage(DirectoryAgentNodeBean.java:1472)
+	at de.dailab.jiactng.agentcore.directory.DirectoryAgentNodeBean.doStop(DirectoryAgentNodeBean.java:295)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.stop(AbstractLifecycle.java:181)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doStop(SimpleAgentNode.java:978)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.stop(AbstractLifecycle.java:181)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:819)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-607942e49ae8StandardJMSBroker#1) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:10:38,212 ERROR [org.apache.activemq.thread.TaskRunnerFactory] - Error in thread 'ActiveMQ VMTransport: vm://n-607942e49ae8StandardJMSBroker#1-1'
+org.apache.activemq.broker.BrokerStoppedException: Broker BrokerService[n-607942e49ae8StandardJMSBroker] is being stopped
+	at org.apache.activemq.broker.TransportConnection$1.onCommand(TransportConnection.java:193)
+	at org.apache.activemq.transport.ResponseCorrelator.onCommand(ResponseCorrelator.java:116)
+	at org.apache.activemq.transport.MutexTransport.onCommand(MutexTransport.java:50)
+	at org.apache.activemq.transport.vm.VMTransport.iterate(VMTransport.java:270)
+	at org.apache.activemq.thread.PooledTaskRunner.runTask(PooledTaskRunner.java:133)
+	at org.apache.activemq.thread.PooledTaskRunner$1.run(PooledTaskRunner.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:10:38,214 ERROR [n-607942e49ae8.IDirectory] - sendMessage failed. Message:
+[Headers: {JiacTNGSenderAddress=>msgbox:df@n-607942e49ae8;JiacTNGProtocolID=>df:bye;JiacTNGGroupAddress=>df@dfgroup;UUID=>n-607942e49ae8}, Payload: null, Sender: msgbox:df@n-607942e49ae8]
+de.dailab.jiactng.agentcore.comm.CommunicationException: error while sending message
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.send(JMSMessageTransport.java:221)
+	at de.dailab.jiactng.agentcore.directory.DirectoryAgentNodeBean.sendMessage(DirectoryAgentNodeBean.java:1472)
+	at de.dailab.jiactng.agentcore.directory.DirectoryAgentNodeBean.doStop(DirectoryAgentNodeBean.java:295)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.stop(AbstractLifecycle.java:181)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doStop(SimpleAgentNode.java:978)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.stop(AbstractLifecycle.java:181)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:819)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: javax.jms.JMSException: peer (vm://n-607942e49ae8StandardJMSBroker#1) stopped.
+	at org.apache.activemq.util.JMSExceptionSupport.create(JMSExceptionSupport.java:54)
+	at org.apache.activemq.ActiveMQConnection.syncSendPacket(ActiveMQConnection.java:1398)
+	at org.apache.activemq.ActiveMQConnection.syncSendPacket(ActiveMQConnection.java:1324)
+	at org.apache.activemq.ActiveMQSession.send(ActiveMQSession.java:1971)
+	at org.apache.activemq.ActiveMQMessageProducer.send(ActiveMQMessageProducer.java:288)
+	at org.apache.activemq.ActiveMQMessageProducer.send(ActiveMQMessageProducer.java:223)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSSender.sendMessage(JMSSender.java:52)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSSender.send(JMSSender.java:43)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.send(JMSMessageTransport.java:215)
+	... 7 more
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-607942e49ae8StandardJMSBroker#1) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:10:38,215 WARN [n-607942e49ae8.a-60794e0ba806.CommunicationBean.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-607942e49ae8StandardJMSBroker#3) stopped.
+	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
+	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
+	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:103)
+	at de.dailab.jiactng.agentcore.comm.CommunicationBean.doCleanup(CommunicationBean.java:172)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.Agent.doCleanup(Agent.java:370)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doCleanup(SimpleAgentNode.java:996)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-607942e49ae8StandardJMSBroker#3) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:10:38,216 WARN [n-607942e49ae8.a-60794542b2de.CommunicationBean.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-607942e49ae8StandardJMSBroker#5) stopped.
+	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
+	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
+	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:103)
+	at de.dailab.jiactng.agentcore.comm.CommunicationBean.doCleanup(CommunicationBean.java:172)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.Agent.doCleanup(Agent.java:370)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doCleanup(SimpleAgentNode.java:996)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-607942e49ae8StandardJMSBroker#5) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:10:38,217 WARN [n-607942e49ae8.a-607963bad917.CommunicationBean.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-607942e49ae8StandardJMSBroker#7) stopped.
+	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
+	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
+	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:103)
+	at de.dailab.jiactng.agentcore.comm.CommunicationBean.doCleanup(CommunicationBean.java:172)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.Agent.doCleanup(Agent.java:370)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doCleanup(SimpleAgentNode.java:996)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-607942e49ae8StandardJMSBroker#7) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:10:38,217 WARN [n-607942e49ae8.a-607939b89909.CommunicationBean.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-607942e49ae8StandardJMSBroker#9) stopped.
+	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
+	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
+	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:103)
+	at de.dailab.jiactng.agentcore.comm.CommunicationBean.doCleanup(CommunicationBean.java:172)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.Agent.doCleanup(Agent.java:370)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doCleanup(SimpleAgentNode.java:996)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-607942e49ae8StandardJMSBroker#9) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:10:38,218 WARN [n-607942e49ae8.a-60799f4892af.CommunicationBean.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-607942e49ae8StandardJMSBroker#11) stopped.
+	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
+	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
+	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:103)
+	at de.dailab.jiactng.agentcore.comm.CommunicationBean.doCleanup(CommunicationBean.java:172)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.Agent.doCleanup(Agent.java:370)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doCleanup(SimpleAgentNode.java:996)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-607942e49ae8StandardJMSBroker#11) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:10:38,219 WARN [n-607942e49ae8.a-607993f95ace.CommunicationBean.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-607942e49ae8StandardJMSBroker#13) stopped.
+	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
+	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
+	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:103)
+	at de.dailab.jiactng.agentcore.comm.CommunicationBean.doCleanup(CommunicationBean.java:172)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.Agent.doCleanup(Agent.java:370)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doCleanup(SimpleAgentNode.java:996)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-607942e49ae8StandardJMSBroker#13) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:10:38,219 WARN [n-607942e49ae8.IDirectory.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-607942e49ae8StandardJMSBroker#1) stopped.
+	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
+	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
+	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:103)
+	at de.dailab.jiactng.agentcore.directory.DirectoryAgentNodeBean.doCleanup(DirectoryAgentNodeBean.java:311)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doCleanup(SimpleAgentNode.java:1011)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-607942e49ae8StandardJMSBroker#1) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:12:38,143 ERROR [n-6098b777aec6.JmxConnectorManager] - Unable to leave multicast group 226.6.6.7
+2021-05-13 13:12:40,887 ERROR [n-6099358badbe.JmxConnectorManager] - Unable to leave multicast group 226.6.6.7
+2021-05-13 13:12:41,156 INFO [n-6099358badbe.a-609941227847.BrokerBean] - starting...
+2021-05-13 13:12:41,162 INFO [n-6099358badbe.a-60993817bdaa.WorkerBean] - starting...
+2021-05-13 13:12:41,164 INFO [n-6099358badbe.a-609956724efa.WorkerBean] - starting...
+2021-05-13 13:12:41,165 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - starting...
+2021-05-13 13:12:41,165 INFO [n-6099358badbe.a-609991fef6f2.WorkerBean] - starting...
+2021-05-13 13:12:41,166 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - starting...
+2021-05-13 13:12:41,682 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 0
+2021-05-13 13:12:42,685 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 0
+2021-05-13 13:12:42,746 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Start Game Response received
+2021-05-13 13:12:42,746 INFO [n-6099358badbe.a-609941227847.BrokerBean] - [W(w1, Pos(5, 7)), W(w2, Pos(3, 4))]
+2021-05-13 13:12:43,061 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Order received: O(o2, Pos(7, 6), cr=0, dl=10, cp=-1, val=10, tp=1)
+2021-05-13 13:12:43,068 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Order received: O(o1, Pos(3, 7), cr=0, dl=10, cp=-1, val=10, tp=1)
+2021-05-13 13:12:43,693 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 0
+2021-05-13 13:12:43,694 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Order accepted
+2021-05-13 13:12:43,695 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Order accepted
+2021-05-13 13:12:43,725 INFO [n-6099358badbe.a-609941227847.BrokerBean] - msgbox:n-6099358badbe/a-60992c6e5934
+2021-05-13 13:12:43,725 INFO [n-6099358badbe.a-609941227847.BrokerBean] - OrderAssignMessage(game=354481075, order=O(o2, Pos(7, 6), cr=0, dl=10, cp=-1, val=10, tp=1), workerId=w1)
+2021-05-13 13:12:43,729 INFO [n-6099358badbe.a-609941227847.BrokerBean] - msgbox:n-6099358badbe/a-609986b20137
+2021-05-13 13:12:43,729 INFO [n-6099358badbe.a-609941227847.BrokerBean] - OrderAssignMessage(game=354481075, order=O(o1, Pos(3, 7), cr=0, dl=10, cp=-1, val=10, tp=1), workerId=w2)
+2021-05-13 13:12:44,703 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 1
+2021-05-13 13:12:44,705 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(5, 7)
+2021-05-13 13:12:44,707 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:12:44,708 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:12:44,705 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 4)
+2021-05-13 13:12:44,709 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:12:44,710 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:12:44,732 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - WorkerConfirm(game=354481075, worker=w1, action=EAST, SUCCESS)
+2021-05-13 13:12:44,739 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - WorkerConfirm(game=354481075, worker=w2, action=SOUTH, SUCCESS)
+2021-05-13 13:12:45,603 ERROR [n-6098b777aec6.JmxConnectorManager] - Unable to join multicast group 226.6.6.7
+2021-05-13 13:12:45,706 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(6, 7)
+2021-05-13 13:12:45,707 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:12:45,707 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:12:45,707 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 2
+2021-05-13 13:12:45,706 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 5)
+2021-05-13 13:12:45,708 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:12:45,708 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:12:45,727 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - WorkerConfirm(game=354481075, worker=w2, action=SOUTH, SUCCESS)
+2021-05-13 13:12:45,734 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - WorkerConfirm(game=354481075, worker=w1, action=EAST, SUCCESS)
+2021-05-13 13:12:46,707 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:12:46,708 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:12:46,708 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:12:46,714 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 3
+2021-05-13 13:12:46,717 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:12:46,717 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:12:46,717 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:12:46,725 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - WorkerConfirm(game=354481075, worker=w1, action=NORTH, SUCCESS)
+2021-05-13 13:12:46,735 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - WorkerConfirm(game=354481075, worker=w2, action=SOUTH, SUCCESS)
+2021-05-13 13:12:47,713 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:12:47,713 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:12:47,713 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:12:47,722 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:12:47,722 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 4
+2021-05-13 13:12:47,722 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:12:47,723 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:12:47,736 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - WorkerConfirm(game=354481075, worker=w2, action=ORDER, SUCCESS)
+2021-05-13 13:12:47,747 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - WorkerConfirm(game=354481075, worker=w1, action=ORDER, SUCCESS)
+2021-05-13 13:12:48,325 ERROR [n-6099358badbe.JmxConnectorManager] - Unable to join multicast group 226.6.6.7
+2021-05-13 13:12:48,723 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 5
+2021-05-13 13:12:49,730 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 6
+2021-05-13 13:12:50,731 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 7
+2021-05-13 13:12:51,740 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 8
+2021-05-13 13:12:52,746 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 9
+2021-05-13 13:12:53,103 ERROR [n-6098b777aec6.JmxConnectorManager] - Unable to join multicast group 226.6.6.7
+2021-05-13 13:12:53,755 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 10
+2021-05-13 13:12:54,067 INFO [n-6098b777aec6.a-6098f4ffdbe0.ServerMetaBean] - Logging game /home/rohan/AOT21/Hausaufgabe01/logs/game_210513-131254_354481075.txt
+2021-05-13 13:12:54,071 ERROR [n-6098b777aec6.a-6098f4ffdbe0.ServerMetaBean] - Failed to log game results to file
+java.nio.file.NoSuchFileException: logs/game_210513-131254_354481075.txt
+	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+	at java.base/sun.nio.fs.UnixFileSystemProvider.newByteChannel(UnixFileSystemProvider.java:218)
+	at java.base/java.nio.file.spi.FileSystemProvider.newOutputStream(FileSystemProvider.java:478)
+	at java.base/java.nio.file.Files.newOutputStream(Files.java:224)
+	at java.base/java.nio.file.Files.write(Files.java:3556)
+	at java.base/java.nio.file.Files.write(Files.java:3607)
+	at de.dailab.jiactng.aot.gridworld.server.ServerBean.logGameResults(ServerBean.java:456)
+	at de.dailab.jiactng.aot.gridworld.server.ServerBean.execute(ServerBean.java:376)
+	at de.dailab.jiactng.agentcore.execution.BasicExecutionCycle$1.run(BasicExecutionCycle.java:79)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:12:54,077 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Game ended: EndGameMessage(game=354481075, broker=Some_Id, winner?=true, reward=6.00)
+2021-05-13 13:12:54,755 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 11
+2021-05-13 13:12:54,781 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Start Game Response received
+2021-05-13 13:12:54,782 INFO [n-6099358badbe.a-609941227847.BrokerBean] - [W(w1, Pos(5, 7)), W(w2, Pos(3, 4))]
+2021-05-13 13:12:55,080 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Order received: O(o2, Pos(7, 6), cr=0, dl=10, cp=-1, val=10, tp=1)
+2021-05-13 13:12:55,090 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Order received: O(o1, Pos(3, 7), cr=0, dl=10, cp=-1, val=10, tp=1)
+2021-05-13 13:12:55,759 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 0
+2021-05-13 13:12:55,760 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Order accepted
+2021-05-13 13:12:55,760 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Order accepted
+2021-05-13 13:12:55,773 INFO [n-6099358badbe.a-609941227847.BrokerBean] - msgbox:n-6099358badbe/a-609986b20137
+2021-05-13 13:12:55,774 INFO [n-6099358badbe.a-609941227847.BrokerBean] - OrderAssignMessage(game=10949448, order=O(o1, Pos(3, 7), cr=0, dl=10, cp=-1, val=10, tp=1), workerId=w2)
+2021-05-13 13:12:55,783 INFO [n-6099358badbe.a-609941227847.BrokerBean] - msgbox:n-6099358badbe/a-60992c6e5934
+2021-05-13 13:12:55,784 INFO [n-6099358badbe.a-609941227847.BrokerBean] - OrderAssignMessage(game=10949448, order=O(o2, Pos(7, 6), cr=0, dl=10, cp=-1, val=10, tp=1), workerId=w1)
+2021-05-13 13:12:55,825 ERROR [n-6099358badbe.JmxConnectorManager] - Unable to join multicast group 226.6.6.7
+2021-05-13 13:12:56,766 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(5, 7)
+2021-05-13 13:12:56,767 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:12:56,767 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:12:56,766 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 1
+2021-05-13 13:12:56,776 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 4)
+2021-05-13 13:12:56,776 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:12:56,777 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:12:56,782 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - WorkerConfirm(game=10949448, worker=w1, action=EAST, SUCCESS)
+2021-05-13 13:12:56,792 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - WorkerConfirm(game=10949448, worker=w2, action=SOUTH, SUCCESS)
+2021-05-13 13:12:57,775 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 2
+2021-05-13 13:12:57,775 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(6, 7)
+2021-05-13 13:12:57,776 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:12:57,776 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:12:57,786 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 5)
+2021-05-13 13:12:57,786 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:12:57,786 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:12:57,791 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - WorkerConfirm(game=10949448, worker=w1, action=EAST, SUCCESS)
+2021-05-13 13:12:57,801 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - WorkerConfirm(game=10949448, worker=w2, action=SOUTH, SUCCESS)
+2021-05-13 13:12:58,445 ERROR [org.apache.activemq.thread.TaskRunnerFactory] - Error in thread 'ActiveMQ VMTransport: vm://n-6098b777aec6StandardJMSBroker#1-1'
+org.apache.activemq.broker.BrokerStoppedException: Broker BrokerService[n-6098b777aec6StandardJMSBroker] is being stopped
+	at org.apache.activemq.broker.TransportConnection$1.onCommand(TransportConnection.java:193)
+	at org.apache.activemq.transport.ResponseCorrelator.onCommand(ResponseCorrelator.java:116)
+	at org.apache.activemq.transport.MutexTransport.onCommand(MutexTransport.java:50)
+	at org.apache.activemq.transport.vm.VMTransport.iterate(VMTransport.java:270)
+	at org.apache.activemq.thread.PooledTaskRunner.runTask(PooledTaskRunner.java:133)
+	at org.apache.activemq.thread.PooledTaskRunner$1.run(PooledTaskRunner.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:12:58,446 WARN [org.apache.activemq.broker.TransportConnection.Transport] - Transport Connection to: tcp://192.168.188.21:39116 failed: java.io.EOFException
+2021-05-13 13:12:58,446 WARN [org.apache.activemq.broker.TransportConnection.Transport] - Transport Connection to: vm://n-6098b777aec6StandardJMSBroker#4 failed: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-6098b777aec6StandardJMSBroker#4) stopped.
+2021-05-13 13:12:58,451 ERROR [org.apache.activemq.broker.TransportConnector] - Could not accept connection : java.lang.InterruptedException
+2021-05-13 13:12:58,781 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 3
+2021-05-13 13:12:58,784 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:12:58,785 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:12:58,785 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:12:58,795 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:12:58,795 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:12:58,795 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:12:59,454 ERROR [n-6098b777aec6.IDirectory.jms] - Sending of Message to address 'group:df@dfgroup' through JMS failed!
+javax.jms.JMSException: peer (vm://n-6098b777aec6StandardJMSBroker#1) stopped.
+	at org.apache.activemq.util.JMSExceptionSupport.create(JMSExceptionSupport.java:54)
+	at org.apache.activemq.ActiveMQConnection.syncSendPacket(ActiveMQConnection.java:1398)
+	at org.apache.activemq.ActiveMQConnection.syncSendPacket(ActiveMQConnection.java:1324)
+	at org.apache.activemq.ActiveMQSession.send(ActiveMQSession.java:1971)
+	at org.apache.activemq.ActiveMQMessageProducer.send(ActiveMQMessageProducer.java:288)
+	at org.apache.activemq.ActiveMQMessageProducer.send(ActiveMQMessageProducer.java:223)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSSender.sendMessage(JMSSender.java:52)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSSender.send(JMSSender.java:43)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.send(JMSMessageTransport.java:215)
+	at de.dailab.jiactng.agentcore.directory.DirectoryAgentNodeBean.sendMessage(DirectoryAgentNodeBean.java:1472)
+	at de.dailab.jiactng.agentcore.directory.DirectoryAgentNodeBean.doStop(DirectoryAgentNodeBean.java:295)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.stop(AbstractLifecycle.java:181)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doStop(SimpleAgentNode.java:978)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.stop(AbstractLifecycle.java:181)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:819)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-6098b777aec6StandardJMSBroker#1) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:12:59,456 ERROR [n-6098b777aec6.IDirectory] - sendMessage failed. Message:
+[Headers: {JiacTNGSenderAddress=>msgbox:df@n-6098b777aec6;JiacTNGProtocolID=>df:bye;JiacTNGGroupAddress=>df@dfgroup;UUID=>n-6098b777aec6}, Payload: null, Sender: msgbox:df@n-6098b777aec6]
+de.dailab.jiactng.agentcore.comm.CommunicationException: error while sending message
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.send(JMSMessageTransport.java:221)
+	at de.dailab.jiactng.agentcore.directory.DirectoryAgentNodeBean.sendMessage(DirectoryAgentNodeBean.java:1472)
+	at de.dailab.jiactng.agentcore.directory.DirectoryAgentNodeBean.doStop(DirectoryAgentNodeBean.java:295)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.stop(AbstractLifecycle.java:181)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doStop(SimpleAgentNode.java:978)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.stop(AbstractLifecycle.java:181)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:819)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: javax.jms.JMSException: peer (vm://n-6098b777aec6StandardJMSBroker#1) stopped.
+	at org.apache.activemq.util.JMSExceptionSupport.create(JMSExceptionSupport.java:54)
+	at org.apache.activemq.ActiveMQConnection.syncSendPacket(ActiveMQConnection.java:1398)
+	at org.apache.activemq.ActiveMQConnection.syncSendPacket(ActiveMQConnection.java:1324)
+	at org.apache.activemq.ActiveMQSession.send(ActiveMQSession.java:1971)
+	at org.apache.activemq.ActiveMQMessageProducer.send(ActiveMQMessageProducer.java:288)
+	at org.apache.activemq.ActiveMQMessageProducer.send(ActiveMQMessageProducer.java:223)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSSender.sendMessage(JMSSender.java:52)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSSender.send(JMSSender.java:43)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.send(JMSMessageTransport.java:215)
+	... 7 more
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-6098b777aec6StandardJMSBroker#1) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:12:59,458 WARN [n-6098b777aec6.a-6098f4ffdbe0.CommunicationBean.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-6098b777aec6StandardJMSBroker#3) stopped.
+	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
+	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
+	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:103)
+	at de.dailab.jiactng.agentcore.comm.CommunicationBean.doCleanup(CommunicationBean.java:172)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.Agent.doCleanup(Agent.java:370)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doCleanup(SimpleAgentNode.java:996)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-6098b777aec6StandardJMSBroker#3) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:12:59,460 WARN [n-6098b777aec6.IDirectory.jms] - could not stop JMS connection 
+org.apache.activemq.ConnectionFailedException: The JMS connection has failed: peer (vm://n-6098b777aec6StandardJMSBroker#1) stopped.
+	at org.apache.activemq.ActiveMQConnection.checkClosedOrFailed(ActiveMQConnection.java:1471)
+	at org.apache.activemq.ActiveMQConnection.doStop(ActiveMQConnection.java:575)
+	at org.apache.activemq.ActiveMQConnection.stop(ActiveMQConnection.java:564)
+	at de.dailab.jiactng.agentcore.comm.transport.jms.JMSMessageTransport.doCleanup(JMSMessageTransport.java:103)
+	at de.dailab.jiactng.agentcore.directory.DirectoryAgentNodeBean.doCleanup(DirectoryAgentNodeBean.java:311)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.doCleanup(SimpleAgentNode.java:1011)
+	at de.dailab.jiactng.agentcore.lifecycle.AbstractLifecycle.cleanup(AbstractLifecycle.java:221)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode.shutdown(SimpleAgentNode.java:820)
+	at de.dailab.jiactng.agentcore.SimpleAgentNode$1.run(SimpleAgentNode.java:144)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: peer (vm://n-6098b777aec6StandardJMSBroker#1) stopped.
+	at org.apache.activemq.transport.vm.VMTransport.stop(VMTransport.java:229)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.TransportFilter.stop(TransportFilter.java:65)
+	at org.apache.activemq.transport.ResponseCorrelator.stop(ResponseCorrelator.java:132)
+	at org.apache.activemq.broker.TransportConnection.doStop(TransportConnection.java:1164)
+	at org.apache.activemq.broker.TransportConnection$4.run(TransportConnection.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+2021-05-13 13:12:59,785 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 4
+2021-05-13 13:12:59,786 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:12:59,786 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:12:59,786 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:12:59,795 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:12:59,796 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:12:59,796 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:00,789 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:00,789 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:00,789 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:00,792 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 5
+2021-05-13 13:13:00,799 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:00,799 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:00,800 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:01,789 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:01,790 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:01,791 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:01,799 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:01,800 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:01,800 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:01,800 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 6
+2021-05-13 13:13:02,794 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:02,794 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:02,795 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:02,799 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:02,799 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 7
+2021-05-13 13:13:02,800 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:02,801 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:03,326 ERROR [n-6099358badbe.JmxConnectorManager] - Unable to join multicast group 226.6.6.7
+2021-05-13 13:13:03,799 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:03,799 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:03,799 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 8
+2021-05-13 13:13:03,800 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:03,803 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:03,803 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:03,804 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:04,799 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 9
+2021-05-13 13:13:04,802 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:04,802 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:04,802 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:04,812 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:04,812 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:04,813 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:05,806 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:05,807 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:05,807 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 10
+2021-05-13 13:13:05,807 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:05,816 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:05,817 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:05,817 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:06,807 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:06,808 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:06,808 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:06,815 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 11
+2021-05-13 13:13:06,818 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:06,818 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:06,818 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:07,812 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:07,812 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:07,813 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:07,822 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 12
+2021-05-13 13:13:07,822 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:07,823 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:07,823 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:08,817 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:08,817 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:08,817 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:08,827 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:08,827 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:08,828 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:08,831 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 13
+2021-05-13 13:13:09,820 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:09,820 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:09,820 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:09,830 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:09,830 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:09,831 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:09,840 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 14
+2021-05-13 13:13:10,823 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:10,823 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:10,823 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:10,827 ERROR [n-6099358badbe.JmxConnectorManager] - Unable to join multicast group 226.6.6.7
+2021-05-13 13:13:10,833 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:10,833 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:10,834 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:10,849 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 15
+2021-05-13 13:13:11,825 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:11,826 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:11,826 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:11,836 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:11,836 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:11,836 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:11,856 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 16
+2021-05-13 13:13:12,834 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:12,835 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:12,835 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:12,836 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:12,836 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:12,836 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:12,864 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 17
+2021-05-13 13:13:13,837 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:13,837 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:13,837 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:13,837 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:13,838 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:13,838 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:13,871 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 18
+2021-05-13 13:13:14,839 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:14,840 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:14,840 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:14,839 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:14,840 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:14,840 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:14,880 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 19
+2021-05-13 13:13:15,840 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:15,841 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:15,841 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:15,840 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:15,842 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:15,842 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:15,885 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 20
+2021-05-13 13:13:16,842 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:16,843 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:16,843 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:16,842 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:16,844 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:16,844 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:16,894 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 21
+2021-05-13 13:13:17,844 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:17,844 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:17,845 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:17,844 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:17,845 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:17,845 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:17,901 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 22
+2021-05-13 13:13:18,328 ERROR [n-6099358badbe.JmxConnectorManager] - Unable to join multicast group 226.6.6.7
+2021-05-13 13:13:18,846 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:18,846 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:18,846 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:18,846 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:18,847 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:18,847 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:18,907 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 23
+2021-05-13 13:13:19,846 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:19,846 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:19,847 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:19,846 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:19,847 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:19,848 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:19,912 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 24
+2021-05-13 13:13:20,848 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:20,848 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:20,849 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:20,849 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:20,849 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:20,850 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:20,920 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 25
+2021-05-13 13:13:21,852 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 7)
+2021-05-13 13:13:21,854 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - Pos(7, 6)
+2021-05-13 13:13:21,854 INFO [n-6099358badbe.a-60992c6e5934.WorkerBean] - -----------
+2021-05-13 13:13:21,852 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 6)
+2021-05-13 13:13:21,857 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - Pos(3, 7)
+2021-05-13 13:13:21,858 INFO [n-6099358badbe.a-609986b20137.WorkerBean] - -----------
+2021-05-13 13:13:21,925 INFO [n-6099358badbe.a-609941227847.BrokerBean] - Turn 26
