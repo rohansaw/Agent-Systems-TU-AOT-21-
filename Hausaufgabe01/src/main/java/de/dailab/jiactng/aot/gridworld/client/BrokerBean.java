@@ -13,7 +13,6 @@ import de.dailab.jiactng.aot.gridworld.model.Order;
 import de.dailab.jiactng.aot.gridworld.model.Position;
 import de.dailab.jiactng.aot.gridworld.model.Worker;
 import de.dailab.jiactng.aot.gridworld.util.BrokerState;
-import de.dailab.jiactng.aot.gridworld.util.WorkerState;
 
 
 import java.io.Serializable;
@@ -28,13 +27,14 @@ public class BrokerBean extends AbstractAgentBean {
 
 	private BrokerState state = BrokerState.AWAIT_GAME_START;
 	private int turn;
-	private HashMap<String, Order> receivedOrders;
-	private HashMap<String, Worker> assignedOrders;
+	/** Contains 3 slots of order-arrays in which received orders that are not yet accepted are held **/
+	private ArrayList<ArrayList<Order>> receivedOrders;
 	private ICommunicationAddress serverAddress;
 	private Position gridsize;
 	private int gameId;
 	private List<Worker> workers;
-	private HashMap<String, WorkerState> workerStates;
+	private HashMap<String, Order> acceptedOrders;
+	private HashMap<String, Worker> orderAssignments;
 	private List obstacles;
 	private HashMap<String, ICommunicationAddress> workerAddresses;
 
@@ -53,11 +53,15 @@ public class BrokerBean extends AbstractAgentBean {
 		 * a SpaceObserver for specific purposes
 		 */
 		log.info("starting...");
-		receivedOrders = new HashMap<>();
+		receivedOrders = new ArrayList<>(3);
+		receivedOrders.add(0, new ArrayList<>());
+		receivedOrders.add(1, new ArrayList<>());
+		receivedOrders.add(2, new ArrayList<>());
 		turn = 0;
 		serverAddress = null;
 		workerAddresses = new HashMap<String, ICommunicationAddress>();
-		workerStates = new HashMap<>();
+		orderAssignments = new HashMap<>();
+		acceptedOrders = new HashMap<String, Order>();
 	}
 
 
@@ -79,103 +83,116 @@ public class BrokerBean extends AbstractAgentBean {
 		log.info("Turn " +  turn);
 
 		if (serverAddress == null) {
-			setServerAdress();
+			setServerAddress();
 		} else if(state == BrokerState.AWAIT_GAME_START) {
 			startGame();
 		} else {
+			updateOrders();
 			handleIncomingMessages();
+			decideOnAcceptingOrders();
 			turn++;
 		}
 	}
 
-	/** Send messages to other agents */
-	private void sendMessage(ICommunicationAddress receiver, IFact payload) {
-		Action sendAction = retrieveAction(ICommunicationBean.ACTION_SEND);
-		JiacMessage message = new JiacMessage(payload);
-		invoke(sendAction, new Serializable[] {message, receiver});
-		System.out.println("BROKER SENDING " + payload);
-	}
-
-	/** Retrieve and set the servers address **/
-	private void setServerAdress() {
-		try {
-			IAgentDescription serverAgent = thisAgent.searchAgent(new AgentDescription(null, "ServerAgent", null, null, null, null));
-			serverAddress = serverAgent.getMessageBoxAddress();
-		} catch(Exception e) {
-			log.warn("Broker could not connect to Server!");
-		}
-	}
-
-	/** Send start-game message to the server **/
-	private void startGame() {
-		StartGameMessage message = new StartGameMessage();
-		message.brokerId = BROKER_ID;
-		message.gridFile = GRID_FILE;
-
-		try {
-			sendMessage(serverAddress, message);
-		} catch (Exception e) {
-			log.warn("Broker could not send StartGame Message");
-			return;
-		}
-
-		state = BrokerState.AWAIT_GAME_START_RESPONSE;
-	}
+	/** -------------- Message handling -------------- **/
 
 	private void handleIncomingMessages() {
 		for (JiacMessage message : memory.removeAll(new JiacMessage())) {
 			Object payload = message.getPayload();
 			if (state == BrokerState.AWAIT_GAME_START_RESPONSE) {
+
 				if (payload instanceof StartGameResponse) {
-					log.info("Start Game Response received");
-					gameId = ((StartGameResponse) payload).gameId;
-					gridsize = ((StartGameResponse) payload).size;
-					workers = ((StartGameResponse) payload).initialWorkers;
-					log.info(((StartGameResponse) payload).initialWorkers);
-					obstacles = ((StartGameResponse) payload).obstacles;
-					setWorkerAddresses(workers);
-					workers.forEach(worker -> workerStates.put(worker.id, WorkerState.IDLE));
-					state = BrokerState.GAME_STARTED;
-					turn = 0;
+					handleStartGameResponse((StartGameResponse) payload);
 				}
+
 			} else if (state == BrokerState.GAME_STARTED) {
 
 				if (payload instanceof OrderMessage) {
-					log.info("Order received: " + payload);
 					handleIncomingOrder(((OrderMessage) payload).order);
 				}
 
 				if (payload instanceof TakeOrderConfirm) {
-					if (((TakeOrderConfirm) payload).state == Result.SUCCESS) {
-						Order order = receivedOrders.get(((TakeOrderConfirm) payload).orderId);
-						assignOrder(order);
-					} else {
-						receivedOrders.remove(((TakeOrderConfirm) payload).orderId);
-					}
+					handleTakeOrderConfirm((TakeOrderConfirm) payload);
+				}
+
+				if (payload instanceof OrderCompleted) {
+					handleOrderCompleted((OrderCompleted) payload);
 				}
 
 				if (payload instanceof EndGameMessage) {
-					log.info("Game ended: " + payload);
-					state = BrokerState.AWAIT_GAME_START;
+					endGame((EndGameMessage) payload);
 				}
 			}
 		}
 	}
 
 	private void handleIncomingOrder(Order order) {
-		receivedOrders.put(order.id, order);
-		if(shouldAcceptOrder(order)) {
-			TakeOrderMessage message = new TakeOrderMessage();
-			message.brokerId = BROKER_ID;
-			message.orderId = order.id;
-			message.gameId = gameId;
-			sendMessage(serverAddress, message);
+		log.info("Order received: " + order);
+		receivedOrders.get(0).add(order);
+	}
+
+	private void handleStartGameResponse(StartGameResponse message) {
+		log.info("Start Game Response received");
+		gameId = message.gameId;
+		gridsize = message.size;
+		workers = message.initialWorkers;
+		log.info(message.initialWorkers);
+		obstacles = message.obstacles;
+		setWorkerAddresses(workers);
+		state = BrokerState.GAME_STARTED;
+		turn = 0;
+	}
+
+	private void handleTakeOrderConfirm(TakeOrderConfirm message) {
+		if (message.state == Result.SUCCESS) {
+			Order order = acceptedOrders.get(message.orderId);
+			assignOrder(order);
+		} else {
+			orderAssignments.remove(message.orderId);
 		}
 	}
 
-	private Worker getNextWorkerWithState(WorkerState state) {
+	private void handleOrderCompleted(OrderCompleted message) {
+		if (message.state == Result.SUCCESS) {
+			orderAssignments.remove(message.orderId);
+		} else {
+			/** ToDo If end is still far enough away maybe try to redo order **/
+			/** Also maybe blacklist this worker, because he produces a bad result? **/
+		}
+	}
+
+	/** -------------- Orders logic -------------- **/
+
+	private void updateOrders() {
+		receivedOrders.get(2).clear();
+		receivedOrders.get(2).addAll(receivedOrders.get(1));
+		receivedOrders.get(1).clear();
+		receivedOrders.get(1).addAll(receivedOrders.get(0));
+		receivedOrders.get(0).clear();
+	}
+
+	private void decideOnAcceptingOrders() {
+		for(int i = 0; i < 3; i++) {
+			ArrayList<Order> ordersToRemove = new ArrayList<>();
+			for(Order order: receivedOrders.get(i)) {
+				if(shouldAcceptOrder(order)) {
+					TakeOrderMessage message = new TakeOrderMessage();
+					message.brokerId = BROKER_ID;
+					message.orderId = order.id;
+					message.gameId = gameId;
+					sendMessage(serverAddress, message);
+					ordersToRemove.add(order);
+					acceptedOrders.put(order.id, order);
+				}
+			}
+			receivedOrders.get(i).removeAll(ordersToRemove);
+		}
+	}
+
+	private Worker getBestWorkerForOrder(Order order) {
+		/** Currently very simple. ToDo use proper Metric **/
 		for (Worker worker : workers) {
-			if(workerStates.get(worker.id) == state) {
+			if(!orderAssignments.containsValue(worker.id)) {
 				return worker;
 			}
 		}
@@ -183,10 +200,10 @@ public class BrokerBean extends AbstractAgentBean {
 	}
 
 	private boolean shouldAcceptOrder(Order order) {
-		Worker availableWorker = getNextWorkerWithState(WorkerState.IDLE);
-		if(availableWorker!= null) {
+		Worker bestWorker = getBestWorkerForOrder(order);
+		if(bestWorker!= null) {
 			log.info("Order accepted");
-			workerStates.put(availableWorker.id, WorkerState.PLANNED);
+			orderAssignments.put(order.id, bestWorker);
 			return true;
 		} else {
 			log.info("Order denied");
@@ -195,19 +212,20 @@ public class BrokerBean extends AbstractAgentBean {
 	}
 
 	private void assignOrder(Order order) {
-		Worker worker = getNextWorkerWithState(WorkerState.PLANNED);
+		Worker worker = orderAssignments.get(order.id);
 		sendOrderToWorker(worker, order);
-		workerStates.put(worker.id, WorkerState.WORKING);
 	}
 
-	private void sendOrderToWorker(Worker worker, Order order) {
-		WorkerOrderMessage message = new WorkerOrderMessage();
-		message.workerId = worker.id;
-		message.order = order;
-		log.info(workerAddresses.get(worker.id));
-		log.info(message);
+	/** -------------- Setup -------------- **/
 
-		sendMessage(workerAddresses.get(worker.id), message);
+	/** Retrieve and set the servers address **/
+	private void setServerAddress() {
+		try {
+			IAgentDescription serverAgent = thisAgent.searchAgent(new AgentDescription(null, "ServerAgent", null, null, null, null));
+			serverAddress = serverAgent.getMessageBoxAddress();
+		} catch(Exception e) {
+			log.warn("Broker could not connect to Server!");
+		}
 	}
 
 	private void setWorkerAddresses(List<Worker> workers) {
@@ -228,6 +246,51 @@ public class BrokerBean extends AbstractAgentBean {
 			log.info(e);
 			log.warn("Broker could not get any Workers!");
 		}
+	}
+
+	private void endGame(EndGameMessage message) {
+		log.info("Game ended: " + message);
+		state = BrokerState.AWAIT_GAME_START;
+		/** Maybe ToDo some cleanup stuff **/
+	}
+
+	/** -------------- Game Control -------------- **/
+
+	/** Send start-game message to the server **/
+	private void startGame() {
+		StartGameMessage message = new StartGameMessage();
+		message.brokerId = BROKER_ID;
+		message.gridFile = GRID_FILE;
+
+		try {
+			sendMessage(serverAddress, message);
+		} catch (Exception e) {
+			log.warn("Broker could not send StartGame Message");
+			return;
+		}
+
+		state = BrokerState.AWAIT_GAME_START_RESPONSE;
+	}
+
+	/** -------------- Helpers -------------- **/
+
+	/** Send messages to other agents */
+	private void sendMessage(ICommunicationAddress receiver, IFact payload) {
+		Action sendAction = retrieveAction(ICommunicationBean.ACTION_SEND);
+		JiacMessage message = new JiacMessage(payload);
+		invoke(sendAction, new Serializable[] {message, receiver});
+		System.out.println("BROKER SENDING " + payload);
+	}
+
+	private void sendOrderToWorker(Worker worker, Order order) {
+		OrderAssignMessage message = new OrderAssignMessage();
+		message.workerId = worker.id;
+		message.order = order;
+		message.gameId = gameId;
+		log.info(workerAddresses.get(worker.id));
+		log.info(message);
+
+		sendMessage(workerAddresses.get(worker.id), message);
 	}
 
 }

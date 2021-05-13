@@ -1,7 +1,12 @@
 package de.dailab.jiactng.aot.gridworld.client;
 
 
+import de.dailab.jiactng.agentcore.comm.ICommunicationAddress;
+import de.dailab.jiactng.agentcore.ontology.AgentDescription;
+import de.dailab.jiactng.agentcore.ontology.IAgentDescription;
 import de.dailab.jiactng.aot.gridworld.messages.WorkerConfirm;
+import de.dailab.jiactng.aot.gridworld.model.Order;
+import de.dailab.jiactng.aot.gridworld.model.Worker;
 import org.sercho.masp.space.event.SpaceEvent;
 import org.sercho.masp.space.event.SpaceObserver;
 import org.sercho.masp.space.event.WriteCallEvent;
@@ -9,6 +14,8 @@ import org.sercho.masp.space.event.WriteCallEvent;
 import de.dailab.jiactng.agentcore.AbstractAgentBean;
 import de.dailab.jiactng.agentcore.comm.message.JiacMessage;
 import de.dailab.jiactng.agentcore.knowledge.IFact;
+
+import java.util.ArrayList;
 
 
 /**
@@ -32,6 +39,11 @@ public class WorkerBean extends AbstractAgentBean {
 	 * of course defeat the purpose of this exercise and may not be possible in "real life"
 	 */
 
+	private ICommunicationAddress brokerAddress;
+	private ICommunicationAddress serverAddress;
+	/** the Worker model associated with this WorkerBean **/
+	private Worker worker;
+	private Order order;
 
 
 
@@ -51,23 +63,46 @@ public class WorkerBean extends AbstractAgentBean {
 		 * As an example it is added here at the beginning.
 		 */
 		memory.attach(new MessageObserver(), new JiacMessage());
-
+		order = null;
 		log.info("starting...");
 	}
 
 	@Override
 	public void execute() {
-		/*
-		 * this is executed periodically by the agent; check the BrokerBean.java for an example.
-		 */
+		if(serverAddress == null){
+			setServerAdress();
+		}
+		if(brokerAddress == null){
+			setBrokerAdress();
+		}
+		if(order != null) {
+			moveToOrder();
+		}
 	}
 
+	/** Retrieve and set the servers address **/
+	private void setServerAdress() {
+		try {
+			IAgentDescription serverAgent = thisAgent.searchAgent(new AgentDescription(null, "ServerAgent", null, null, null, null));
+			serverAddress = serverAgent.getMessageBoxAddress();
+		} catch(Exception e) {
+			log.warn("Worker could not connect to Server!");
+		}
+	}
 
+	/** Retrieve and set the brokers address **/
+	private void setBrokerAdress() {
+		try {
+			IAgentDescription brokerAgent = thisAgent.searchAgent(new AgentDescription(null, "BrokerAgent", null, null, null, null));
+			brokerAddress = brokerAgent.getMessageBoxAddress();
+		} catch(Exception e) {
+			log.warn("Worker could not connect to the Broker!");
+		}
+	}
 
+	private void moveToOrder() {
 
-	/*
-	 * You can implement some functions and helper methods here.
-	 */
+	}
 
 
 
