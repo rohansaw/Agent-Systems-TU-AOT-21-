@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.List;
-import java.util.PriorityQueue;
 
 public class WorkerBean_Astar extends AbstractAgentBean {
     /*
