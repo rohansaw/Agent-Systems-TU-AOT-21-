@@ -175,6 +175,7 @@ public class BetterBrokerBean extends AbstractAgentBean {
                 .findFirst()
                 .orElse(null);
         worker.position = message.newPosition;
+        worker.steps++;
     }
 
     /** -------------- Orders logic -------------- **/
