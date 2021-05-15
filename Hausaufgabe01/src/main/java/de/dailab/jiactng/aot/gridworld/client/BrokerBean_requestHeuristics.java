@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class BetterBrokerBean extends AbstractAgentBean {
+public class BrokerBean_requestHeuristics extends AbstractAgentBean {
 
     public static String BROKER_ID = "Some_Id";
     public static String GRID_FILE = "/grids/22_2.grid";
@@ -38,6 +38,7 @@ public class BetterBrokerBean extends AbstractAgentBean {
     private ArrayList<Order> receivedOrders;
     private HashMap<String, Order> acceptedOrders;
     private HashMap<String, Worker> orderAssignments;
+    private ArrayList<ProfitForOrder> expectedProfits;
 
     private ICommunicationAddress serverAddress;
     private HashMap<String, ICommunicationAddress> workerAddresses;
@@ -58,12 +59,13 @@ public class BetterBrokerBean extends AbstractAgentBean {
          */
         log.info("starting...");
         receivedOrders = new ArrayList<>();
+        expectedProfits = new ArrayList<>();
         turn = 0;
         serverAddress = null;
         workerAddresses = new HashMap<String, ICommunicationAddress>();
         orderAssignments = new HashMap<>();
         acceptedOrders = new HashMap<String, Order>();
-        memory.attach(new BetterBrokerBean.MessageObserver(), new JiacMessage());
+        memory.attach(new BrokerBean_requestHeuristics.MessageObserver(), new JiacMessage());
     }
 
 
@@ -115,12 +117,12 @@ public class BetterBrokerBean extends AbstractAgentBean {
                 handleTakeOrderConfirm((TakeOrderConfirm) payload);
             }
 
-            if (payload instanceof OrderCompleted) {
-                handleOrderCompleted((OrderCompleted) payload);
+            if (payload instanceof ProfitEstimationResponse) {
+                handleProfitEstimationResponse((ProfitEstimationResponse) payload);
             }
 
-            if(payload instanceof WorkerPositionUpdate) {
-                handleWorkerPositionUpdate((WorkerPositionUpdate) payload);
+            if (payload instanceof OrderCompleted) {
+                handleOrderCompleted((OrderCompleted) payload);
             }
 
             if (payload instanceof EndGameMessage) {
@@ -165,13 +167,14 @@ public class BetterBrokerBean extends AbstractAgentBean {
         }
     }
 
-    private void handleWorkerPositionUpdate(WorkerPositionUpdate message) {
-        Worker worker = workers.stream()
-                .filter(w -> w.id.equals(message.workerId))
-                .findFirst()
-                .orElse(null);
-        worker.position = message.newPosition;
-        worker.steps++;
+    private void handleProfitEstimationResponse(ProfitEstimationResponse message) {
+        for(String key : message.profitForOrders.keySet()) {
+            ProfitForOrder obj = new ProfitForOrder();
+            obj.order = getOrderById(key);;
+            obj.worker = getWorkerById(message.workerId);
+            obj.profit = message.profitForOrders.get(key);
+            expectedProfits.add(obj);
+        }
     }
 
     /** -------------- Orders logic -------------- **/
@@ -182,8 +185,8 @@ public class BetterBrokerBean extends AbstractAgentBean {
     }
 
     private void decideOnAcceptingOrders() {
-        // Get a list of assignments: order -> worker with best estimated profit
-        ArrayList<ProfitForOrder> orderStrategy = getOrdersToAccept();
+        // Get a list of assignments: order -> worker with best expected profits
+        ArrayList<ProfitForOrder> orderStrategy = getBestWorkerOfferCombinations();
         ArrayList<Order> ordersToRemove = new ArrayList<>();
 
         // Send the calculated assignment to the according worker
@@ -202,95 +205,31 @@ public class BetterBrokerBean extends AbstractAgentBean {
         receivedOrders.removeIf(order -> ordersToRemove.contains(order));
     }
 
+    private ArrayList<ProfitForOrder> getBestWorkerOfferCombinations() {
+        return new ArrayList<>();
+    }
+
     class ProfitForOrder {
         public Integer profit;
         public Order order;
         public Worker worker;
     }
 
-    /** Returns a dict: For every worker which order should be assigned to him **/
-    private ArrayList<ProfitForOrder> getOrdersToAccept() {
-        ArrayList<ProfitForOrder> profitList = new ArrayList<>();
-
+    /** Asks every worker what profit he would make for different orders **/
+    private void requestProfitEstimates() {
         for(Worker worker: workers) {
-            profitList.addAll(workerExpectedProfitsForOrders(worker, receivedOrders));
-        }
-
-        return selectBestNonConflictingWorkerOrderAssignments(profitList);
-
-    }
-
-    private ArrayList<ProfitForOrder> selectBestNonConflictingWorkerOrderAssignments(ArrayList<ProfitForOrder> profitList) {
-        ArrayList<ProfitForOrder> result = new ArrayList<>();
-
-        // Greedy choose the best worker/order combination and remove all items with this worker/order
-        while(profitList.size() > 0) {
-            profitList.sort((a,b) -> a.profit.compareTo(b.profit));
-            ProfitForOrder bestOption = profitList.get(profitList.size() - 1);
-            result.add(bestOption);
-            profitList = (ArrayList<ProfitForOrder>) profitList.stream()
-                    .filter(i -> !i.worker.equals(bestOption.worker) && !i.order.equals(bestOption.order))
-                    .collect(Collectors.toList());
-        }
-
-        return result;
-    }
-
-    private ArrayList<ProfitForOrder> workerExpectedProfitsForOrders(Worker worker, List<Order> allOrders) {
-        ArrayList<ProfitForOrder> res = new ArrayList<>();
-
-        for(Order order : allOrders) {
-            int expectedProfitNewOrder = expectedProfit(worker, order);
-            if (isAssigned(worker)) {
-                Order runningWorkerOrder = getRunningWorkerOrder(worker);
-                int assignedOrderExpectedProfit = runningWorkersExpectedProfit(runningWorkerOrder, worker);
-                /** If sum of expected profit and order penalty for not finishing the running order is smaller
-                 * then it could make sense to accept the new order
-                  **/
-                if (expectedProfitNewOrder - order.value <= assignedOrderExpectedProfit) {
-                    continue;
-                }
-            }
-            ProfitForOrder p = new ProfitForOrder();
-            p.profit = expectedProfitNewOrder - order.value;
-            p.order = order;
-            p.worker = worker;
-            res.add(p);
-        }
-        return res;
-    }
-
-    /** Returns the accepted profit if a worker would try to fulfill this order **/
-    private int expectedProfit(Worker worker, Order order) {
-        int distance = worker.position.distance(order.position);
-        if(distance > (order.deadline - turn)) {
-            // it never makes sense to accept a order that can't be completed
-            return 0;
-        } else {
-            int curProfit = Math.max(order.value - distance * order.turnPenalty, 0);
-            // The distance are the turns needed to reach the order, and this will be subtracted from the profit
-            curProfit = curProfit - distance;
-            return Math.max(curProfit, 0);
-        }
-    }
-
-    /** Returns the order a worker already has assigned **/
-    private Order getRunningWorkerOrder(Worker worker) {
-        for (Order order : acceptedOrders.values()) {
-            if (orderAssignments.get(order.id) == worker) {
-                return order;
+            if(!isAssigned(worker)) {
+                requestProfitEstimate(worker, receivedOrders);
             }
         }
-        return null;
     }
 
-    /** Returns the profit a running worker is expected to reach from now **/
-    private int runningWorkersExpectedProfit(Order order, Worker worker) {
-        int remainingDistance = worker.position.distance(order.position);
-        int expectedTurns = (turn - order.created) + remainingDistance;
-        int expectedProfit = Math.max(order.value - expectedTurns * order.turnPenalty, 0);
-        expectedProfit -= remainingDistance;
-        return expectedProfit;
+    private void requestProfitEstimate(Worker worker, ArrayList<Order> orders) {
+        ProfitEstimationRequest message = new ProfitEstimationRequest();
+        message.gameId = gameId;
+        message.orders = orders;
+        message.workerId = worker.id;
+        sendMessage(workerAddresses.get(worker.id), message);
     }
 
     /** Assign an order to a worker **/
@@ -394,6 +333,20 @@ public class BetterBrokerBean extends AbstractAgentBean {
 
     private boolean isAssigned(Worker worker) {
         return orderAssignments.containsValue(worker);
+    }
+
+    private Order getOrderById(String id) {
+        return receivedOrders.stream()
+                .filter(o -> o.id.equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private Worker getWorkerById(String id) {
+        return workers.stream()
+                .filter(w -> w.id.equals(id))
+                .findFirst()
+                .orElse(null);
     }
 
     /** This is an example of using the SpaceObeserver for message processing. */
