@@ -123,9 +123,17 @@ public class WorkerBean extends AbstractAgentBean {
 			Optional<Position> newPosition = worker.position.applyMove(null, message.action);
 			worker.position = newPosition.orElse(worker.position);
 			worker.steps++;
+
 			if(message.action == WorkerAction.ORDER) {
 				order = null;
 			}
+
+			WorkerPositionUpdate positionUpdateMessage = new WorkerPositionUpdate();
+			positionUpdateMessage.gameId = gameId;
+			positionUpdateMessage.workerId = worker.id;
+			positionUpdateMessage.newPosition = worker.position;
+
+			sendMessage(brokerAddress, positionUpdateMessage);
 		}
 	}
 

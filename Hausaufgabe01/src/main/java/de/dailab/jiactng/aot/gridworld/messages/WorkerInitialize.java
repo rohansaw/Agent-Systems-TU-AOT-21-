@@ -1,7 +1,5 @@
 package de.dailab.jiactng.aot.gridworld.messages;
 
-import de.dailab.jiactng.agentcore.comm.ICommunicationAddress;
-import de.dailab.jiactng.aot.gridworld.model.Order;
 import de.dailab.jiactng.aot.gridworld.model.Worker;
 
 public class WorkerInitialize extends GameMessage{
