@@ -38,7 +38,7 @@ public class BrokerBean_requestHeuristics extends AbstractAgentBean {
     private ArrayList<Order> receivedOrders;
     private HashMap<String, Order> acceptedOrders;
     private HashMap<String, Worker> orderAssignments;
-    private ArrayList<ProfitForOrder> expectedProfits;
+    private HashMap<String, HashMap<String, Integer> > expectedProfits;
 
     private ICommunicationAddress serverAddress;
     private HashMap<String, ICommunicationAddress> workerAddresses;
@@ -59,7 +59,7 @@ public class BrokerBean_requestHeuristics extends AbstractAgentBean {
          */
         log.info("starting...");
         receivedOrders = new ArrayList<>();
-        expectedProfits = new ArrayList<>();
+        expectedProfits = new HashMap<>();
         turn = 0;
         serverAddress = null;
         workerAddresses = new HashMap<String, ICommunicationAddress>();
@@ -92,7 +92,6 @@ public class BrokerBean_requestHeuristics extends AbstractAgentBean {
             startGame();
         } else {
             updateOrders();
-            decideOnAcceptingOrders();
             turn++;
         }
     }
@@ -134,6 +133,8 @@ public class BrokerBean_requestHeuristics extends AbstractAgentBean {
     private void handleIncomingOrder(Order order) {
         log.info("Order received: " + order);
         receivedOrders.add(order);
+        addPlaceholderProfitEntry(order.id);
+        broadCastOrder(order);
     }
 
     private void handleStartGameResponse(StartGameResponse message) {
@@ -168,12 +169,12 @@ public class BrokerBean_requestHeuristics extends AbstractAgentBean {
     }
 
     private void handleProfitEstimationResponse(ProfitEstimationResponse message) {
-        for(String key : message.profitForOrders.keySet()) {
-            ProfitForOrder obj = new ProfitForOrder();
-            obj.order = getOrderById(key);;
-            obj.worker = getWorkerById(message.workerId);
-            obj.profit = message.profitForOrders.get(key);
-            expectedProfits.add(obj);
+        expectedProfits.get(message.order.id).put(message.workerId, message.profit);
+        if(receivedAllAnswersForOrder(message.order.id)) {
+            Worker worker = getBestWorkerForOrder(message.order.id);
+            sendTakeOrderMessage(message.order.id);
+            orderAssignments.put(message.order.id, worker);
+            receivedOrders.removeIf(order -> order.id.equals(message.order.id));
         }
     }
 
@@ -184,58 +185,42 @@ public class BrokerBean_requestHeuristics extends AbstractAgentBean {
         receivedOrders.removeIf(order -> !(turn <= order.created + 3));
     }
 
-    private void decideOnAcceptingOrders() {
-        // Get a list of assignments: order -> worker with best expected profits
-        ArrayList<ProfitForOrder> orderStrategy = getBestWorkerOfferCombinations();
-        ArrayList<Order> ordersToRemove = new ArrayList<>();
-
-        // Send the calculated assignment to the according worker
-        for(ProfitForOrder assignment : orderStrategy) {
-            TakeOrderMessage message = new TakeOrderMessage();
-            message.brokerId = BROKER_ID;
-            message.orderId = assignment.order.id;
-            message.gameId = gameId;
-            sendMessage(serverAddress, message);
-            ordersToRemove.add(assignment.order);
-            acceptedOrders.put(assignment.order.id, assignment.order);
-            orderAssignments.put(assignment.order.id, assignment.worker);
-        }
-
-        // Remove orders from received orders, as they are assigned to workers now
-        receivedOrders.removeIf(order -> ordersToRemove.contains(order));
-    }
-
-    private ArrayList<ProfitForOrder> getBestWorkerOfferCombinations() {
-        return new ArrayList<>();
-    }
-
-    class ProfitForOrder {
-        public Integer profit;
-        public Order order;
-        public Worker worker;
-    }
-
     /** Asks every worker what profit he would make for different orders **/
-    private void requestProfitEstimates() {
+    private void broadCastOrder(Order order) {
         for(Worker worker: workers) {
             if(!isAssigned(worker)) {
-                requestProfitEstimate(worker, receivedOrders);
+                requestProfitEstimate(worker, order);
             }
         }
     }
 
-    private void requestProfitEstimate(Worker worker, ArrayList<Order> orders) {
+    private void requestProfitEstimate(Worker worker, Order order) {
         ProfitEstimationRequest message = new ProfitEstimationRequest();
         message.gameId = gameId;
-        message.orders = orders;
+        message.order = order;
         message.workerId = worker.id;
         sendMessage(workerAddresses.get(worker.id), message);
     }
 
-    /** Assign an order to a worker **/
-    private void assignOrder(Order order) {
-        Worker worker = orderAssignments.get(order.id);
-        sendOrderToWorker(worker, order);
+    private void addPlaceholderProfitEntry(String orderId) {
+        HashMap<String, Integer> placeholder = new HashMap<>();
+        for (Worker worker : workers) {
+            placeholder.put(worker.id, null);
+        }
+        expectedProfits.put(orderId, placeholder);
+    }
+
+    private Worker getBestWorkerForOrder(String orderId) {
+        String bestWorkerId = null;
+        int maxProfit = 0;
+        for (String workerId : expectedProfits.get(orderId).keySet()) {
+            Worker worker = getWorkerById(workerId);
+            if(expectedProfits.get(orderId).get(workerId) > maxProfit && !isAssigned(worker)) {
+                bestWorkerId = workerId;
+                maxProfit = expectedProfits.get(orderId).get(workerId);
+            }
+        }
+        return getWorkerById(bestWorkerId);
     }
 
     /** -------------- Setup -------------- **/
@@ -331,22 +316,40 @@ public class BrokerBean_requestHeuristics extends AbstractAgentBean {
         sendMessage(workerAddresses.get(worker.id), message);
     }
 
+    private void sendTakeOrderMessage(String orderId) {
+        TakeOrderMessage message = new TakeOrderMessage();
+        message.brokerId = BROKER_ID;
+        message.orderId = orderId;
+        message.gameId = gameId;
+        sendMessage(serverAddress, message);
+    }
+
     private boolean isAssigned(Worker worker) {
         return orderAssignments.containsValue(worker);
     }
 
-    private Order getOrderById(String id) {
-        return receivedOrders.stream()
-                .filter(o -> o.id.equals(id))
+    private boolean receivedAllAnswersForOrder(String orderId) {
+        return !(expectedProfits.get(orderId).values().contains(null));
+    }
+
+    private Worker getWorkerById(String workerId) {
+        return workers.stream()
+                .filter(w -> w.id.equals(workerId))
                 .findFirst()
                 .orElse(null);
     }
 
-    private Worker getWorkerById(String id) {
-        return workers.stream()
-                .filter(w -> w.id.equals(id))
+    private Order getOrderById(String orderId) {
+        return receivedOrders.stream()
+                .filter(o -> o.id.equals(orderId))
                 .findFirst()
                 .orElse(null);
+    }
+
+    /** Assign an order to a worker **/
+    private void assignOrder(Order order) {
+        Worker worker = orderAssignments.get(order.id);
+        sendOrderToWorker(worker, order);
     }
 
     /** This is an example of using the SpaceObeserver for message processing. */
