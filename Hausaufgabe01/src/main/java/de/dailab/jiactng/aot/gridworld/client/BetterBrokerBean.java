@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 public class BetterBrokerBean extends AbstractAgentBean {
 
     public static String BROKER_ID = "Some_Id";
-    public static String GRID_FILE = "/grids/grid_2.grid";
+    public static String GRID_FILE = "/grids/22_2.grid";
 
     private BrokerState state = BrokerState.AWAIT_GAME_START;
     private int turn;
@@ -36,7 +36,7 @@ public class BetterBrokerBean extends AbstractAgentBean {
     private List<Worker> workers;
 
     /** Contains 3 slots of order-arrays in which received orders that are not yet accepted are held **/
-    private ArrayList<ArrayList<Order>> receivedOrders;
+    private ArrayList<Order> receivedOrders;
     private HashMap<String, Order> acceptedOrders;
     private HashMap<String, Worker> orderAssignments;
 
@@ -58,10 +58,7 @@ public class BetterBrokerBean extends AbstractAgentBean {
          * a SpaceObserver for specific purposes
          */
         log.info("starting...");
-        receivedOrders = new ArrayList<>(3);
-        receivedOrders.add(0, new ArrayList<>());
-        receivedOrders.add(1, new ArrayList<>());
-        receivedOrders.add(2, new ArrayList<>());
+        receivedOrders = new ArrayList<>();
         turn = 0;
         serverAddress = null;
         workerAddresses = new HashMap<String, ICommunicationAddress>();
@@ -135,7 +132,7 @@ public class BetterBrokerBean extends AbstractAgentBean {
 
     private void handleIncomingOrder(Order order) {
         log.info("Order received: " + order);
-        receivedOrders.get(0).add(order);
+        receivedOrders.add(order);
     }
 
     private void handleStartGameResponse(StartGameResponse message) {
@@ -180,18 +177,17 @@ public class BetterBrokerBean extends AbstractAgentBean {
 
     /** -------------- Orders logic -------------- **/
 
+    /** removes orders that are more than 3 turns old **/
     private void updateOrders() {
-        receivedOrders.get(2).clear();
-        receivedOrders.get(2).addAll(receivedOrders.get(1));
-        receivedOrders.get(1).clear();
-        receivedOrders.get(1).addAll(receivedOrders.get(0));
-        receivedOrders.get(0).clear();
+        receivedOrders.removeIf(order -> !(turn <= order.created + 3));
     }
 
     private void decideOnAcceptingOrders() {
         // Get a list of assignments: order -> worker with best estimated profit
         ArrayList<ProfitForOrder> orderStrategy = getOrdersToAccept();
         ArrayList<Order> ordersToRemove = new ArrayList<>();
+
+        // Send the calculated assignment to the according worker
         for(ProfitForOrder assignment : orderStrategy) {
             TakeOrderMessage message = new TakeOrderMessage();
             message.brokerId = BROKER_ID;
@@ -204,9 +200,7 @@ public class BetterBrokerBean extends AbstractAgentBean {
         }
 
         // Remove orders from received orders, as they are assigned to workers now
-        for(int i = 0; i < 3; i++) {
-            receivedOrders.get(i).removeIf(order -> ordersToRemove.contains(order));
-        }
+        receivedOrders.removeIf(order -> ordersToRemove.contains(order));
     }
 
     class ProfitForOrder {
@@ -218,14 +212,16 @@ public class BetterBrokerBean extends AbstractAgentBean {
     /** Returns a dict: For every worker which order should be assigned to him **/
     private ArrayList<ProfitForOrder> getOrdersToAccept() {
         ArrayList<ProfitForOrder> profitList = new ArrayList<>();
-        List<Order> allOrders = receivedOrders.stream()
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
 
         for(Worker worker: workers) {
-            profitList.addAll(workerExpectedProfitsForOrders(worker, allOrders));
+            profitList.addAll(workerExpectedProfitsForOrders(worker, receivedOrders));
         }
 
+        return selectBestNonConflictingWorkerOrderAssignments(profitList);
+
+    }
+
+    private ArrayList<ProfitForOrder> selectBestNonConflictingWorkerOrderAssignments(ArrayList<ProfitForOrder> profitList) {
         ArrayList<ProfitForOrder> result = new ArrayList<>();
 
         // Greedy choose the best worker/order combination and remove all items with this worker/order
@@ -247,13 +243,17 @@ public class BetterBrokerBean extends AbstractAgentBean {
         for(Order order : allOrders) {
             int expectedProfitNewOrder = expectedProfit(worker, order);
             if (isAssigned(worker)) {
-                int assignedOrderExpectedProfit = runningWorkersExpectedProfit(worker);
-                if (expectedProfitNewOrder <= assignedOrderExpectedProfit) {
+                Order runningWorkerOrder = getRunningWorkerOrder(worker);
+                int assignedOrderExpectedProfit = runningWorkersExpectedProfit(runningWorkerOrder, worker);
+                /** If sum of expected profit and order penalty for not finishing the running order is smaller
+                 * then it could make sense to accept the new order
+                  **/
+                if (expectedProfitNewOrder - order.value <= assignedOrderExpectedProfit) {
                     continue;
                 }
             }
             ProfitForOrder p = new ProfitForOrder();
-            p.profit = expectedProfitNewOrder;
+            p.profit = expectedProfitNewOrder - order.value;
             p.order = order;
             p.worker = worker;
             res.add(p);
@@ -261,6 +261,7 @@ public class BetterBrokerBean extends AbstractAgentBean {
         return res;
     }
 
+    /** Returns the accepted profit if a worker would try to fulfill this order **/
     private int expectedProfit(Worker worker, Order order) {
         int distance = worker.position.distance(order.position);
         if(distance > (order.deadline - turn)) {
@@ -274,19 +275,26 @@ public class BetterBrokerBean extends AbstractAgentBean {
         }
     }
 
-    private int runningWorkersExpectedProfit(Worker worker) {
+    /** Returns the order a worker already has assigned **/
+    private Order getRunningWorkerOrder(Worker worker) {
         for (Order order : acceptedOrders.values()) {
-            if(orderAssignments.get(order.id) == worker) {
-                int remainingDistance = worker.position.distance(order.position);
-                int expectedTurns = turn + remainingDistance;
-                int expectedProfit = Math.max(order.value - expectedTurns * order.turnPenalty, 0);
-                expectedProfit -= expectedTurns;
-                return expectedProfit;
+            if (orderAssignments.get(order.id) == worker) {
+                return order;
             }
         }
-        return -1;
+        return null;
     }
 
+    /** Returns the profit a running worker is expected to reach from now **/
+    private int runningWorkersExpectedProfit(Order order, Worker worker) {
+        int remainingDistance = worker.position.distance(order.position);
+        int expectedTurns = (turn - order.created) + remainingDistance;
+        int expectedProfit = Math.max(order.value - expectedTurns * order.turnPenalty, 0);
+        expectedProfit -= remainingDistance;
+        return expectedProfit;
+    }
+
+    /** Assign an order to a worker **/
     private void assignOrder(Order order) {
         Worker worker = orderAssignments.get(order.id);
         sendOrderToWorker(worker, order);
@@ -304,6 +312,7 @@ public class BetterBrokerBean extends AbstractAgentBean {
         }
     }
 
+    /** Gets ans sets all worker adresses in a list **/
     private void setWorkerAddresses(List<Worker> workers) {
         int maxNum = 10;
         try {
@@ -324,6 +333,7 @@ public class BetterBrokerBean extends AbstractAgentBean {
         }
     }
 
+    /** Setup all worker beans with workers **/
     private void initializeWorkerBeans() {
         workers.forEach(worker -> {
             initWorkerBean(worker);
@@ -336,12 +346,6 @@ public class BetterBrokerBean extends AbstractAgentBean {
         message.brokerId = BROKER_ID;
         message.worker = worker;
         sendMessage(workerAddresses.get(worker.id), message);
-    }
-
-    private void endGame(EndGameMessage message) {
-        log.info("Game ended: " + message);
-        state = BrokerState.AWAIT_GAME_START;
-        /** Maybe ToDo some cleanup stuff **/
     }
 
     /** -------------- Game Control -------------- **/
@@ -360,6 +364,12 @@ public class BetterBrokerBean extends AbstractAgentBean {
         }
 
         state = BrokerState.AWAIT_GAME_START_RESPONSE;
+    }
+
+    private void endGame(EndGameMessage message) {
+        log.info("Game ended: " + message);
+        state = BrokerState.AWAIT_GAME_START;
+        /** Maybe ToDo some cleanup stuff **/
     }
 
     /** -------------- Helpers -------------- **/
