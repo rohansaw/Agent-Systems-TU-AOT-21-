@@ -27,7 +27,7 @@ import java.util.stream.IntStream;
 public class BetterBrokerBean extends AbstractAgentBean {
 
     public static String BROKER_ID = "Some_Id";
-    public static String GRID_FILE = "/grids/22_2.grid";
+    public static String GRID_FILE = "/grids/04_1.grid";
 
     private BrokerState state = BrokerState.AWAIT_GAME_START;
     private int turn;
@@ -160,6 +160,7 @@ public class BetterBrokerBean extends AbstractAgentBean {
     private void handleOrderCompleted(OrderCompleted message) {
         if (message.state == Result.SUCCESS) {
             orderAssignments.remove(message.orderId);
+            decideOnAcceptingOrders();
         } else {
             /** ToDo If end is still far enough away maybe try to redo order **/
             /** Also maybe blacklist this worker, because he produces a bad result? **/
@@ -179,13 +180,16 @@ public class BetterBrokerBean extends AbstractAgentBean {
 
     /** removes orders that are more than 3 turns old **/
     private void updateOrders() {
-        receivedOrders.removeIf(order -> !(turn <= order.created + 3));
+        receivedOrders.removeIf(order -> turn > order.created + 3);
     }
 
     /** Decided which orders should be accepted this turn **/
     private void decideOnAcceptingOrders() {
         // Get a list of assignments: order -> worker with best estimated profit
+        log.info(receivedOrders);
+        log.info(workers);
         ArrayList<Assignment> orderStrategy = getOrdersToAccept();
+        log.info(orderStrategy);
         ArrayList<Order> ordersToRemove = new ArrayList<>();
 
         // Send the calculated assignment to the according worker
@@ -212,8 +216,19 @@ public class BetterBrokerBean extends AbstractAgentBean {
     /** Returns a list of the best assignments that we can currently make **/
     private ArrayList<Assignment> getOrdersToAccept() {
         int[][] profitMatrix = makeProfitMatrix();
-        HungarianAlgorithm assignmentHelper = new HungarianAlgorithm(profitMatrix);
+
+        int[][] costMatrix = new int[profitMatrix.length][profitMatrix[0].length];
+        for (int i = 0; i < profitMatrix.length; i++) {
+            for (int j = 0; j < profitMatrix[i].length; j++) {
+                costMatrix[i][j] = -profitMatrix[i][j];
+            }
+        }
+
+        HungarianAlgorithm assignmentHelper = new HungarianAlgorithm(costMatrix);
         int[][] optimalAssignment = assignmentHelper.findOptimalAssignment();
+        for (int[] row:optimalAssignment) {
+            log.info(row[0] +" "+  row[1]);
+        }
 
         ArrayList<Assignment> res = new ArrayList<>();
         for (int[] assignment: optimalAssignment) {
