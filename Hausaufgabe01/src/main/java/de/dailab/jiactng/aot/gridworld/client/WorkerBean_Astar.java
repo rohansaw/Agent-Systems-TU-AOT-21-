@@ -19,9 +19,7 @@ import de.dailab.jiactng.agentcore.comm.message.JiacMessage;
 import de.dailab.jiactng.agentcore.knowledge.IFact;
 
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.Optional;
-import java.util.List;
+import java.util.*;
 
 public class WorkerBean_Astar extends AbstractAgentBean {
     /*
@@ -45,7 +43,7 @@ public class WorkerBean_Astar extends AbstractAgentBean {
     private Order order;
     private int gameId;
     private Position gameSize = null;
-    private List<Position> obstacles;
+    private Set<Position> obstacles = null;
 
     class PosHeuristicAction{
         public Position pos;
@@ -113,6 +111,10 @@ public class WorkerBean_Astar extends AbstractAgentBean {
         if (payload instanceof GameSizeResponse) {
             handleGameSizeResponse((GameSizeResponse) payload);
         }
+
+        if (payload instanceof ObstacleEncounterMessage) {
+            handleObstacleEncounter((ObstacleEncounterMessage) payload);
+        }
     }
 
     private void handleNewOrder(OrderAssignMessage message) {
@@ -145,6 +147,12 @@ public class WorkerBean_Astar extends AbstractAgentBean {
     private void handleGameSizeResponse(GameSizeResponse message) {
         log.info(message);
         gameSize = message.size;
+    }
+
+    private void handleObstacleEncounter(ObstacleEncounterMessage message) {
+        if(obstacles == null)
+            obstacles = new HashSet<Position>();
+        obstacles.add(message.position);
     }
 
     /** Retrieve and set the servers address **/

@@ -11,7 +11,7 @@ public class GridGraph {
     private final int height;
     private final LinkedList<Position>[][] adj;
 
-    GridGraph(String file){
+    public GridGraph(String file){
         InputStream is = Util.class.getResourceAsStream(file);
         if (is == null) {
             throw new IllegalArgumentException("Invalid grid file: " + file);
