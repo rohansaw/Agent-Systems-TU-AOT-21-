@@ -9,6 +9,7 @@ public class GridGraph {
     //[y][x]
     private final int width;
     private final int height;
+    public List<Position> path = null;
     private final LinkedList<Position>[][] adj;
 
     public GridGraph(String file){
@@ -55,7 +56,23 @@ public class GridGraph {
         }
     }
 
-    public LinkedList<Position> getShortestPath(Position from, Position to){
+    public WorkerAction getNextMove(Position current){
+        Position next = path.remove(0);
+        if(path.isEmpty()) {
+            path = null;
+            return WorkerAction.ORDER;
+        }
+        if(next.x > current.x)
+            return WorkerAction.EAST;
+        if(next.x < current.x)
+            return WorkerAction.WEST;
+        if(next.y > current.y)
+            return WorkerAction.NORTH;
+
+        return WorkerAction.SOUTH;
+    }
+
+    public void setShortestPath(Position from, Position to){
         boolean[][] visited = new boolean[height][width];
         Position[][] parent = new Position[height][width];
 
@@ -86,7 +103,7 @@ public class GridGraph {
             ret.push(v);
             v = parent[v.y][v.x];
         }
-        return ret;
+        path = ret;
     }
 
 }

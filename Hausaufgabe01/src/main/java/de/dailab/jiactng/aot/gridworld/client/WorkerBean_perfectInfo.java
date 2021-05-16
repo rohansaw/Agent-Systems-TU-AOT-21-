@@ -80,6 +80,7 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
 
     }
 
+
     private void handleIncomingMessage(JiacMessage message) {
         Object payload = message.getPayload();
 
@@ -165,7 +166,24 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
         log.info(order.position);
         log.info("-----------");
 
+        if(graph != null){
+            if(graph.path == null)
+                graph.setShortestPath(worker.position, order.position);
+            sendWorkerAction(graph.getNextMove(worker.position));
 
+        }else{ // fallback to simple worker
+            if(worker.position.x < order.position.x) {
+                sendWorkerAction(WorkerAction.EAST);
+            } else if (worker.position.x > order.position.x) {
+                sendWorkerAction(WorkerAction.WEST);
+            } else if (worker.position.y > order.position.y) {
+                sendWorkerAction(WorkerAction.NORTH);
+            } else if (worker.position.y < order.position.y) {
+                sendWorkerAction(WorkerAction.SOUTH);
+            } else {
+                sendWorkerAction(WorkerAction.ORDER);
+            }
+        }
     }
 
     private void sendWorkerAction(WorkerAction action) {
@@ -184,7 +202,6 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
         System.out.println("BROKER SENDING " + payload);
     }
 
-
     /** This is an example of using the SpaceObeserver for message processing. */
     @SuppressWarnings({"serial", "rawtypes"})
     class MessageObserver implements SpaceObserver<IFact> {
@@ -197,6 +214,4 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
             }
         }
     }
-
-
 }
