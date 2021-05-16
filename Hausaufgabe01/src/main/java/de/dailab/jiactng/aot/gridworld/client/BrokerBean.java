@@ -309,6 +309,10 @@ public class BrokerBean extends AbstractAgentBean {
 		sendMessage(workerAddresses.get(worker.id), message);
 	}
 
+	private boolean isAssigned(Worker worker) {
+		return orderAssignments.containsValue(worker);
+	}
+
 	/** This is an example of using the SpaceObeserver for message processing. */
 	@SuppressWarnings({"serial", "rawtypes"})
 	class MessageObserver implements SpaceObserver<IFact> {
