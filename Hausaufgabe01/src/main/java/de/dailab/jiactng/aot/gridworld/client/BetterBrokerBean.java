@@ -255,7 +255,13 @@ public class BetterBrokerBean extends AbstractAgentBean {
                     int expectedProfitNewOrder = expectedProfit(workers.get(i), receivedOrders.get(j));
                     profitMatrix[i][j] = expectedProfitNewOrder;
                 } else {
-                    // ToDO sometimes can make sense to change order
+                    // If worker is already assigned it might make sense to give him a better paying new order
+                    Order currentWorkersOrder = getRunningWorkerOrder(workers.get(i));
+                    int currentOrderExpectedProfit = runningWorkersExpectedProfit(receivedOrders.get(j), workers.get(i));
+                    int expectedProfitNewOrder = expectedProfit(workers.get(i), receivedOrders.get(j));
+                    if(expectedProfitNewOrder - currentWorkersOrder.value > currentOrderExpectedProfit) {
+                        profitMatrix[i][j] = expectedProfitNewOrder - currentWorkersOrder.value;
+                    }
                 }
             }
         }
@@ -292,10 +298,15 @@ public class BetterBrokerBean extends AbstractAgentBean {
     /** Returns the profit a running worker is expected to reach from now **/
     private int runningWorkersExpectedProfit(Order order, Worker worker) {
         int remainingDistance = worker.position.distance(order.position);
-        int expectedTurns = (turn - order.created) + remainingDistance;
-        int expectedProfit = Math.max(order.value - expectedTurns * order.turnPenalty, 0);
-        expectedProfit -= remainingDistance;
-        return expectedProfit;
+        if(remainingDistance > (order.deadline - turn)) {
+            // if this worker cant finish the order in time
+            return -order.value;
+        } else {
+            int expectedTurns = (turn - order.created) + remainingDistance;
+            int expectedProfit = Math.max(order.value - expectedTurns * order.turnPenalty, 0);
+            expectedProfit -= remainingDistance;
+            return expectedProfit;
+        }
     }
 
     /** Assign an order to a worker **/
