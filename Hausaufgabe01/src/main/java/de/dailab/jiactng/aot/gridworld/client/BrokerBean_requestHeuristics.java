@@ -169,7 +169,7 @@ public class BrokerBean_requestHeuristics extends AbstractAgentBean {
     }
 
     private void handleProfitEstimationResponse(ProfitEstimationResponse message) {
-        expectedProfits.get(message.order.id).put(message.workerId, message.profit);
+        expectedProfits.get(message.order.id).put(message.workerId, message.dist);
         if(receivedAllAnswersForOrder(message.order.id)) {
             Worker worker = getBestWorkerForOrder(message.order.id);
             sendTakeOrderMessage(message.order.id);

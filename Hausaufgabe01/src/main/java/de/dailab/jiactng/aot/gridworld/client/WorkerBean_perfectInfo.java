@@ -84,21 +84,37 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
     private void handleIncomingMessage(JiacMessage message) {
         Object payload = message.getPayload();
 
-        if (payload instanceof WorkerInitialize) {
+        if (payload instanceof WorkerInitialize)
             worker = ((WorkerInitialize) payload).worker;
-        }
 
-        if (payload instanceof OrderAssignMessage) {
+        if (payload instanceof OrderAssignMessage)
             handleNewOrder((OrderAssignMessage) payload);
-        }
 
-        if (payload instanceof WorkerConfirm) {
+        if (payload instanceof WorkerConfirm)
             handleMoveConfirmation((WorkerConfirm) payload);
-        }
 
-        if (payload instanceof GridFileResponse) {
+        if (payload instanceof GridFileResponse)
             handleGridFileResponse((GridFileResponse) payload);
+
+        if (payload instanceof ProfitEstimationRequest)
+            handleProfitEstimation((ProfitEstimationRequest) payload);
+    }
+
+    private void handleProfitEstimation(ProfitEstimationRequest msg){
+        ProfitEstimationResponse response = new ProfitEstimationResponse();
+        response.gameId = gameId;
+        response.workerId = worker.id;
+        response.order = order;
+        if(graph == null)
+            // fallback to manhattan dist;
+            response.dist = Math.abs(worker.position.x - order.position.x) + Math.abs(worker.position.y - order.position.y);
+        else if(graph.path == null && order != null){
+            graph.aStar(worker.position, order.position);
+            response.dist = graph.path.size();
+        }else if(graph.path != null){
+            response.dist = graph.path.size();
         }
+        sendMessage(brokerAddress, response);
     }
 
     private void handleNewOrder(OrderAssignMessage message) {
@@ -122,8 +138,27 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
             Optional<Position> newPosition = worker.position.applyMove(null, message.action);
             worker.position = newPosition.orElse(worker.position);
             worker.steps++;
-            if(message.action == WorkerAction.ORDER) {
+            if (message.action == WorkerAction.ORDER) {
                 order = null;
+            }
+            WorkerPositionUpdate response = new WorkerPositionUpdate();
+            response.workerId = worker.id;
+            response.gameId = gameId;
+            response.newPosition = worker.position;
+            sendMessage(brokerAddress, response);
+        }else if(message.action != WorkerAction.ORDER){
+            int y = worker.position.y;
+            int x = worker.position.x;
+            if (message.action == WorkerAction.NORTH) y--;
+            if (message.action == WorkerAction.SOUTH) y++;
+            if (message.action == WorkerAction.WEST)  x--;
+            if (message.action == WorkerAction.EAST)  x++;
+            if(x >= 0 && x < graph.width && y >= 0 && y < graph.height) {
+                ObstacleEncounterMessage msg = new ObstacleEncounterMessage();
+                msg.gameId = gameId;
+                Position pos = new Position(x, y);
+                obstacles.add(pos);
+                msg.position = pos;
             }
         }
     }
@@ -168,7 +203,7 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
 
         if(graph != null){
             if(graph.path == null)
-                graph.setShortestPath(worker.position, order.position);
+                graph.aStar(worker.position, order.position);
             sendWorkerAction(graph.getNextMove(worker.position));
 
         }else{ // fallback to simple worker

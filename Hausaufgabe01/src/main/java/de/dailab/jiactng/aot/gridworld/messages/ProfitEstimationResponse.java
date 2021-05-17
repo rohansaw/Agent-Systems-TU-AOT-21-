@@ -12,14 +12,14 @@ public class ProfitEstimationResponse extends GameMessage{
     public String workerId;
 
     /** The estimate **/
-    public int profit;
+    public int dist;
 
     public Order order;
 
 
     @Override
     public String toString() {
-        return String.format("ProfitEstimationRequest(game=%d, profits=%s, workerId=%s)", gameId, profit, workerId);
+        return String.format("ProfitEstimationRequest(game=%d, profits=%s, workerId=%s)", gameId, dist, workerId);
     }
 
 }

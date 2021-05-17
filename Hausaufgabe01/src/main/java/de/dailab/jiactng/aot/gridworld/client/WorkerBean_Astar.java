@@ -6,10 +6,7 @@ import de.dailab.jiactng.agentcore.comm.ICommunicationBean;
 import de.dailab.jiactng.agentcore.ontology.AgentDescription;
 import de.dailab.jiactng.agentcore.ontology.IAgentDescription;
 import de.dailab.jiactng.aot.gridworld.messages.*;
-import de.dailab.jiactng.aot.gridworld.model.Order;
-import de.dailab.jiactng.aot.gridworld.model.Position;
-import de.dailab.jiactng.aot.gridworld.model.Worker;
-import de.dailab.jiactng.aot.gridworld.model.WorkerAction;
+import de.dailab.jiactng.aot.gridworld.model.*;
 import org.sercho.masp.space.event.SpaceEvent;
 import org.sercho.masp.space.event.SpaceObserver;
 import org.sercho.masp.space.event.WriteCallEvent;
@@ -43,18 +40,8 @@ public class WorkerBean_Astar extends AbstractAgentBean {
     private Order order;
     private int gameId;
     private Position gameSize = null;
-    private Set<Position> obstacles = null;
-
-    class PosHeuristicAction{
-        public Position pos;
-        public Integer heuristic;
-        public WorkerAction action;
-        public PosHeuristicAction(Position p, int h, WorkerAction a){
-            pos = p;
-            heuristic = h;
-            action = a;
-        }
-    }
+    private GridGraph graph = null;
+    private Set<Position> obstacles = new HashSet<Position>();
 
 
     @Override
@@ -96,25 +83,40 @@ public class WorkerBean_Astar extends AbstractAgentBean {
     private void handleIncomingMessage(JiacMessage message) {
         Object payload = message.getPayload();
 
-        if (payload instanceof WorkerInitialize) {
+        if (payload instanceof WorkerInitialize)
             worker = ((WorkerInitialize) payload).worker;
-        }
 
-        if (payload instanceof OrderAssignMessage) {
+        if (payload instanceof OrderAssignMessage)
             handleNewOrder((OrderAssignMessage) payload);
-        }
 
-        if (payload instanceof WorkerConfirm) {
+        if (payload instanceof WorkerConfirm)
             handleMoveConfirmation((WorkerConfirm) payload);
-        }
 
-        if (payload instanceof GameSizeResponse) {
+        if (payload instanceof GameSizeResponse)
             handleGameSizeResponse((GameSizeResponse) payload);
-        }
 
-        if (payload instanceof ObstacleEncounterMessage) {
+        if (payload instanceof ObstacleEncounterMessage)
             handleObstacleEncounter((ObstacleEncounterMessage) payload);
+
+        if (payload instanceof ProfitEstimationRequest)
+            handleProfitEstimation((ProfitEstimationRequest) payload);
+    }
+
+    private void handleProfitEstimation(ProfitEstimationRequest msg){
+        ProfitEstimationResponse response = new ProfitEstimationResponse();
+        response.gameId = gameId;
+        response.workerId = worker.id;
+        response.order = order;
+        if(graph == null)
+            // fallback to manhattan dist;
+            response.dist = Math.abs(worker.position.x - order.position.x) + Math.abs(worker.position.y - order.position.y);
+        else if(graph.path == null && order != null){
+            graph.aStar(worker.position, order.position);
+            response.dist = graph.path.size();
+        }else if(graph.path != null){
+            response.dist = graph.path.size();
         }
+        sendMessage(brokerAddress, response);
     }
 
     private void handleNewOrder(OrderAssignMessage message) {
@@ -141,18 +143,41 @@ public class WorkerBean_Astar extends AbstractAgentBean {
             if(message.action == WorkerAction.ORDER) {
                 order = null;
             }
+            WorkerPositionUpdate response = new WorkerPositionUpdate();
+            response.workerId = worker.id;
+            response.gameId = gameId;
+            response.newPosition = worker.position;
+            sendMessage(brokerAddress, response);
+        }else if(message.action != WorkerAction.ORDER){
+            int y = worker.position.y;
+            int x = worker.position.x;
+            if (message.action == WorkerAction.NORTH) y--;
+            if (message.action == WorkerAction.SOUTH) y++;
+            if (message.action == WorkerAction.WEST)  x--;
+            if (message.action == WorkerAction.EAST)  x++;
+            if(x >= 0 && x < gameSize.x && y >= 0 && y < gameSize.y) {
+                ObstacleEncounterMessage msg = new ObstacleEncounterMessage();
+                msg.gameId = gameId;
+                Position pos = new Position(x, y);
+                obstacles.add(pos);
+                msg.position = pos;
+            }
         }
     }
 
     private void handleGameSizeResponse(GameSizeResponse message) {
         log.info(message);
         gameSize = message.size;
+        graph = new GridGraph(gameSize.x, gameSize.y, obstacles);
     }
 
     private void handleObstacleEncounter(ObstacleEncounterMessage message) {
-        if(obstacles == null)
-            obstacles = new HashSet<Position>();
         obstacles.add(message.position);
+        if(graph != null) {
+            graph.addObstacle(message.position);
+            if (order != null)
+                graph.aStar(worker.position, order.position);
+        }
     }
 
     /** Retrieve and set the servers address **/
@@ -180,39 +205,29 @@ public class WorkerBean_Astar extends AbstractAgentBean {
         msg.workerID = worker.id;
         msg.gameId = gameId;
         sendMessage(brokerAddress, msg);
-    }
 
-    private PosHeuristicAction getPosH(int x, int y, WorkerAction action){
-        Position pos = new Position(x, y);
-        int h = Math.abs(pos.x - order.position.x) + Math.abs(pos.y - order.position.y);
-        if(obstacles.contains(pos))
-            h += 1;
-        return new PosHeuristicAction(pos, h, action);
     }
 
     private void moveToOrder() {
         log.info(worker.position);
         log.info(order.position);
         log.info("-----------");
-
-        if(!worker.position.equals(order.position)) {
-            List<PosHeuristicAction> list = new LinkedList<>();
-            if (worker.position.x - 1 >= 0)
-                list.add(getPosH(worker.position.x - 1, worker.position.y, WorkerAction.WEST));
-
-            if (worker.position.x + 1 < gameSize.x)
-                list.add(getPosH(worker.position.x + 1, worker.position.y, WorkerAction.EAST));
-
-            if (worker.position.y - 1 >= 0)
-                list.add(getPosH(worker.position.x, worker.position.y - 1, WorkerAction.SOUTH));
-
-            if (worker.position.y + 1 < gameSize.y)
-                list.add(getPosH(worker.position.x, worker.position.y + 1, WorkerAction.NORTH));
-
-            list.sort((a, b) -> a.heuristic.compareTo(b.heuristic));
-            sendWorkerAction(list.get(0).action);
-        }else{
-            sendWorkerAction(WorkerAction.ORDER);
+        if(graph != null) {
+            if(graph.path == null && !worker.position.equals(order.position))
+                graph.aStar(worker.position, order.position);
+            sendWorkerAction(graph.getNextMove(worker.position));
+        }else{// fallback to simple worker
+            if(worker.position.x < order.position.x) {
+                sendWorkerAction(WorkerAction.EAST);
+            } else if (worker.position.x > order.position.x) {
+                sendWorkerAction(WorkerAction.WEST);
+            } else if (worker.position.y > order.position.y) {
+                sendWorkerAction(WorkerAction.NORTH);
+            } else if (worker.position.y < order.position.y) {
+                sendWorkerAction(WorkerAction.SOUTH);
+            } else {
+                sendWorkerAction(WorkerAction.ORDER);
+            }
         }
     }
 
@@ -245,6 +260,4 @@ public class WorkerBean_Astar extends AbstractAgentBean {
             }
         }
     }
-
-
 }
