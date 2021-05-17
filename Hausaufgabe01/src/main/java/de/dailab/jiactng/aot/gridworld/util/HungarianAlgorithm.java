@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/** This class is not selfe coded and is a implementation of the kuhn-mekres (hungarian) algorithm from github under the MIT Licence. 
+The code can be found here https://github.com/aalmi/HungarianAlgorithm **/
+
 /**
  * An implemetation of the Kuhn–Munkres assignment algorithm of the year 1957.
  * https://en.wikipedia.org/wiki/Hungarian_algorithm
