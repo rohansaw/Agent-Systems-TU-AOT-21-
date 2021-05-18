@@ -111,7 +111,7 @@ public class WorkerBean_Astar extends AbstractAgentBean {
             // fallback to manhattan dist;
             response.dist = Math.abs(worker.position.x - order.position.x) + Math.abs(worker.position.y - order.position.y);
         else if(graph.path == null && order != null){
-            graph.aStar(worker.position, order.position);
+            graph.aStar(worker.position, order.position, false);
             response.dist = graph.path.size();
         }else if(graph.path != null){
             response.dist = graph.path.size();
@@ -176,7 +176,7 @@ public class WorkerBean_Astar extends AbstractAgentBean {
         if(graph != null) {
             graph.addObstacle(message.position);
             if (order != null)
-                graph.aStar(worker.position, order.position);
+                graph.aStar(worker.position, order.position, false);
         }
     }
 
@@ -214,7 +214,7 @@ public class WorkerBean_Astar extends AbstractAgentBean {
         log.info("-----------");
         if(graph != null) {
             if(graph.path == null && !worker.position.equals(order.position))
-                graph.aStar(worker.position, order.position);
+                graph.aStar(worker.position, order.position, false);
             sendWorkerAction(graph.getNextMove(worker.position));
         }else{// fallback to simple worker
             if(worker.position.x < order.position.x) {
@@ -244,7 +244,7 @@ public class WorkerBean_Astar extends AbstractAgentBean {
         Action sendAction = retrieveAction(ICommunicationBean.ACTION_SEND);
         JiacMessage message = new JiacMessage(payload);
         invoke(sendAction, new Serializable[] {message, receiver});
-        System.out.println("BROKER SENDING " + payload);
+        System.out.println("WORKER SENDING " + payload);
     }
 
 

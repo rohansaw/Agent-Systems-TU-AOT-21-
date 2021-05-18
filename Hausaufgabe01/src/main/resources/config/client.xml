@@ -14,13 +14,13 @@
 		<property name="agents">
 			<list>
 				<!-- change which broker and worker agents will be used -->
-				<ref bean="BrokerAgent" />
+				<ref bean="BetterBrokerAgent" />
 				
-				<bean parent="WorkerAgent" />
-				<bean parent="WorkerAgent" />
-				<bean parent="WorkerAgent" />
-				<bean parent="WorkerAgent" />
-				<bean parent="WorkerAgent" />
+				<bean parent="WorkerAgent_Astar" />
+				<bean parent="WorkerAgent_Astar" />
+				<bean parent="WorkerAgent_Astar" />
+				<bean parent="WorkerAgent_Astar" />
+				<bean parent="WorkerAgent_Astar" />
 <!--				<bean parent="WorkerAgent_variation" />-->
 			</list>
 		</property>
@@ -29,7 +29,18 @@
 	<bean name="BrokerAgent" parent="SimpleAgent" scope="prototype">
 		<property name="agentBeans">
 			<list>
-				<bean name="BrokerBean" class="de.dailab.jiactng.aot.gridworld.client.BetterBrokerBean" scope="prototype">
+				<bean name="BrokerBean" class="de.dailab.jiactng.aot.gridworld.client.BrokerBean" scope="prototype">
+					<property name="logLevel" value="INFO" />
+					<property name="executionInterval" value="1000" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean name="BetterBrokerAgent" parent="SimpleAgent" scope="prototype">
+		<property name="agentBeans">
+			<list>
+				<bean name="BetterBrokerBean" class="de.dailab.jiactng.aot.gridworld.client.BetterBrokerBean" scope="prototype">
 					<property name="logLevel" value="INFO" />
 					<property name="executionInterval" value="1000" />
 				</bean>
@@ -50,6 +61,17 @@
 
 	<!-- use this method to include your variations of workers and brokers -->
 	<bean name="WorkerAgent_variation" parent="SimpleAgent" scope="prototype">
+		<property name="agentBeans">
+			<list>
+				<bean name="WorkerBean_Astar" class="de.dailab.jiactng.aot.gridworld.client.WorkerBean_Astar" scope="prototype">
+					<property name="logLevel" value="INFO" />
+					<property name="executionInterval" value="1000" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean name="WorkerAgent_Astar" parent="SimpleAgent" scope="prototype">
 		<property name="agentBeans">
 			<list>
 				<bean name="WorkerBean_variation" class="de.dailab.jiactng.aot.gridworld.client.WorkerBean_variation" scope="prototype">

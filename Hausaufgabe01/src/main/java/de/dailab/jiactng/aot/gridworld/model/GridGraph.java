@@ -6,10 +6,10 @@ import java.io.InputStream;
 import java.util.*;
 
 public class GridGraph {
-    //[y][x]
     public final int width;
     public final int height;
     public LinkedList<Position> path = null;
+    //[y][x]
     private LinkedList<Position>[][] adj;
 
     class Node{
@@ -132,7 +132,9 @@ public class GridGraph {
         return Integer.MAX_VALUE;
     }
 
-    public void aStar(Position from, Position to){
+
+
+    public void aStar(Position from, Position to, boolean useBadHeuristic){
         boolean[][] visited = new boolean[height][width];
         Position[][] parent = new Position[height][width];
         PriorityQueue<Node> Q = new PriorityQueue<>(Comparator.comparing(n -> n.f));
@@ -145,7 +147,7 @@ public class GridGraph {
             }
         }
         visited[from.y][from.x] = true;
-        Q.add(new Node(from, 0, from.distance(to)));
+        Q.add(new Node(from, 0, 0));
 
         while (!Q.isEmpty()){
             Node v = Q.poll();
@@ -155,7 +157,12 @@ public class GridGraph {
             for(Position u : adj[v.pos.y][v.pos.x]){
                 if(visited[u.y][u.x] || v.g + 1 >= QcontainsPos(u, Q))
                     continue;
-                Node node = new Node(u, v.g + 1, u.distance(to));
+                Node node = new Node(u, v.g + 1, u.distance(to));;
+                if(useBadHeuristic) {
+                    node.f += 2;
+                    node.h += 2;
+                }
+
                 Q.removeIf(n -> n.pos.equals(u));
                 Q.add(node);
                 parent[u.y][u.x] = v.pos;

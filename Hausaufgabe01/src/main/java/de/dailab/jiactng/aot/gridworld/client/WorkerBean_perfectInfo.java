@@ -109,7 +109,7 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
             // fallback to manhattan dist;
             response.dist = Math.abs(worker.position.x - order.position.x) + Math.abs(worker.position.y - order.position.y);
         else if(graph.path == null && order != null){
-            graph.aStar(worker.position, order.position);
+            graph.aStar(worker.position, order.position, false);
             response.dist = graph.path.size();
         }else if(graph.path != null){
             response.dist = graph.path.size();
@@ -203,7 +203,7 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
 
         if(graph != null){
             if(graph.path == null)
-                graph.aStar(worker.position, order.position);
+                graph.aStar(worker.position, order.position, false);
             sendWorkerAction(graph.getNextMove(worker.position));
 
         }else{ // fallback to simple worker
