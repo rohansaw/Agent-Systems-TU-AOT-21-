@@ -77,7 +77,6 @@ public class WorkerBean_Astar extends AbstractAgentBean {
 
         if(order != null)
             moveToOrder();
-
     }
 
     private void handleIncomingMessage(JiacMessage message) {
@@ -101,21 +100,19 @@ public class WorkerBean_Astar extends AbstractAgentBean {
             handleObstacleEncounter((ObstacleEncounterMessage) payload);
 
         if (payload instanceof DistanceEstimationRequest)
-            handleProfitEstimation((DistanceEstimationRequest) payload);
+            handleDistanceEstimation((DistanceEstimationRequest) payload);
     }
 
-    private void handleProfitEstimation(DistanceEstimationRequest msg){
+    private void handleDistanceEstimation(DistanceEstimationRequest msg) {
         DistanceEstimationResponse response = new DistanceEstimationResponse();
         response.gameId = gameId;
         response.workerId = worker.id;
         response.order = msg.order;
-        if(graph == null)
+        if (graph == null) {
             // fallback to manhattan dist;
-            response.dist = Math.abs(worker.position.x - msg.order.position.x) + Math.abs(worker.position.y - msg.order.position.y);
-        else if(graph.path == null && msg.order != null){
+            response.dist = worker.position.distance(msg.order.position);
+        }else{
             graph.aStar(worker.position, msg.order.position, false);
-            response.dist = graph.path.size();
-        }else if(graph.path != null){
             response.dist = graph.path.size();
         }
         sendMessage(brokerAddress, response);
@@ -130,6 +127,8 @@ public class WorkerBean_Astar extends AbstractAgentBean {
             response.state = Result.SUCCESS;
             order = message.order;
             gameId = message.gameId;
+            if(graph != null)
+                graph.aStar(worker.position, order.position, false);
         } else {
             response.state = Result.FAIL;
         }
@@ -149,7 +148,6 @@ public class WorkerBean_Astar extends AbstractAgentBean {
             response.gameId = gameId;
             response.newPosition = worker.position;
             sendMessage(brokerAddress, response);
-            log.info("WORKER MoveConfirm");
         }else if(message.action != WorkerAction.ORDER){
             int y = worker.position.y;
             int x = worker.position.x;

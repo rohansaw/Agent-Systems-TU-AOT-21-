@@ -100,6 +100,19 @@ public class WorkerBean extends AbstractAgentBean {
 		if (payload instanceof WorkerConfirm) {
 			handleMoveConfirmation((WorkerConfirm) payload);
 		}
+
+		if (payload instanceof DistanceEstimationRequest) {
+			handleDistanceEstimation((DistanceEstimationRequest) payload);
+		}
+	}
+
+	private void handleDistanceEstimation(DistanceEstimationRequest msg) {
+		DistanceEstimationResponse response = new DistanceEstimationResponse();
+		response.gameId = gameId;
+		response.workerId = worker.id;
+		response.order = msg.order;
+		response.dist = worker.position.distance(msg.order.position);
+		sendMessage(brokerAddress, response);
 	}
 
 	private void handleNewOrder(OrderAssignMessage message) {

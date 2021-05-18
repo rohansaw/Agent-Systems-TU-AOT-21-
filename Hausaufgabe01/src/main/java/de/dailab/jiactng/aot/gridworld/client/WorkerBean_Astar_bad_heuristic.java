@@ -99,21 +99,19 @@ public class WorkerBean_Astar_bad_heuristic extends AbstractAgentBean {
             handleObstacleEncounter((ObstacleEncounterMessage) payload);
 
         if (payload instanceof DistanceEstimationRequest)
-            handleProfitEstimation((DistanceEstimationRequest) payload);
+            handleDistanceEstimation((DistanceEstimationRequest) payload);
     }
 
-    private void handleProfitEstimation(DistanceEstimationRequest msg){
+    private void handleDistanceEstimation(DistanceEstimationRequest msg) {
         DistanceEstimationResponse response = new DistanceEstimationResponse();
         response.gameId = gameId;
         response.workerId = worker.id;
-        response.order = order;
-        if(graph == null)
+        response.order = msg.order;
+        if (graph == null) {
             // fallback to manhattan dist;
-            response.dist = Math.abs(worker.position.x - order.position.x) + Math.abs(worker.position.y - order.position.y);
-        else if(graph.path == null && order != null){
-            graph.aStar(worker.position, order.position, true);
-            response.dist = graph.path.size();
-        }else if(graph.path != null){
+            response.dist = worker.position.distance(msg.order.position);
+        }else{
+            graph.aStar(worker.position, msg.order.position, true);
             response.dist = graph.path.size();
         }
         sendMessage(brokerAddress, response);
@@ -128,6 +126,8 @@ public class WorkerBean_Astar_bad_heuristic extends AbstractAgentBean {
             response.state = Result.SUCCESS;
             order = message.order;
             gameId = message.gameId;
+            if(graph != null)
+                graph.aStar(worker.position, order.position, true);
         } else {
             response.state = Result.FAIL;
         }
@@ -187,21 +187,25 @@ public class WorkerBean_Astar_bad_heuristic extends AbstractAgentBean {
 
     /** Retrieve and set the servers address **/
     private void setServerAddress() {
-        try {
-            IAgentDescription serverAgent = thisAgent.searchAgent(new AgentDescription(null, "ServerAgent", null, null, null, null));
-            serverAddress = serverAgent.getMessageBoxAddress();
-        } catch(Exception e) {
-            log.warn("Worker could not connect to Server!");
+        while(serverAddress == null) {
+            try {
+                IAgentDescription serverAgent = thisAgent.searchAgent(new AgentDescription(null, "ServerAgent", null, null, null, null));
+                serverAddress = serverAgent.getMessageBoxAddress();
+            } catch (Exception e) {
+                log.warn("Worker could not connect to Server!");
+            }
         }
     }
 
     /** Retrieve and set the brokers address **/
     private void setBrokerAddress() {
-        try {
-            IAgentDescription brokerAgent = thisAgent.searchAgent(new AgentDescription(null, "BrokerAgent", null, null, null, null));
-            brokerAddress = brokerAgent.getMessageBoxAddress();
-        } catch(Exception e) {
-            log.warn("Worker could not connect to the Broker!");
+        while(brokerAddress == null) {
+            try {
+                IAgentDescription brokerAgent = thisAgent.searchAgent(new AgentDescription(null, "BrokerAgent", null, null, null, null));
+                brokerAddress = brokerAgent.getMessageBoxAddress();
+            } catch (Exception e) {
+                log.warn("Worker could not connect to the Broker!");
+            }
         }
     }
 
