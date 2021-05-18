@@ -13,6 +13,7 @@ import de.dailab.jiactng.aot.gridworld.model.Order;
 import de.dailab.jiactng.aot.gridworld.model.Position;
 import de.dailab.jiactng.aot.gridworld.model.Worker;
 import de.dailab.jiactng.aot.gridworld.util.BrokerState;
+import de.dailab.jiactng.aot.gridworld.util.HungarianAlgorithm;
 import org.sercho.masp.space.event.SpaceEvent;
 import org.sercho.masp.space.event.SpaceObserver;
 import org.sercho.masp.space.event.WriteCallEvent;
@@ -26,7 +27,7 @@ import java.util.stream.IntStream;
 public class BetterBrokerBean extends AbstractAgentBean {
 
     public static String BROKER_ID = "Some_Id";
-    public static String GRID_FILE = "/grids/22_2.grid";
+    public static String GRID_FILE = "/grids/04_1.grid";
 
     private BrokerState state = BrokerState.AWAIT_GAME_START;
     private int turn;
@@ -159,6 +160,7 @@ public class BetterBrokerBean extends AbstractAgentBean {
     private void handleOrderCompleted(OrderCompleted message) {
         if (message.state == Result.SUCCESS) {
             orderAssignments.remove(message.orderId);
+            decideOnAcceptingOrders();
         } else {
             /** ToDo If end is still far enough away maybe try to redo order **/
             /** Also maybe blacklist this worker, because he produces a bad result? **/
@@ -178,16 +180,20 @@ public class BetterBrokerBean extends AbstractAgentBean {
 
     /** removes orders that are more than 3 turns old **/
     private void updateOrders() {
-        receivedOrders.removeIf(order -> !(turn <= order.created + 3));
+        receivedOrders.removeIf(order -> turn > order.created + 3);
     }
 
+    /** Decided which orders should be accepted this turn **/
     private void decideOnAcceptingOrders() {
         // Get a list of assignments: order -> worker with best estimated profit
-        ArrayList<ProfitForOrder> orderStrategy = getOrdersToAccept();
+        log.info(receivedOrders);
+        log.info(workers);
+        ArrayList<Assignment> orderStrategy = getOrdersToAccept();
+        log.info(orderStrategy);
         ArrayList<Order> ordersToRemove = new ArrayList<>();
 
         // Send the calculated assignment to the according worker
-        for(ProfitForOrder assignment : orderStrategy) {
+        for(Assignment assignment : orderStrategy) {
             TakeOrderMessage message = new TakeOrderMessage();
             message.brokerId = BROKER_ID;
             message.orderId = assignment.order.id;
@@ -202,75 +208,80 @@ public class BetterBrokerBean extends AbstractAgentBean {
         receivedOrders.removeIf(order -> ordersToRemove.contains(order));
     }
 
-    class ProfitForOrder {
-        public Integer profit;
+    class Assignment {
         public Order order;
         public Worker worker;
     }
 
-    /** Returns a dict: For every worker which order should be assigned to him **/
-    private ArrayList<ProfitForOrder> getOrdersToAccept() {
-        ArrayList<ProfitForOrder> profitList = new ArrayList<>();
+    /** Returns a list of the best assignments that we can currently make **/
+    private ArrayList<Assignment> getOrdersToAccept() {
+        int[][] profitMatrix = makeProfitMatrix();
 
-        for(Worker worker: workers) {
-            profitList.addAll(workerExpectedProfitsForOrders(worker, receivedOrders));
-        }
-
-        return selectBestNonConflictingWorkerOrderAssignments(profitList);
-
-    }
-
-    private ArrayList<ProfitForOrder> selectBestNonConflictingWorkerOrderAssignments(ArrayList<ProfitForOrder> profitList) {
-        ArrayList<ProfitForOrder> result = new ArrayList<>();
-
-        // Greedy choose the best worker/order combination and remove all items with this worker/order
-        while(profitList.size() > 0) {
-            profitList.sort((a,b) -> a.profit.compareTo(b.profit));
-            ProfitForOrder bestOption = profitList.get(profitList.size() - 1);
-            result.add(bestOption);
-            profitList = (ArrayList<ProfitForOrder>) profitList.stream()
-                    .filter(i -> !i.worker.equals(bestOption.worker) && !i.order.equals(bestOption.order))
-                    .collect(Collectors.toList());
-        }
-
-        return result;
-    }
-
-    private ArrayList<ProfitForOrder> workerExpectedProfitsForOrders(Worker worker, List<Order> allOrders) {
-        ArrayList<ProfitForOrder> res = new ArrayList<>();
-
-        for(Order order : allOrders) {
-            int expectedProfitNewOrder = expectedProfit(worker, order);
-            if (isAssigned(worker)) {
-                Order runningWorkerOrder = getRunningWorkerOrder(worker);
-                int assignedOrderExpectedProfit = runningWorkersExpectedProfit(runningWorkerOrder, worker);
-                /** If sum of expected profit and order penalty for not finishing the running order is smaller
-                 * then it could make sense to accept the new order
-                  **/
-                if (expectedProfitNewOrder - order.value <= assignedOrderExpectedProfit) {
-                    continue;
-                }
+        int[][] costMatrix = new int[profitMatrix.length][profitMatrix[0].length];
+        for (int i = 0; i < profitMatrix.length; i++) {
+            for (int j = 0; j < profitMatrix[i].length; j++) {
+                costMatrix[i][j] = -profitMatrix[i][j];
             }
-            ProfitForOrder p = new ProfitForOrder();
-            p.profit = expectedProfitNewOrder - order.value;
-            p.order = order;
-            p.worker = worker;
-            res.add(p);
         }
+
+        HungarianAlgorithm assignmentHelper = new HungarianAlgorithm(costMatrix);
+        int[][] optimalAssignment = assignmentHelper.findOptimalAssignment();
+        for (int[] row:optimalAssignment) {
+            log.info(row[0] +" "+  row[1]);
+        }
+
+        ArrayList<Assignment> res = new ArrayList<>();
+        for (int[] assignment: optimalAssignment) {
+            Assignment parsedAssignment = new Assignment();
+            if (assignment[0] >= workers.size() || assignment[1] >= receivedOrders.size() ||
+                profitMatrix[assignment[0]][assignment[1]] <= 0) {
+                continue;
+            }
+            parsedAssignment.worker = workers.get(assignment[0]);
+            parsedAssignment.order = receivedOrders.get(assignment[1]);
+            res.add(parsedAssignment);
+        }
+
         return res;
     }
 
-    /** Returns the accepted profit if a worker would try to fulfill this order **/
+    /** Returns the maximum profit for every worker-order combination **/
+    private int[][] makeProfitMatrix() {
+        int matrixDim = Math.max(workers.size(), receivedOrders.size());
+        int[][] profitMatrix = new int[matrixDim][matrixDim];
+        for (int i = 0; i < workers.size(); i++) {
+            for (int j = 0; j < receivedOrders.size(); j++) {
+                if(!isAssigned(workers.get(i))) {
+                    int expectedProfitNewOrder = expectedProfit(workers.get(i), receivedOrders.get(j));
+                    profitMatrix[i][j] = expectedProfitNewOrder;
+                } else {
+                    // If worker is already assigned it might make sense to give him a better paying new order
+                    Order currentWorkersOrder = getRunningWorkerOrder(workers.get(i));
+                    int currentOrderExpectedProfit = runningWorkersExpectedProfit(receivedOrders.get(j), workers.get(i));
+                    int expectedProfitNewOrder = expectedProfit(workers.get(i), receivedOrders.get(j));
+                    if(expectedProfitNewOrder - currentWorkersOrder.value > currentOrderExpectedProfit) {
+                        profitMatrix[i][j] = expectedProfitNewOrder - currentWorkersOrder.value;
+                    }
+                }
+            }
+        }
+        if(profitMatrix.length > profitMatrix[0].length) {
+
+        }
+        return profitMatrix;
+    }
+
+    /** Returns the maximum profit if a worker would try to fulfill this order **/
     private int expectedProfit(Worker worker, Order order) {
         int distance = worker.position.distance(order.position);
         if(distance > (order.deadline - turn)) {
-            // it never makes sense to accept a order that can't be completed
-            return 0;
+            // if this worker cant finish the order in time
+            return -order.value;
         } else {
-            int curProfit = Math.max(order.value - distance * order.turnPenalty, 0);
+            int profit = Math.max(order.value - distance * order.turnPenalty, 0);
             // The distance are the turns needed to reach the order, and this will be subtracted from the profit
-            curProfit = curProfit - distance;
-            return Math.max(curProfit, 0);
+            profit = profit - distance;
+            return Math.max(profit, 0);
         }
     }
 
@@ -287,10 +298,15 @@ public class BetterBrokerBean extends AbstractAgentBean {
     /** Returns the profit a running worker is expected to reach from now **/
     private int runningWorkersExpectedProfit(Order order, Worker worker) {
         int remainingDistance = worker.position.distance(order.position);
-        int expectedTurns = (turn - order.created) + remainingDistance;
-        int expectedProfit = Math.max(order.value - expectedTurns * order.turnPenalty, 0);
-        expectedProfit -= remainingDistance;
-        return expectedProfit;
+        if(remainingDistance > (order.deadline - turn)) {
+            // if this worker cant finish the order in time
+            return -order.value;
+        } else {
+            int expectedTurns = (turn - order.created) + remainingDistance;
+            int expectedProfit = Math.max(order.value - expectedTurns * order.turnPenalty, 0);
+            expectedProfit -= remainingDistance;
+            return expectedProfit;
+        }
     }
 
     /** Assign an order to a worker **/
