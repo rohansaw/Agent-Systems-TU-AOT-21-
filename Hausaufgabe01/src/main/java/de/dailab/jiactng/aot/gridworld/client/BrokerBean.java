@@ -124,6 +124,18 @@ public class BrokerBean extends AbstractAgentBean {
 			if (payload instanceof EndGameMessage) {
 				endGame((EndGameMessage) payload);
 			}
+
+			if (payload instanceof ObstacleEncounterMessage) {
+				handleObstacleEncounter((ObstacleEncounterMessage) payload);
+			}
+		}
+	}
+
+	/** broadcast obstacle position to all workers */
+	private void handleObstacleEncounter(ObstacleEncounterMessage msg){
+		for(Worker w : workers){
+			if(w.id != msg.workerID)
+				sendMessage(workerAddresses.get(w.id), msg);
 		}
 	}
 

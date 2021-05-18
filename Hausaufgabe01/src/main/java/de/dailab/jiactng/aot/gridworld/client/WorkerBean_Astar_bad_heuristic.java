@@ -160,7 +160,12 @@ public class WorkerBean_Astar_bad_heuristic extends AbstractAgentBean {
                 msg.gameId = gameId;
                 Position pos = new Position(x, y);
                 obstacles.add(pos);
+                if(graph != null) {
+                    graph.addObstacle(pos);
+                    if(order != null) graph.aStar(worker.position, order.position, true);
+                }
                 msg.position = pos;
+                sendMessage(brokerAddress, msg);
             }
         }
     }

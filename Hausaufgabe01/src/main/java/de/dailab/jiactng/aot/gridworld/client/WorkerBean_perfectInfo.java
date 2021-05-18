@@ -146,20 +146,6 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
             response.gameId = gameId;
             response.newPosition = worker.position;
             sendMessage(brokerAddress, response);
-        }else if(message.action != WorkerAction.ORDER){
-            int y = worker.position.y;
-            int x = worker.position.x;
-            if (message.action == WorkerAction.NORTH) y--;
-            if (message.action == WorkerAction.SOUTH) y++;
-            if (message.action == WorkerAction.WEST)  x--;
-            if (message.action == WorkerAction.EAST)  x++;
-            if(x >= 0 && x < graph.width && y >= 0 && y < graph.height) {
-                ObstacleEncounterMessage msg = new ObstacleEncounterMessage();
-                msg.gameId = gameId;
-                Position pos = new Position(x, y);
-                obstacles.add(pos);
-                msg.position = pos;
-            }
         }
     }
 

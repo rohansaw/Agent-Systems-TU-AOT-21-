@@ -158,11 +158,16 @@ public class WorkerBean_Astar extends AbstractAgentBean {
             if (message.action == WorkerAction.WEST)  x--;
             if (message.action == WorkerAction.EAST)  x++;
             if(x >= 0 && x < gameSize.x && y >= 0 && y < gameSize.y) {
-                ObstacleEncounterMessage msg = new ObstacleEncounterMessage();
-                msg.gameId = gameId;
                 Position pos = new Position(x, y);
                 obstacles.add(pos);
+                if(graph != null) {
+                    graph.addObstacle(pos);
+                    if(order != null) graph.aStar(worker.position, order.position, false);
+                }
+                ObstacleEncounterMessage msg = new ObstacleEncounterMessage();
+                msg.gameId = gameId;
                 msg.position = pos;
+                sendMessage(brokerAddress, msg);
             }
         }
     }

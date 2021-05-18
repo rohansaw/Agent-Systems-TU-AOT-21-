@@ -120,13 +120,24 @@ public class BetterBrokerBean extends AbstractAgentBean {
                 handleOrderCompleted((OrderCompleted) payload);
             }
 
-            if(payload instanceof WorkerPositionUpdate) {
+            if (payload instanceof WorkerPositionUpdate) {
                 handleWorkerPositionUpdate((WorkerPositionUpdate) payload);
             }
 
             if (payload instanceof EndGameMessage) {
                 endGame((EndGameMessage) payload);
             }
+            if (payload instanceof ObstacleEncounterMessage) {
+                handleObstacleEncounter((ObstacleEncounterMessage) payload);
+            }
+        }
+    }
+
+    /** broadcast obstacle position to all workers */
+    private void handleObstacleEncounter(ObstacleEncounterMessage msg){
+        for(Worker w : workers){
+            if(w.id != msg.workerID)
+                sendMessage(workerAddresses.get(w.id), msg);
         }
     }
 
