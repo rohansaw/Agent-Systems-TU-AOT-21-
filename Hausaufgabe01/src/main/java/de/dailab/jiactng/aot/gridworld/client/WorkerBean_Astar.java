@@ -100,20 +100,20 @@ public class WorkerBean_Astar extends AbstractAgentBean {
         if (payload instanceof ObstacleEncounterMessage)
             handleObstacleEncounter((ObstacleEncounterMessage) payload);
 
-        if (payload instanceof ProfitEstimationRequest)
-            handleProfitEstimation((ProfitEstimationRequest) payload);
+        if (payload instanceof DistanceEstimationRequest)
+            handleProfitEstimation((DistanceEstimationRequest) payload);
     }
 
-    private void handleProfitEstimation(ProfitEstimationRequest msg){
-        ProfitEstimationResponse response = new ProfitEstimationResponse();
+    private void handleProfitEstimation(DistanceEstimationRequest msg){
+        DistanceEstimationResponse response = new DistanceEstimationResponse();
         response.gameId = gameId;
         response.workerId = worker.id;
-        response.order = order;
+        response.order = msg.order;
         if(graph == null)
             // fallback to manhattan dist;
-            response.dist = Math.abs(worker.position.x - order.position.x) + Math.abs(worker.position.y - order.position.y);
-        else if(graph.path == null && order != null){
-            graph.aStar(worker.position, order.position, false);
+            response.dist = Math.abs(worker.position.x - msg.order.position.x) + Math.abs(worker.position.y - msg.order.position.y);
+        else if(graph.path == null && msg.order != null){
+            graph.aStar(worker.position, msg.order.position, false);
             response.dist = graph.path.size();
         }else if(graph.path != null){
             response.dist = graph.path.size();
