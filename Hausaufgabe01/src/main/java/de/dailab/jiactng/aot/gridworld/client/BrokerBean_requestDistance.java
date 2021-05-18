@@ -186,6 +186,7 @@ public class BrokerBean_requestDistance extends AbstractAgentBean {
             if(worker != null) {
                 sendTakeOrderMessage(message.order.id);
                 orderAssignments.put(message.order.id, worker);
+                acceptedOrders.put(message.order.id, message.order);
                 receivedOrders.removeIf(order -> order.id.equals(message.order.id));
             }
         }

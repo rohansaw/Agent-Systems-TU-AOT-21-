@@ -108,12 +108,12 @@ public class WorkerBean_Astar extends AbstractAgentBean {
         DistanceEstimationResponse response = new DistanceEstimationResponse();
         response.gameId = gameId;
         response.workerId = worker.id;
-        response.order = order;
+        response.order = msg.order;
         if(graph == null)
             // fallback to manhattan dist;
-            response.dist = Math.abs(worker.position.x - order.position.x) + Math.abs(worker.position.y - order.position.y);
-        else if(graph.path == null && order != null){
-            graph.aStar(worker.position, order.position, false);
+            response.dist = Math.abs(worker.position.x - msg.order.position.x) + Math.abs(worker.position.y - msg.order.position.y);
+        else if(graph.path == null && msg.order != null){
+            graph.aStar(worker.position, msg.order.position, false);
             response.dist = graph.path.size();
         }else if(graph.path != null){
             response.dist = graph.path.size();

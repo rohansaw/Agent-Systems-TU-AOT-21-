@@ -16,11 +16,11 @@
 				<!-- change which broker and worker agents will be used -->
 				<ref bean="BrokerAgent" />
 				
-				<bean parent="WorkerAgent_perfectInfo" />
-				<bean parent="WorkerAgent_perfectInfo" />
-				<bean parent="WorkerAgent_perfectInfo" />
-				<bean parent="WorkerAgent_perfectInfo" />
-				<bean parent="WorkerAgent_perfectInfo" />
+				<bean parent="WorkerAgent_Astar" />
+				<bean parent="WorkerAgent_Astar" />
+				<bean parent="WorkerAgent_Astar" />
+				<bean parent="WorkerAgent_Astar" />
+				<bean parent="WorkerAgent_Astar" />
 <!--				<bean parent="WorkerAgent_variation" />-->
 			</list>
 		</property>
