@@ -72,7 +72,7 @@ public class WorkerBean_Astar_bad_heuristic extends AbstractAgentBean {
         if(brokerAddress == null)
             setBrokerAddress();
 
-        if(gameSize == null)
+        if(gameSize == null && worker != null)
             getGameSize();
 
         if(order != null)
@@ -213,7 +213,7 @@ public class WorkerBean_Astar_bad_heuristic extends AbstractAgentBean {
         log.info(order.position);
         log.info("-----------");
         if(graph != null) {
-            if(graph.path == null && !worker.position.equals(order.position))
+            if(graph.path == null)
                 graph.aStar(worker.position, order.position, true);
             sendWorkerAction(graph.getNextMove(worker.position));
         }else{// fallback to simple worker

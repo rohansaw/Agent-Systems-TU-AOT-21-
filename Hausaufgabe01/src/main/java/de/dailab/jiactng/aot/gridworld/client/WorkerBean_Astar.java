@@ -72,7 +72,7 @@ public class WorkerBean_Astar extends AbstractAgentBean {
         if(brokerAddress == null)
             setBrokerAddress();
 
-        if(gameSize == null)
+        if(gameSize == null && worker != null)
             getGameSize();
 
         if(order != null)
@@ -82,6 +82,8 @@ public class WorkerBean_Astar extends AbstractAgentBean {
 
     private void handleIncomingMessage(JiacMessage message) {
         Object payload = message.getPayload();
+        log.info("WORKER:");
+        log.info(payload);
 
         if (payload instanceof WorkerInitialize)
             worker = ((WorkerInitialize) payload).worker;
@@ -135,7 +137,6 @@ public class WorkerBean_Astar extends AbstractAgentBean {
     }
 
     private void handleMoveConfirmation(WorkerConfirm message) {
-        log.info(message);
         if(message.state == Result.SUCCESS) {
             Optional<Position> newPosition = worker.position.applyMove(null, message.action);
             worker.position = newPosition.orElse(worker.position);
@@ -166,12 +167,6 @@ public class WorkerBean_Astar extends AbstractAgentBean {
         }
     }
 
-    private void handleGameSizeResponse(GameSizeResponse message) {
-        log.info(message);
-        gameSize = message.size;
-        graph = new GridGraph(gameSize.x, gameSize.y, obstacles);
-    }
-
     private void handleObstacleEncounter(ObstacleEncounterMessage message) {
         obstacles.add(message.position);
         if(graph != null) {
@@ -181,32 +176,42 @@ public class WorkerBean_Astar extends AbstractAgentBean {
         }
     }
 
-    /** Retrieve and set the servers address **/
-    private void setServerAddress() {
-        try {
-            IAgentDescription serverAgent = thisAgent.searchAgent(new AgentDescription(null, "ServerAgent", null, null, null, null));
-            serverAddress = serverAgent.getMessageBoxAddress();
-        } catch(Exception e) {
-            log.warn("Worker could not connect to Server!");
-        }
+    private void handleGameSizeResponse(GameSizeResponse message) {
+        log.info(message);
+        gameSize = message.size;
+        graph = new GridGraph(gameSize.x, gameSize.y, obstacles);
     }
 
-    /** Retrieve and set the brokers address **/
-    private void setBrokerAddress() {
-        try {
-            IAgentDescription brokerAgent = thisAgent.searchAgent(new AgentDescription(null, "BrokerAgent", null, null, null, null));
-            brokerAddress = brokerAgent.getMessageBoxAddress();
-        } catch(Exception e) {
-            log.warn("Worker could not connect to the Broker!");
-        }
-    }
-
+    /** pull gameSize */
     private void getGameSize(){
         GameSizeRequest msg = new GameSizeRequest();
         msg.workerID = worker.id;
         msg.gameId = gameId;
         sendMessage(brokerAddress, msg);
+    }
 
+    /** Retrieve and set the servers address **/
+    private void setServerAddress() {
+        while(serverAddress == null) {
+            try {
+                IAgentDescription serverAgent = thisAgent.searchAgent(new AgentDescription(null, "ServerAgent", null, null, null, null));
+                serverAddress = serverAgent.getMessageBoxAddress();
+            } catch (Exception e) {
+                log.warn("Worker could not connect to Server!");
+            }
+        }
+    }
+
+    /** Retrieve and set the brokers address **/
+    private void setBrokerAddress() {
+        while(brokerAddress == null) {
+            try {
+                IAgentDescription brokerAgent = thisAgent.searchAgent(new AgentDescription(null, "BrokerAgent", null, null, null, null));
+                brokerAddress = brokerAgent.getMessageBoxAddress();
+            } catch (Exception e) {
+                log.warn("Worker could not connect to the Broker!");
+            }
+        }
     }
 
     private void moveToOrder() {
@@ -214,7 +219,7 @@ public class WorkerBean_Astar extends AbstractAgentBean {
         log.info(order.position);
         log.info("-----------");
         if(graph != null) {
-            if(graph.path == null && !worker.position.equals(order.position))
+            if(graph.path == null)
                 graph.aStar(worker.position, order.position, false);
             sendWorkerAction(graph.getNextMove(worker.position));
         }else{// fallback to simple worker

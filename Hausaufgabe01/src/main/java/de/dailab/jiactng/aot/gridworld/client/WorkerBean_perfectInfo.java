@@ -72,7 +72,7 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
         if(brokerAddress == null)
             setBrokerAddress();
 
-        if(graph == null)
+        if(graph == null && worker != null)
             setGraph();
 
         if(order != null)
@@ -168,6 +168,14 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
         graph = new GridGraph(message.file);
     }
 
+    /** pull GridFile to generate graph */
+    private void setGraph(){
+        GridFileRequest msg = new GridFileRequest();
+        msg.workerID = worker.id;
+        msg.gameId = gameId;
+        sendMessage(brokerAddress, msg);
+    }
+
     /** Retrieve and set the servers address **/
     private void setServerAddress() {
         try {
@@ -176,14 +184,6 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
         } catch(Exception e) {
             log.warn("Worker could not connect to Server!");
         }
-    }
-
-    /** pull GridFile to generate graph */
-    private void setGraph(){
-        GameSizeRequest msg = new GameSizeRequest();
-        msg.workerID = worker.id;
-        msg.gameId = gameId;
-        sendMessage(brokerAddress, msg);
     }
 
     /** Retrieve and set the brokers address **/

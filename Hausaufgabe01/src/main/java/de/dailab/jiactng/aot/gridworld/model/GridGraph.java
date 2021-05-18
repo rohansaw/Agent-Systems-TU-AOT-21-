@@ -157,8 +157,9 @@ public class GridGraph {
             for(Position u : adj[v.pos.y][v.pos.x]){
                 if(visited[u.y][u.x] || v.g + 1 >= QcontainsPos(u, Q))
                     continue;
+
                 Node node = new Node(u, v.g + 1, u.distance(to));;
-                if(useBadHeuristic) {
+                if(useBadHeuristic && u.distance(to) < v.pos.distance(to)) {
                     node.f += 2;
                     node.h += 2;
                 }
