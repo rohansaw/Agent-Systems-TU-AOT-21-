@@ -16,8 +16,10 @@ import de.dailab.jiactng.agentcore.comm.message.JiacMessage;
 import de.dailab.jiactng.agentcore.knowledge.IFact;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.List;
+import java.util.Set;
 
 public class WorkerBean_perfectInfo extends AbstractAgentBean {
     /*
@@ -40,7 +42,8 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
     private Worker worker;
     private Order order;
     private int gameId;
-    private List<Position> obstacles;
+    private Position gameSize;
+    private Set<Position> obstacles = new HashSet<>();
     private GridGraph graph = null;
 
     @Override
@@ -97,6 +100,23 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
 
         if (payload instanceof DistanceEstimationRequest)
             handleDistanceEstimation((DistanceEstimationRequest) payload);
+
+        //is only used if no GridFile was provided
+        if (payload instanceof GameSizeResponse) {
+            handleGameSizeResponse((GameSizeResponse) payload);
+        }
+        if (payload instanceof ObstacleEncounterMessage) {
+            handleObstacleEncounter((ObstacleEncounterMessage) payload);
+        }
+    }
+
+    private void handleObstacleEncounter(ObstacleEncounterMessage message) {
+        obstacles.add(message.position);
+        if(graph != null) {
+            graph.addObstacle(message.position);
+            if (order != null)
+                graph.aStar(worker.position, order.position, true);
+        }
     }
 
     private void handleDistanceEstimation(DistanceEstimationRequest msg) {
@@ -145,12 +165,45 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
             response.gameId = gameId;
             response.newPosition = worker.position;
             sendMessage(brokerAddress, response);
+        }else if(message.action != WorkerAction.ORDER){
+            //is only used if no GridFile was provided
+            int y = worker.position.y;
+            int x = worker.position.x;
+            if (message.action == WorkerAction.NORTH) y--;
+            if (message.action == WorkerAction.SOUTH) y++;
+            if (message.action == WorkerAction.WEST)  x--;
+            if (message.action == WorkerAction.EAST)  x++;
+            if(x >= 0 && x < gameSize.x && y >= 0 && y < gameSize.y) {
+                ObstacleEncounterMessage msg = new ObstacleEncounterMessage();
+                msg.gameId = gameId;
+                Position pos = new Position(x, y);
+                obstacles.add(pos);
+                if(graph != null) {
+                    graph.addObstacle(pos);
+                    if(order != null) graph.aStar(worker.position, order.position, true);
+                }
+                msg.position = pos;
+                sendMessage(brokerAddress, msg);
+            }
         }
+    }
+
+    private void handleGameSizeResponse(GameSizeResponse message) {
+        log.info(message);
+        gameSize = message.size;
+        graph = new GridGraph(gameSize.x, gameSize.y, obstacles);
     }
 
     private void handleGridFileResponse(GridFileResponse message) {
         log.info(message);
-        graph = new GridGraph(message.file);
+        if(message.file == null){ // request gridSize if gridFile is unknown
+            GameSizeRequest msg = new GameSizeRequest();
+            msg.gameId = gameId;
+            msg.workerID = worker.id;
+            sendMessage(brokerAddress, msg);
+        }else {
+            graph = new GridGraph(message.file);
+        }
     }
 
     /** pull GridFile to generate graph */
@@ -193,8 +246,8 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
         if(graph != null){
             if(graph.path == null)
                 graph.aStar(worker.position, order.position, false);
-            sendWorkerAction(graph.getNextMove(worker.position));
 
+            sendWorkerAction(graph.getNextMove(worker.position));
         }else{ // fallback to simple worker
             if(worker.position.x < order.position.x) {
                 sendWorkerAction(WorkerAction.EAST);
