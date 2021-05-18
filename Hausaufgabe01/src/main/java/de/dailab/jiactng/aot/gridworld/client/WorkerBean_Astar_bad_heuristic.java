@@ -98,12 +98,12 @@ public class WorkerBean_Astar_bad_heuristic extends AbstractAgentBean {
         if (payload instanceof ObstacleEncounterMessage)
             handleObstacleEncounter((ObstacleEncounterMessage) payload);
 
-        if (payload instanceof ProfitEstimationRequest)
-            handleProfitEstimation((ProfitEstimationRequest) payload);
+        if (payload instanceof DistanceEstimationRequest)
+            handleProfitEstimation((DistanceEstimationRequest) payload);
     }
 
-    private void handleProfitEstimation(ProfitEstimationRequest msg){
-        ProfitEstimationResponse response = new ProfitEstimationResponse();
+    private void handleProfitEstimation(DistanceEstimationRequest msg){
+        DistanceEstimationResponse response = new DistanceEstimationResponse();
         response.gameId = gameId;
         response.workerId = worker.id;
         response.order = order;

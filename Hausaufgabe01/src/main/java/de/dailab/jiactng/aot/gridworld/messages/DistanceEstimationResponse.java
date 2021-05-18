@@ -2,22 +2,22 @@ package de.dailab.jiactng.aot.gridworld.messages;
 
 import de.dailab.jiactng.aot.gridworld.model.Order;
 
-import java.util.ArrayList;
-
 /** Asks a worker what he expexts its profit to be for a given order **/
-public class ProfitEstimationRequest extends GameMessage{
+public class DistanceEstimationResponse extends GameMessage{
     private static final long serialVersionUID = 8371317755668969569L;
 
     /** The ID of the worker */
     public String workerId;
 
-    /** The order to handle **/
+    /** The estimate **/
+    public int dist;
+
     public Order order;
 
 
     @Override
     public String toString() {
-        return String.format("ProfitEstimationRequest(game=%d, order=%s, workerId=%s)", gameId, order, workerId);
+        return String.format("ProfitEstimationRequest(game=%d, profits=%s, workerId=%s)", gameId, dist, workerId);
     }
 
 }

@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class BrokerBean_requestHeuristics extends AbstractAgentBean {
+public class BrokerBean_requestDistance extends AbstractAgentBean {
 
     public static String BROKER_ID = "Some_Id";
     public static String GRID_FILE = "/grids/22_2.grid";
@@ -38,7 +38,7 @@ public class BrokerBean_requestHeuristics extends AbstractAgentBean {
     private ArrayList<Order> receivedOrders;
     private HashMap<String, Order> acceptedOrders;
     private HashMap<String, Worker> orderAssignments;
-    private HashMap<String, HashMap<String, Integer> > expectedProfits;
+    private HashMap<String, HashMap<String, Integer> > distances;
 
     private ICommunicationAddress serverAddress;
     private HashMap<String, ICommunicationAddress> workerAddresses;
@@ -59,13 +59,13 @@ public class BrokerBean_requestHeuristics extends AbstractAgentBean {
          */
         log.info("starting...");
         receivedOrders = new ArrayList<>();
-        expectedProfits = new HashMap<>();
+        distances = new HashMap<>();
         turn = 0;
         serverAddress = null;
         workerAddresses = new HashMap<String, ICommunicationAddress>();
         orderAssignments = new HashMap<>();
         acceptedOrders = new HashMap<String, Order>();
-        memory.attach(new BrokerBean_requestHeuristics.MessageObserver(), new JiacMessage());
+        memory.attach(new BrokerBean_requestDistance.MessageObserver(), new JiacMessage());
     }
 
 
@@ -116,8 +116,8 @@ public class BrokerBean_requestHeuristics extends AbstractAgentBean {
                 handleTakeOrderConfirm((TakeOrderConfirm) payload);
             }
 
-            if (payload instanceof ProfitEstimationResponse) {
-                handleProfitEstimationResponse((ProfitEstimationResponse) payload);
+            if (payload instanceof DistanceEstimationResponse) {
+                handleDistanceEstimationResponse((DistanceEstimationResponse) payload);
             }
 
             if (payload instanceof OrderCompleted) {
@@ -144,7 +144,7 @@ public class BrokerBean_requestHeuristics extends AbstractAgentBean {
     private void handleIncomingOrder(Order order) {
         log.info("Order received: " + order);
         receivedOrders.add(order);
-        addPlaceholderProfitEntry(order.id);
+        addPlaceholderDistanceEntry(order.id);
         broadCastOrder(order);
     }
 
@@ -179,13 +179,15 @@ public class BrokerBean_requestHeuristics extends AbstractAgentBean {
         }
     }
 
-    private void handleProfitEstimationResponse(ProfitEstimationResponse message) {
-        expectedProfits.get(message.order.id).put(message.workerId, message.dist);
+    private void handleDistanceEstimationResponse(DistanceEstimationResponse message) {
+        distances.get(message.order.id).put(message.workerId, message.dist);
         if(receivedAllAnswersForOrder(message.order.id)) {
             Worker worker = getBestWorkerForOrder(message.order.id);
-            sendTakeOrderMessage(message.order.id);
-            orderAssignments.put(message.order.id, worker);
-            receivedOrders.removeIf(order -> order.id.equals(message.order.id));
+            if(worker != null) {
+                sendTakeOrderMessage(message.order.id);
+                orderAssignments.put(message.order.id, worker);
+                receivedOrders.removeIf(order -> order.id.equals(message.order.id));
+            }
         }
     }
 
@@ -200,36 +202,54 @@ public class BrokerBean_requestHeuristics extends AbstractAgentBean {
     private void broadCastOrder(Order order) {
         for(Worker worker: workers) {
             if(!isAssigned(worker)) {
-                requestProfitEstimate(worker, order);
+                requestDistanceEstimate(worker, order);
             }
         }
     }
 
-    private void requestProfitEstimate(Worker worker, Order order) {
-        ProfitEstimationRequest message = new ProfitEstimationRequest();
+    private void requestDistanceEstimate(Worker worker, Order order) {
+        DistanceEstimationRequest message = new DistanceEstimationRequest();
         message.gameId = gameId;
         message.order = order;
         message.workerId = worker.id;
         sendMessage(workerAddresses.get(worker.id), message);
     }
 
-    private void addPlaceholderProfitEntry(String orderId) {
+    private void addPlaceholderDistanceEntry(String orderId) {
         HashMap<String, Integer> placeholder = new HashMap<>();
         for (Worker worker : workers) {
             placeholder.put(worker.id, null);
         }
-        expectedProfits.put(orderId, placeholder);
+        distances.put(orderId, placeholder);
+    }
+
+    private int getExpectedProfit(Worker worker, Order order) {
+        int distance = distances.get(order.id).get(worker.id);
+        if(distance > (order.deadline - turn)) {
+            // if this worker cant finish the order in time
+            return -order.value;
+        } else {
+            int profit = Math.max(order.value - distance * order.turnPenalty, 0);
+            // The distance are the turns needed to reach the order, and this will be subtracted from the profit
+            profit = profit - distance;
+            return Math.max(profit, 0);
+        }
     }
 
     private Worker getBestWorkerForOrder(String orderId) {
         String bestWorkerId = null;
         int maxProfit = 0;
-        for (String workerId : expectedProfits.get(orderId).keySet()) {
+        for (String workerId : distances.get(orderId).keySet()) {
             Worker worker = getWorkerById(workerId);
-            if(expectedProfits.get(orderId).get(workerId) > maxProfit && !isAssigned(worker)) {
+            Order order = getOrderById(orderId);
+            int expectedWorkerProfit = getExpectedProfit(worker, order);
+            if(expectedWorkerProfit > maxProfit && !isAssigned(worker)) {
                 bestWorkerId = workerId;
-                maxProfit = expectedProfits.get(orderId).get(workerId);
+                maxProfit = expectedWorkerProfit;
             }
+        }
+        if(bestWorkerId == null) {
+            return null;
         }
         return getWorkerById(bestWorkerId);
     }
@@ -340,7 +360,7 @@ public class BrokerBean_requestHeuristics extends AbstractAgentBean {
     }
 
     private boolean receivedAllAnswersForOrder(String orderId) {
-        return !(expectedProfits.get(orderId).values().contains(null));
+        return !(distances.get(orderId).values().contains(null));
     }
 
     private Worker getWorkerById(String workerId) {

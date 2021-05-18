@@ -16,7 +16,6 @@ import de.dailab.jiactng.agentcore.comm.message.JiacMessage;
 import de.dailab.jiactng.agentcore.knowledge.IFact;
 
 import java.io.Serializable;
-import java.util.LinkedList;
 import java.util.Optional;
 import java.util.List;
 
@@ -96,12 +95,12 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
         if (payload instanceof GridFileResponse)
             handleGridFileResponse((GridFileResponse) payload);
 
-        if (payload instanceof ProfitEstimationRequest)
-            handleProfitEstimation((ProfitEstimationRequest) payload);
+        if (payload instanceof DistanceEstimationRequest)
+            handleProfitEstimation((DistanceEstimationRequest) payload);
     }
 
-    private void handleProfitEstimation(ProfitEstimationRequest msg){
-        ProfitEstimationResponse response = new ProfitEstimationResponse();
+    private void handleProfitEstimation(DistanceEstimationRequest msg){
+        DistanceEstimationResponse response = new DistanceEstimationResponse();
         response.gameId = gameId;
         response.workerId = worker.id;
         response.order = order;
