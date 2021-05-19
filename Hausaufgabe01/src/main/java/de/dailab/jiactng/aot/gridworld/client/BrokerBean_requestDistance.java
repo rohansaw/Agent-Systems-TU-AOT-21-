@@ -324,6 +324,7 @@ public class BrokerBean_requestDistance extends AbstractAgentBean {
     private void endGame(EndGameMessage message) {
         log.info("Game ended: " + message);
         state = BrokerState.AWAIT_GAME_START;
+        System.exit(0);
         /** Maybe ToDo some cleanup stuff **/
     }
 
