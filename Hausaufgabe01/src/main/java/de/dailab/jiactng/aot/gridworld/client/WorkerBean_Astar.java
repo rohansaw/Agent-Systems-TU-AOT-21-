@@ -150,7 +150,7 @@ public class WorkerBean_Astar extends AbstractAgentBean {
             response.newPosition = worker.position;
             sendMessage(brokerAddress, response);
             log.info("WORKER MoveConfirm");
-        }else if(message.action != WorkerAction.ORDER){
+        }else if(message.action != WorkerAction.ORDER && gameSize != null){
             int y = worker.position.y;
             int x = worker.position.x;
             if (message.action == WorkerAction.NORTH) y--;

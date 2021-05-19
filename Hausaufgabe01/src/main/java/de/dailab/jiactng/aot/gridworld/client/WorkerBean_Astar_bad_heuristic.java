@@ -148,7 +148,7 @@ public class WorkerBean_Astar_bad_heuristic extends AbstractAgentBean {
             response.gameId = gameId;
             response.newPosition = worker.position;
             sendMessage(brokerAddress, response);
-        }else if(message.action != WorkerAction.ORDER){
+        }else if(message.action != WorkerAction.ORDER && gameSize != null){
             int y = worker.position.y;
             int x = worker.position.x;
             if (message.action == WorkerAction.NORTH) y--;
