@@ -91,6 +91,7 @@ public class WorkerBean extends AbstractAgentBean {
 
 		if (payload instanceof WorkerInitialize) {
 			worker = ((WorkerInitialize) payload).worker;
+			gameId = ((WorkerInitialize) payload).gameId;
 		}
 
 		if (payload instanceof OrderAssignMessage) {

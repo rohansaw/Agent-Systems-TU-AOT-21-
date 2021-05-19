@@ -85,8 +85,10 @@ public class WorkerBean_Astar extends AbstractAgentBean {
         log.info("WORKER:");
         log.info(payload);
 
-        if (payload instanceof WorkerInitialize)
+        if (payload instanceof WorkerInitialize) {
             worker = ((WorkerInitialize) payload).worker;
+            gameId = ((WorkerInitialize) payload).gameId;
+        }
 
         if (payload instanceof OrderAssignMessage)
             handleNewOrder((OrderAssignMessage) payload);

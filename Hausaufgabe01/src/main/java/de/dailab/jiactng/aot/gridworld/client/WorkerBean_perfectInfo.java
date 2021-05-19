@@ -86,8 +86,10 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
     private void handleIncomingMessage(JiacMessage message) {
         Object payload = message.getPayload();
 
-        if (payload instanceof WorkerInitialize)
+        if (payload instanceof WorkerInitialize) {
             worker = ((WorkerInitialize) payload).worker;
+            gameId = ((WorkerInitialize) payload).gameId;
+        }
 
         if (payload instanceof OrderAssignMessage)
             handleNewOrder((OrderAssignMessage) payload);
