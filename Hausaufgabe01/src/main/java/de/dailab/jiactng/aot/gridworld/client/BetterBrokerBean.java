@@ -43,6 +43,7 @@ public class BetterBrokerBean extends AbstractAgentBean {
     private ICommunicationAddress serverAddress;
     private HashMap<String, ICommunicationAddress> workerAddresses;
 
+    private LinkedList<String> randomWorkers = new LinkedList<>();
 
     @Override
     public void doStart() throws Exception {
@@ -136,7 +137,14 @@ public class BetterBrokerBean extends AbstractAgentBean {
             if (payload instanceof GridFileRequest) {
                 handleGridFileRequest((GridFileRequest) payload);
             }
+            if (payload instanceof RandomWorkerMessage) {
+                handleRandomWorkerMessage((RandomWorkerMessage) payload);
+            }
         }
+    }
+
+    private void handleRandomWorkerMessage(RandomWorkerMessage msg){
+        randomWorkers.add(msg.worker.id);
     }
 
     private void handleGridFileRequest(GridFileRequest msg){
@@ -281,7 +289,7 @@ public class BetterBrokerBean extends AbstractAgentBean {
         int[][] profitMatrix = new int[matrixDim][matrixDim];
         for (int i = 0; i < workers.size(); i++) {
             for (int j = 0; j < receivedOrders.size(); j++) {
-                if(!isAssigned(workers.get(i))) {
+                if(!isAssigned(workers.get(i)) && !randomWorkers.contains(workers.get(i).id)) {
                     int expectedProfitNewOrder = expectedProfit(workers.get(i), receivedOrders.get(j));
                     profitMatrix[i][j] = expectedProfitNewOrder;
                 } else {
