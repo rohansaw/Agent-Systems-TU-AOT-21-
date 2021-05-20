@@ -151,23 +151,26 @@ public class WorkerBean_Astar extends AbstractAgentBean {
             response.gameId = gameId;
             response.newPosition = worker.position;
             sendMessage(brokerAddress, response);
+            if(graph != null && graph.path != null)
+                graph.path.removeFirst();
             log.info("WORKER MoveConfirm");
         }else if(message.action != WorkerAction.ORDER && gameSize != null){
+            //is only used if no GridFile was provided
             int y = worker.position.y;
             int x = worker.position.x;
             if (message.action == WorkerAction.NORTH) y--;
             if (message.action == WorkerAction.SOUTH) y++;
             if (message.action == WorkerAction.WEST)  x--;
             if (message.action == WorkerAction.EAST)  x++;
-            if(x >= 0 && x < gameSize.x && y >= 0 && y < gameSize.y) {
-                Position pos = new Position(x, y);
+            Position pos = new Position(x, y);
+            if(!obstacles.contains(pos) && x >= 0 && x < gameSize.x && y >= 0 && y < gameSize.y) {
+                ObstacleEncounterMessage msg = new ObstacleEncounterMessage();
+                msg.gameId = gameId;
                 obstacles.add(pos);
                 if(graph != null) {
                     graph.addObstacle(pos);
                     if(order != null) graph.aStar(worker.position, order.position, false);
                 }
-                ObstacleEncounterMessage msg = new ObstacleEncounterMessage();
-                msg.gameId = gameId;
                 msg.position = pos;
                 sendMessage(brokerAddress, msg);
             }

@@ -42,7 +42,7 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
     private Worker worker;
     private Order order;
     private int gameId;
-    private Position gameSize;
+    private Position gameSize = null;
     private Set<Position> obstacles = new HashSet<>();
     private GridGraph graph = null;
 
@@ -117,7 +117,7 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
         if(graph != null) {
             graph.addObstacle(message.position);
             if (order != null)
-                graph.aStar(worker.position, order.position, true);
+                graph.aStar(worker.position, order.position, false);
         }
     }
 
@@ -162,6 +162,8 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
             if (message.action == WorkerAction.ORDER) {
                 order = null;
             }
+            if(graph != null && graph.path != null)
+                graph.path.removeFirst();
             WorkerPositionUpdate response = new WorkerPositionUpdate();
             response.workerId = worker.id;
             response.gameId = gameId;
@@ -175,14 +177,14 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
             if (message.action == WorkerAction.SOUTH) y++;
             if (message.action == WorkerAction.WEST)  x--;
             if (message.action == WorkerAction.EAST)  x++;
-            if(x >= 0 && x < gameSize.x && y >= 0 && y < gameSize.y) {
+            Position pos = new Position(x, y);
+            if(!obstacles.contains(pos) && x >= 0 && x < gameSize.x && y >= 0 && y < gameSize.y) {
                 ObstacleEncounterMessage msg = new ObstacleEncounterMessage();
                 msg.gameId = gameId;
-                Position pos = new Position(x, y);
                 obstacles.add(pos);
                 if(graph != null) {
                     graph.addObstacle(pos);
-                    if(order != null) graph.aStar(worker.position, order.position, true);
+                    if(order != null) graph.aStar(worker.position, order.position, false);
                 }
                 msg.position = pos;
                 sendMessage(brokerAddress, msg);

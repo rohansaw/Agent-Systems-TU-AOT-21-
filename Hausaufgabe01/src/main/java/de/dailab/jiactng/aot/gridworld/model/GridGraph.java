@@ -56,6 +56,7 @@ public class GridGraph {
                     next_line = null;
                 }
                 for (int x = 0; x < width; x++) {
+                    adj[y][x] = new LinkedList<>();
                     if(x + 1 < width && line.charAt(x + 1) != '#')
                         adj[y][x].add(new Position(x + 1, y));
                     if(x - 1 >= 0 && line.charAt(x - 1) != '#')
@@ -75,6 +76,7 @@ public class GridGraph {
         adj = new LinkedList[height][width];
         for(int y = 0; y < height; y++){
             for(int x = 0; x < width; x++){
+                adj[y][x] = new LinkedList<>();
                 if(x - 1 >= 0) {
                     Position pos = new Position(x - 1, y);
                     if(!obstacles.contains(pos)) adj[y][x].add(pos);
@@ -112,12 +114,12 @@ public class GridGraph {
             return WorkerAction.ORDER;
         }
 
-        Position next = path.remove(0);
+        Position next = path.getFirst();
         if(next.x > current.x)
             return WorkerAction.EAST;
         if(next.x < current.x)
             return WorkerAction.WEST;
-        if(next.y > current.y)
+        if(next.y < current.y)
             return WorkerAction.NORTH;
 
         return WorkerAction.SOUTH;
@@ -158,20 +160,20 @@ public class GridGraph {
                 if(visited[u.y][u.x] || v.g + 1 >= QcontainsPos(u, Q))
                     continue;
 
-                Node node = new Node(u, v.g + 1, u.distance(to));;
+                Node node = new Node(u, v.g + 1, u.distance(to));
                 if(useBadHeuristic && u.distance(to) < v.pos.distance(to)) {
                     node.f += 2;
                     node.h += 2;
                 }
 
                 Q.removeIf(n -> n.pos.equals(u));
-                Q.add(node);
+                Q.offer(node);
                 parent[u.y][u.x] = v.pos;
             }
         }
 
         Position v = to;
-        while(!parent[v.y][v.x].equals(from)){
+        while(!v.equals(from)){
             path.push(v);
             v = parent[v.y][v.x];
         }

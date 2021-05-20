@@ -155,7 +155,7 @@ public class BrokerBean_requestDistance extends AbstractAgentBean {
     /** broadcast obstacle position to all workers */
     private void handleObstacleEncounter(ObstacleEncounterMessage msg){
         for(Worker w : workers){
-            if(w.id != msg.workerID)
+            if(!w.id.equals(msg.workerID))
                 sendMessage(workerAddresses.get(w.id), msg);
         }
     }
@@ -343,7 +343,6 @@ public class BrokerBean_requestDistance extends AbstractAgentBean {
     private void endGame(EndGameMessage message) {
         log.info("Game ended: " + message);
         state = BrokerState.AWAIT_GAME_START;
-        System.exit(0);
         /** Maybe ToDo some cleanup stuff **/
     }
 

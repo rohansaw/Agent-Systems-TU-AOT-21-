@@ -145,22 +145,25 @@ public class WorkerBean_Astar_bad_heuristic extends AbstractAgentBean {
             if(message.action == WorkerAction.ORDER) {
                 order = null;
             }
+            if(graph != null && graph.path != null)
+                graph.path.removeFirst();
             WorkerPositionUpdate response = new WorkerPositionUpdate();
             response.workerId = worker.id;
             response.gameId = gameId;
             response.newPosition = worker.position;
             sendMessage(brokerAddress, response);
         }else if(message.action != WorkerAction.ORDER && gameSize != null){
+            //is only used if no GridFile was provided
             int y = worker.position.y;
             int x = worker.position.x;
             if (message.action == WorkerAction.NORTH) y--;
             if (message.action == WorkerAction.SOUTH) y++;
             if (message.action == WorkerAction.WEST)  x--;
             if (message.action == WorkerAction.EAST)  x++;
-            if(x >= 0 && x < gameSize.x && y >= 0 && y < gameSize.y) {
+            Position pos = new Position(x, y);
+            if(!obstacles.contains(pos) && x >= 0 && x < gameSize.x && y >= 0 && y < gameSize.y) {
                 ObstacleEncounterMessage msg = new ObstacleEncounterMessage();
                 msg.gameId = gameId;
-                Position pos = new Position(x, y);
                 obstacles.add(pos);
                 if(graph != null) {
                     graph.addObstacle(pos);

@@ -154,7 +154,7 @@ public class BrokerBean extends AbstractAgentBean {
 	/** broadcast obstacle position to all workers */
 	private void handleObstacleEncounter(ObstacleEncounterMessage msg){
 		for(Worker w : workers){
-			if(w.id != msg.workerID)
+			if(!w.id.equals(msg.workerID))
 				sendMessage(workerAddresses.get(w.id), msg);
 		}
 	}
