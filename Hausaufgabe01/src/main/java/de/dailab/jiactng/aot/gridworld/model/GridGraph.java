@@ -64,7 +64,7 @@ public class GridGraph {
                     if(y + 1 < height && next_line != null && next_line.charAt(x) != '#')
                         adj[y][x].add(new Position(x, y + 1));
                     if(y - 1 >= 0 && last_line != null && last_line.charAt(x) != '#')
-                        adj[y][x].add(new Position(x, y + 1));
+                        adj[y][x].add(new Position(x, y - 1));
                 }
             }
         }
