@@ -113,7 +113,7 @@ public class WorkerBean_Astar extends AbstractAgentBean {
         response.order = msg.order;
         if(graph == null)
             // fallback to manhattan dist;
-            response.dist = Math.abs(worker.position.x - msg.order.position.x) + Math.abs(worker.position.y - msg.order.position.y);
+            response.dist = worker.position.distance(msg.order.position) + 1;
         else if(graph.path == null && msg.order != null){
             graph.aStar(worker.position, msg.order.position, false);
             response.dist = graph.path.size();
