@@ -194,6 +194,8 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
                 msg.position = pos;
                 sendMessage(brokerAddress, msg);
             }
+        }else if(message.state == Result.FAIL && message.action == WorkerAction.ORDER && graph != null){
+            graph.path = null;
         }
     }
 

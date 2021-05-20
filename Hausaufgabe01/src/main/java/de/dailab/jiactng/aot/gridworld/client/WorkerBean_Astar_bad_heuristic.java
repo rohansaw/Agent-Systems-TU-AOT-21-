@@ -172,6 +172,8 @@ public class WorkerBean_Astar_bad_heuristic extends AbstractAgentBean {
                 msg.position = pos;
                 sendMessage(brokerAddress, msg);
             }
+        }else if(message.state == Result.FAIL && message.action == WorkerAction.ORDER && graph != null){
+            graph.path = null;
         }
     }
 
