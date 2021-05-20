@@ -10,10 +10,7 @@ import de.dailab.jiactng.agentcore.knowledge.IFact;
 import de.dailab.jiactng.agentcore.ontology.AgentDescription;
 import de.dailab.jiactng.agentcore.ontology.IAgentDescription;
 import de.dailab.jiactng.aot.gridworld.messages.*;
-import de.dailab.jiactng.aot.gridworld.model.Order;
-import de.dailab.jiactng.aot.gridworld.model.Position;
-import de.dailab.jiactng.aot.gridworld.model.Worker;
-import de.dailab.jiactng.aot.gridworld.model.WorkerAction;
+import de.dailab.jiactng.aot.gridworld.model.*;
 import org.sercho.masp.space.event.SpaceEvent;
 import org.sercho.masp.space.event.SpaceObserver;
 import org.sercho.masp.space.event.WriteCallEvent;
@@ -32,6 +29,7 @@ public class WorkerBean_Random extends AbstractAgentBean {
     private int gameId;
     private List<Position> obstacles = new ArrayList<>();
     private WorkerAction action ;
+    private Position gameSize = null;
 
 
     @Override
@@ -62,6 +60,10 @@ public class WorkerBean_Random extends AbstractAgentBean {
         if(brokerAddress == null){
             setBrokerAddress();
         }
+
+        if(gameSize == null && worker != null)
+            getGameSize();
+
         if(order != null) {
 
             moveRandom();
@@ -73,6 +75,7 @@ public class WorkerBean_Random extends AbstractAgentBean {
 
         if (payload instanceof WorkerInitialize) {
             worker = ((WorkerInitialize) payload).worker;
+            gameId = ((WorkerInitialize) payload).gameId;
         }
 
         if (payload instanceof OrderAssignMessage) {
@@ -82,6 +85,8 @@ public class WorkerBean_Random extends AbstractAgentBean {
         if (payload instanceof WorkerConfirm) {
             handleMoveConfirmation((WorkerConfirm) payload);
         }
+        if (payload instanceof GameSizeResponse)
+            handleGameSizeResponse((GameSizeResponse) payload);
     }
 
     private void handleNewOrder(OrderAssignMessage message) {
@@ -97,6 +102,18 @@ public class WorkerBean_Random extends AbstractAgentBean {
             response.state = Result.FAIL;
         }
         sendMessage(brokerAddress, response);
+    }
+
+    private void getGameSize(){
+        GameSizeRequest msg = new GameSizeRequest();
+        msg.workerID = worker.id;
+        msg.gameId = gameId;
+        sendMessage(brokerAddress, msg);
+    }
+
+    private void handleGameSizeResponse(GameSizeResponse message) {
+        log.info(message);
+        gameSize = message.size;
     }
 
     private void handleMoveConfirmation(WorkerConfirm message) {
@@ -118,23 +135,25 @@ public class WorkerBean_Random extends AbstractAgentBean {
             sendMessage(brokerAddress, positionUpdateMessage);
         }
         if (message.state == Result.FAIL){
-            switch (action){
-                case EAST:
-                    sendObstaclePos(new Position(worker.position.x+1,worker.position.y));
-                    log.info("obstacol found ::::");
-                    break;
-                case WEST:
-                    sendObstaclePos(new Position(worker.position.x-1,worker.position.y));
-                    log.info("obstacol found ::::");
-                    break;
-                case NORTH:
-                    sendObstaclePos(new Position(worker.position.x,worker.position.y+1));
-                    log.info("obstacol found ::::");
-                    break;
-                case SOUTH:
-                    sendObstaclePos(new Position(worker.position.x,worker.position.y-1));
-                    log.info("obstacol found ::::");
-                    break;
+            if(gameSize != null) {
+                switch (action) {
+                    case EAST:
+                        sendObstaclePos(new Position(worker.position.x + 1, worker.position.y));
+                        log.info("obstacol found ::::");
+                        break;
+                    case WEST:
+                        sendObstaclePos(new Position(worker.position.x - 1, worker.position.y));
+                        log.info("obstacol found ::::");
+                        break;
+                    case NORTH:
+                        sendObstaclePos(new Position(worker.position.x, worker.position.y - 1));
+                        log.info("obstacol found ::::");
+                        break;
+                    case SOUTH:
+                        sendObstaclePos(new Position(worker.position.x, worker.position.y + 1));
+                        log.info("obstacol found ::::");
+                        break;
+                }
             }
         }
     }
