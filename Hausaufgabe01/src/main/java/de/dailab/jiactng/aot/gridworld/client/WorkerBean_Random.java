@@ -64,10 +64,7 @@ public class WorkerBean_Random extends AbstractAgentBean {
         if(gameSize == null && worker != null)
             getGameSize();
 
-        if(order != null) {
-
-            moveRandom();
-        }
+        moveRandom();
     }
 
     private void handleIncomingMessage(JiacMessage message) {
