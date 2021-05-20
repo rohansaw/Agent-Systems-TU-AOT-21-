@@ -225,13 +225,15 @@ public class WorkerBean_Random extends AbstractAgentBean {
     }
 
     private void sendObstaclePos(Position pos) {
-        ObstacleEncounterMessage message = new ObstacleEncounterMessage();
-        message.position = pos;
-        message.gameId = gameId;
-        message.workerID = worker.id;
+        if(pos.x < gameSize.x && pos.x >= 0 && pos.y < gameSize.y && pos.y >= 0) {
+            ObstacleEncounterMessage message = new ObstacleEncounterMessage();
+            message.position = pos;
+            message.gameId = gameId;
+            message.workerID = worker.id;
 
 
-        sendMessage(brokerAddress, message);
+            sendMessage(brokerAddress, message);
+        }
     }
 
     /** Send messages to other agents */
