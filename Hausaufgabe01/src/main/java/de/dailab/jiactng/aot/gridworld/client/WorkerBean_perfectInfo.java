@@ -38,7 +38,9 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
 
     private ICommunicationAddress brokerAddress;
     private ICommunicationAddress serverAddress;
-    /** the Worker model associated with this WorkerBean **/
+    /**
+     * the Worker model associated with this WorkerBean
+     **/
     private Worker worker;
     private Order order;
     private int gameId;
@@ -68,16 +70,16 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
 
     @Override
     public void execute() {
-        if(serverAddress == null)
+        if (serverAddress == null)
             setServerAddress();
 
-        if(brokerAddress == null)
+        if (brokerAddress == null)
             setBrokerAddress();
 
-        if(graph == null && worker != null)
+        if (graph == null && worker != null)
             setGraph();
 
-        if(order != null)
+        if (order != null)
             moveToOrder();
 
     }
@@ -107,10 +109,12 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
         if (payload instanceof GameSizeResponse) {
             handleGameSizeResponse((GameSizeResponse) payload);
         }
+
         if (payload instanceof ObstacleEncounterMessage) {
             handleObstacleEncounter((ObstacleEncounterMessage) payload);
         }
     }
+
 
     private void handleObstacleEncounter(ObstacleEncounterMessage message) {
         obstacles.add(message.position);
@@ -184,7 +188,8 @@ public class WorkerBean_perfectInfo extends AbstractAgentBean {
                 obstacles.add(pos);
                 if(graph != null) {
                     graph.addObstacle(pos);
-                    if(order != null) graph.aStar(worker.position, order.position, false);
+                    if(order != null)
+                        graph.aStar(worker.position, order.position, false);
                 }
                 msg.position = pos;
                 sendMessage(brokerAddress, msg);

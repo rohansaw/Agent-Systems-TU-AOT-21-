@@ -77,7 +77,6 @@ public class WorkerBean_Astar extends AbstractAgentBean {
 
         if(order != null)
             moveToOrder();
-
     }
 
     private void handleIncomingMessage(JiacMessage message) {
@@ -103,22 +102,20 @@ public class WorkerBean_Astar extends AbstractAgentBean {
             handleObstacleEncounter((ObstacleEncounterMessage) payload);
 
         if (payload instanceof DistanceEstimationRequest)
-            handleProfitEstimation((DistanceEstimationRequest) payload);
+            handleDistanceEstimation((DistanceEstimationRequest) payload);
     }
 
-    private void handleProfitEstimation(DistanceEstimationRequest msg){
+    private void handleDistanceEstimation(DistanceEstimationRequest msg) {
         DistanceEstimationResponse response = new DistanceEstimationResponse();
         response.gameId = gameId;
         response.workerId = worker.id;
         response.order = msg.order;
-        if(graph == null)
+        if (graph == null) {
             // fallback to manhattan dist;
             response.dist = worker.position.distance(msg.order.position) + 1;
-        else if(graph.path == null && msg.order != null){
+        }else{
             graph.aStar(worker.position, msg.order.position, false);
-            response.dist = graph.path.size();
-        }else if(graph.path != null){
-            response.dist = graph.path.size();
+            response.dist = graph.path.size() + 1;
         }
         sendMessage(brokerAddress, response);
     }
@@ -132,6 +129,8 @@ public class WorkerBean_Astar extends AbstractAgentBean {
             response.state = Result.SUCCESS;
             order = message.order;
             gameId = message.gameId;
+            if(graph != null)
+                graph.aStar(worker.position, order.position, false);
         } else {
             response.state = Result.FAIL;
         }
@@ -153,9 +152,7 @@ public class WorkerBean_Astar extends AbstractAgentBean {
             sendMessage(brokerAddress, response);
             if(graph != null && graph.path != null)
                 graph.path.removeFirst();
-            log.info("WORKER MoveConfirm");
         }else if(message.action != WorkerAction.ORDER && gameSize != null){
-            //is only used if no GridFile was provided
             int y = worker.position.y;
             int x = worker.position.x;
             if (message.action == WorkerAction.NORTH) y--;
