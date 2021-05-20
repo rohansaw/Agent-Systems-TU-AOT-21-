@@ -279,6 +279,7 @@ public class BrokerBean_requestDistance extends AbstractAgentBean {
             return Math.max(profit, 0);
         }
     }
+    
 
     /** -------------- Setup -------------- **/
 
