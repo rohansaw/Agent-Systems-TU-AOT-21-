@@ -73,10 +73,6 @@ public class WorkerBean_Random extends AbstractAgentBean {
         if (payload instanceof WorkerInitialize) {
             worker = ((WorkerInitialize) payload).worker;
             gameId = ((WorkerInitialize) payload).gameId;
-            RandomWorkerMessage msg = new RandomWorkerMessage();
-            msg.worker = worker;
-            msg.gameId = gameId;
-            sendMessage(brokerAddress, msg);
         }
 
         if (payload instanceof OrderAssignMessage) {
@@ -161,25 +157,21 @@ public class WorkerBean_Random extends AbstractAgentBean {
 
     /** Retrieve and set the servers address **/
     private void setServerAddress() {
-        while(serverAddress == null) {
-            try {
-                IAgentDescription serverAgent = thisAgent.searchAgent(new AgentDescription(null, "ServerAgent", null, null, null, null));
-                serverAddress = serverAgent.getMessageBoxAddress();
-            } catch (Exception e) {
-                log.warn("Worker could not connect to Server!");
-            }
+        try {
+            IAgentDescription serverAgent = thisAgent.searchAgent(new AgentDescription(null, "ServerAgent", null, null, null, null));
+            serverAddress = serverAgent.getMessageBoxAddress();
+        } catch(Exception e) {
+            log.warn("Worker could not connect to Server!");
         }
     }
 
     /** Retrieve and set the brokers address **/
     private void setBrokerAddress() {
-        while(brokerAddress == null) {
-            try {
-                IAgentDescription brokerAgent = thisAgent.searchAgent(new AgentDescription(null, "BrokerAgent", null, null, null, null));
-                brokerAddress = brokerAgent.getMessageBoxAddress();
-            } catch (Exception e) {
-                log.warn("Worker could not connect to the Broker!");
-            }
+        try {
+            IAgentDescription brokerAgent = thisAgent.searchAgent(new AgentDescription(null, "BrokerAgent", null, null, null, null));
+            brokerAddress = brokerAgent.getMessageBoxAddress();
+        } catch(Exception e) {
+            log.warn("Worker could not connect to the Broker!");
         }
     }
     /** randomly choosing a move **/

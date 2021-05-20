@@ -40,7 +40,7 @@ public class BrokerBean extends AbstractAgentBean {
 	private HashMap<String, Worker> orderAssignments;
 	private List obstacles;
 	private HashMap<String, ICommunicationAddress> workerAddresses;
-	private LinkedList<String> randomWorkers = new LinkedList<>();
+
 
 	@Override
 	public void doStart() throws Exception {
@@ -134,14 +134,7 @@ public class BrokerBean extends AbstractAgentBean {
 			if (payload instanceof GridFileRequest) {
 				handleGridFileRequest((GridFileRequest) payload);
 			}
-			if (payload instanceof RandomWorkerMessage) {
-				handleRandomWorkerMessage((RandomWorkerMessage) payload);
-			}
 		}
-	}
-
-	private void handleRandomWorkerMessage(RandomWorkerMessage msg){
-		randomWorkers.add(msg.worker.id);
 	}
 
 	private void handleGridFileRequest(GridFileRequest msg){
@@ -234,7 +227,7 @@ public class BrokerBean extends AbstractAgentBean {
 		/** Currently very simple. ToDo use proper Metric **/
 		PriorityQueue<Worker> Q = new PriorityQueue<Worker>(Comparator.comparing(n -> n.position.distance(order.position)));
 		for (Worker worker : workers) {
-			if(!randomWorkers.contains(worker.id)) Q.offer(worker);
+			Q.offer(worker);
 		}
 		for(Worker w : Q){
 			if(!orderAssignments.containsValue(w)) {

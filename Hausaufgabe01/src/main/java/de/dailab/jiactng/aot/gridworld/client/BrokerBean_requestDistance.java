@@ -43,8 +43,6 @@ public class BrokerBean_requestDistance extends AbstractAgentBean {
     private ICommunicationAddress serverAddress;
     private HashMap<String, ICommunicationAddress> workerAddresses;
 
-    private LinkedList<String> randomWorkers = new LinkedList<>();
-
 
     @Override
     public void doStart() throws Exception {
@@ -139,14 +137,7 @@ public class BrokerBean_requestDistance extends AbstractAgentBean {
             if (payload instanceof GridFileRequest) {
                 handleGridFileRequest((GridFileRequest) payload);
             }
-            if (payload instanceof RandomWorkerMessage) {
-                handleRandomWorkerMessage((RandomWorkerMessage) payload);
-            }
         }
-    }
-
-    private void handleRandomWorkerMessage(RandomWorkerMessage msg){
-        randomWorkers.add(msg.worker.id);
     }
 
     private void handleGridFileRequest(GridFileRequest msg){
@@ -228,7 +219,7 @@ public class BrokerBean_requestDistance extends AbstractAgentBean {
         PriorityQueue<workerOrder> Q = new PriorityQueue<>(Comparator.comparing(n -> -n.profit));
         for(Order o : receivedOrders) {
             for (Worker w : workers) {
-                if (receivedAllAnswersForOrder(o.id) && !isAssigned(w) && !randomWorkers.contains(w.id)) {
+                if (receivedAllAnswersForOrder(o.id) && !isAssigned(w)) {
                     int expectedWorkerProfit = getExpectedProfit(w, o);
                     Q.offer(new workerOrder(w, o, expectedWorkerProfit));
                 }
