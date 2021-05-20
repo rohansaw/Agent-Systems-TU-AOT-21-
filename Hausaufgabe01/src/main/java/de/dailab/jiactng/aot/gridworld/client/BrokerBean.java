@@ -225,9 +225,13 @@ public class BrokerBean extends AbstractAgentBean {
 
 	private Worker getBestWorkerForOrder(Order order) {
 		/** Currently very simple. ToDo use proper Metric **/
+		PriorityQueue<Worker> Q = new PriorityQueue<Worker>(Comparator.comparing(n -> n.position.distance(order.position)));
 		for (Worker worker : workers) {
-			if(!orderAssignments.containsValue(worker)) {
-				return worker;
+			Q.offer(worker);
+		}
+		for(Worker w : Q){
+			if(!orderAssignments.containsValue(w)) {
+				return w;
 			}
 		}
 		return null;

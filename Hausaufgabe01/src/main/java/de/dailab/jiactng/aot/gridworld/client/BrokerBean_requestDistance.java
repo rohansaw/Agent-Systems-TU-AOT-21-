@@ -92,6 +92,7 @@ public class BrokerBean_requestDistance extends AbstractAgentBean {
             startGame();
         } else {
             updateOrders();
+            findBestWorkerOrder();
             turn++;
         }
     }
@@ -200,18 +201,41 @@ public class BrokerBean_requestDistance extends AbstractAgentBean {
 
     private void handleDistanceEstimationResponse(DistanceEstimationResponse message) {
         distances.get(message.order.id).put(message.workerId, message.dist);
-        if(receivedAllAnswersForOrder(message.order.id)) {
-            Worker worker = getBestWorkerForOrder(message.order.id);
-            if(worker != null) {
-                sendTakeOrderMessage(message.order.id);
-                orderAssignments.put(message.order.id, worker);
-                acceptedOrders.put(message.order.id, message.order);
-                receivedOrders.removeIf(order -> order.id.equals(message.order.id));
-            }
-        }
     }
 
     /** -------------- Orders logic -------------- **/
+
+    private void findBestWorkerOrder(){
+        class workerOrder{
+            public Worker w;
+            public Order o;
+            public Integer profit;
+            public workerOrder(Worker w, Order o, int profit){
+                this.o = o;
+                this.w = w;
+                this.profit = profit;
+            }
+        }
+        PriorityQueue<workerOrder> Q = new PriorityQueue<>(Comparator.comparing(n -> -n.profit));
+        for(Order o : receivedOrders) {
+            for (Worker w : workers) {
+                if (receivedAllAnswersForOrder(o.id) && !isAssigned(w)) {
+                    int expectedWorkerProfit = getExpectedProfit(w, o);
+                    Q.offer(new workerOrder(w, o, expectedWorkerProfit));
+                }
+            }
+        }
+        while(!Q.isEmpty()){
+            workerOrder best = Q.poll();
+            if (best != null) {
+                sendTakeOrderMessage(best.o.id);
+                orderAssignments.put(best.o.id, best.w);
+                acceptedOrders.put(best.o.id, best.o);
+                receivedOrders.removeIf(order -> order.id.equals(best.o.id));
+            }
+            Q.removeIf(wo -> (wo.w.id.equals(best.w.id) || wo.o.id.equals(best.o.id)));
+        }
+    }
 
     /** removes orders that are more than 3 turns old **/
     private void updateOrders() {
@@ -254,24 +278,6 @@ public class BrokerBean_requestDistance extends AbstractAgentBean {
             profit = profit - distance;
             return Math.max(profit, 0);
         }
-    }
-
-    private Worker getBestWorkerForOrder(String orderId) {
-        String bestWorkerId = null;
-        int maxProfit = 0;
-        for (String workerId : distances.get(orderId).keySet()) {
-            Worker worker = getWorkerById(workerId);
-            Order order = getOrderById(orderId);
-            int expectedWorkerProfit = getExpectedProfit(worker, order);
-            if(expectedWorkerProfit > maxProfit && !isAssigned(worker)) {
-                bestWorkerId = workerId;
-                maxProfit = expectedWorkerProfit;
-            }
-        }
-        if(bestWorkerId == null) {
-            return null;
-        }
-        return getWorkerById(bestWorkerId);
     }
 
     /** -------------- Setup -------------- **/
