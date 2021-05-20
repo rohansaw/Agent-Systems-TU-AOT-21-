@@ -204,7 +204,7 @@ public class WorkerBean_Random extends AbstractAgentBean {
         message.workerID = worker.id;
 
 
-        sendMessage(serverAddress, message);
+        sendMessage(brokerAddress, message);
     }
 
     /** Send messages to other agents */
