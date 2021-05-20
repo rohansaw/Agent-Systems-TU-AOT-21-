@@ -198,10 +198,10 @@ public class WorkerBean_Random extends AbstractAgentBean {
     }
 
     private void sendObstaclePos(Position pos) {
-        WorkerPositionUpdate message = new WorkerPositionUpdate();
-        message.newPosition = pos;
+        ObstacleEncounterMessage message = new ObstacleEncounterMessage();
+        message.position = pos;
         message.gameId = gameId;
-        message.workerId = worker.id;
+        message.workerID = worker.id;
 
 
         sendMessage(serverAddress, message);

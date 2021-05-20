@@ -15,12 +15,12 @@
 			<list>
 				<!-- change which broker and worker agents will be used -->
 				<ref bean="BrokerAgent" />
-				
-				<bean parent="WorkerAgent_Random" />
-				<bean parent="WorkerAgent" />
-				<bean parent="WorkerAgent" />
-				<bean parent="WorkerAgent" />
-				<bean parent="WorkerAgent" />
+
+				<bean parent="WorkerAgent_Astar" />
+				<bean parent="WorkerAgent_Astar" />
+				<bean parent="WorkerAgent_Astar" />
+				<bean parent="WorkerAgent_Astar" />
+				<bean parent="WorkerAgent_Astar" />
 <!--				<bean parent="WorkerAgent_variation" />-->
 			</list>
 		</property>
@@ -29,7 +29,7 @@
 	<bean name="BrokerAgent" parent="SimpleAgent" scope="prototype">
 		<property name="agentBeans">
 			<list>
-				<bean name="BrokerBean" class="de.dailab.jiactng.aot.gridworld.client.BetterBrokerBean" scope="prototype">
+				<bean name="BetterBrokerBean" class="de.dailab.jiactng.aot.gridworld.client.BetterBrokerBean" scope="prototype">
 					<property name="logLevel" value="INFO" />
 					<property name="executionInterval" value="1000" />
 				</bean>
@@ -53,6 +53,28 @@
 		<property name="agentBeans">
 			<list>
 				<bean name="WorkerBean_variation" class="de.dailab.jiactng.aot.gridworld.client.WorkerBean_Random" scope="prototype">
+					<property name="logLevel" value="INFO" />
+					<property name="executionInterval" value="1000" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean name="WorkerAgent_Astar" parent="SimpleAgent" scope="prototype">
+		<property name="agentBeans">
+			<list>
+				<bean name="WorkerBean_Astar" class="de.dailab.jiactng.aot.gridworld.client.WorkerBean_Astar" scope="prototype">
+					<property name="logLevel" value="INFO" />
+					<property name="executionInterval" value="1000" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean name="WorkerAgent_perfectInfo" parent="SimpleAgent" scope="prototype">
+		<property name="agentBeans">
+			<list>
+				<bean name="WorkerBean_perfectInfo" class="de.dailab.jiactng.aot.gridworld.client.WorkerBean_perfectInfo" scope="prototype">
 					<property name="logLevel" value="INFO" />
 					<property name="executionInterval" value="1000" />
 				</bean>

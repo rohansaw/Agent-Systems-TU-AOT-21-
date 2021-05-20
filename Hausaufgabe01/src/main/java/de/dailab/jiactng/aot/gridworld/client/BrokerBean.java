@@ -124,6 +124,38 @@ public class BrokerBean extends AbstractAgentBean {
 			if (payload instanceof EndGameMessage) {
 				endGame((EndGameMessage) payload);
 			}
+
+			if (payload instanceof ObstacleEncounterMessage) {
+				handleObstacleEncounter((ObstacleEncounterMessage) payload);
+			}
+			if (payload instanceof GameSizeRequest) {
+				handleGameSizeRequest((GameSizeRequest) payload);
+			}
+			if (payload instanceof GridFileRequest) {
+				handleGridFileRequest((GridFileRequest) payload);
+			}
+		}
+	}
+
+	private void handleGridFileRequest(GridFileRequest msg){
+		GridFileResponse resp = new GridFileResponse();
+		resp.file = GRID_FILE;
+		resp.gameId = gameId;
+		sendMessage(workerAddresses.get(msg.workerID), resp);
+	}
+
+	private void handleGameSizeRequest(GameSizeRequest msg){
+		GameSizeResponse resp = new GameSizeResponse();
+		resp.size = gridsize;
+		resp.gameId = gameId;
+		sendMessage(workerAddresses.get(msg.workerID), resp);
+	}
+
+	/** broadcast obstacle position to all workers */
+	private void handleObstacleEncounter(ObstacleEncounterMessage msg){
+		for(Worker w : workers){
+			if(!w.id.equals(msg.workerID))
+				sendMessage(workerAddresses.get(w.id), msg);
 		}
 	}
 
