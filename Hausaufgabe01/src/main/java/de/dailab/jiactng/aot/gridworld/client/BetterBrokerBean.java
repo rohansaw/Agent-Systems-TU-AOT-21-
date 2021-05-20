@@ -297,7 +297,7 @@ public class BetterBrokerBean extends AbstractAgentBean {
                     Order currentWorkersOrder = getRunningWorkerOrder(workers.get(i));
                     int currentOrderExpectedProfit = runningWorkersExpectedProfit(receivedOrders.get(j), workers.get(i));
                     int expectedProfitNewOrder = expectedProfit(workers.get(i), receivedOrders.get(j));
-                    if(expectedProfitNewOrder - currentWorkersOrder.value > currentOrderExpectedProfit) {
+                    if(currentWorkersOrder != null && expectedProfitNewOrder - currentWorkersOrder.value > currentOrderExpectedProfit) {
                         profitMatrix[i][j] = expectedProfitNewOrder - currentWorkersOrder.value;
                     }
                 }

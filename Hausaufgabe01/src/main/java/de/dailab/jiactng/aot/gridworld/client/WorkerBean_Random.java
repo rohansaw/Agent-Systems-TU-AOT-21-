@@ -49,6 +49,7 @@ public class WorkerBean_Random extends AbstractAgentBean {
          */
         memory.attach(new WorkerBean_Random.MessageObserver(), new JiacMessage());
         order = null;
+        worker = null;
         log.info("starting...");
     }
 
@@ -63,8 +64,8 @@ public class WorkerBean_Random extends AbstractAgentBean {
 
         if(gameSize == null && worker != null)
             getGameSize();
-
-        moveRandom();
+        if(worker != null)
+            moveRandom();
     }
 
     private void handleIncomingMessage(JiacMessage message) {

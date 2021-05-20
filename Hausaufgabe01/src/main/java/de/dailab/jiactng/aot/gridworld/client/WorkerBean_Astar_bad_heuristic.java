@@ -145,7 +145,7 @@ public class WorkerBean_Astar_bad_heuristic extends AbstractAgentBean {
             if(message.action == WorkerAction.ORDER) {
                 order = null;
             }
-            if(graph != null && graph.path != null)
+            if(graph != null && graph.path != null && message.action != WorkerAction.ORDER)
                 graph.path.removeFirst();
             WorkerPositionUpdate response = new WorkerPositionUpdate();
             response.workerId = worker.id;

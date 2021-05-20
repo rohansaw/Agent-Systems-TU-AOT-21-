@@ -150,7 +150,7 @@ public class WorkerBean_Astar extends AbstractAgentBean {
             response.gameId = gameId;
             response.newPosition = worker.position;
             sendMessage(brokerAddress, response);
-            if(graph != null && graph.path != null)
+            if(graph != null && graph.path != null && message.action != WorkerAction.ORDER)
                 graph.path.removeFirst();
         }else if(message.action != WorkerAction.ORDER && gameSize != null){
             int y = worker.position.y;
