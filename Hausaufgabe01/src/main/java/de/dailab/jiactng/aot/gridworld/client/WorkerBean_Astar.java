@@ -173,6 +173,7 @@ public class WorkerBean_Astar extends AbstractAgentBean {
             }
         }else if(message.state == Result.FAIL && message.action == WorkerAction.ORDER && graph != null){
             graph.path = null;
+            order = null;
         }
     }
 
