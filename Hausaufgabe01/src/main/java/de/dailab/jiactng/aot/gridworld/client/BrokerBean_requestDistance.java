@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 public class BrokerBean_requestDistance extends AbstractAgentBean {
 
     public static String BROKER_ID = "Some_Id";
-    public static String GRID_FILE = "/grids/22_2.grid";
+    public static String GRID_FILE = "/grids/grid_1.grid";
 
     private BrokerState state = BrokerState.AWAIT_GAME_START;
     private int turn;
@@ -227,6 +227,7 @@ public class BrokerBean_requestDistance extends AbstractAgentBean {
         }
         PriorityQueue<workerOrder> Q = new PriorityQueue<>(Comparator.comparing(n -> -n.profit));
         for(Order o : receivedOrders) {
+            log.info(receivedAllAnswersForOrder(o.id));
             for (Worker w : workers) {
                 if (receivedAllAnswersForOrder(o.id) && !isAssigned(w) && !randomWorkers.contains(w.id)) {
                     int expectedWorkerProfit = getExpectedProfit(w, o);
@@ -271,7 +272,9 @@ public class BrokerBean_requestDistance extends AbstractAgentBean {
     private void addPlaceholderDistanceEntry(String orderId) {
         HashMap<String, Integer> placeholder = new HashMap<>();
         for (Worker worker : workers) {
-            placeholder.put(worker.id, null);
+            if(!randomWorkers.contains(worker.id)) {
+                placeholder.put(worker.id, null);
+            }
         }
         distances.put(orderId, placeholder);
     }

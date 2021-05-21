@@ -185,24 +185,21 @@ public class WorkerBean_Random extends AbstractAgentBean {
     }
     /** randomly choosing a move **/
     private void moveRandom() {
-        log.info(worker.position);
-        log.info(order.position);
-        log.info("-----------");
         Random r = new Random();
         int result= r.nextInt(100-0)+0;
-        if(result< 25 && !checkPos()) {
+        if(result< 25) {
             action= WorkerAction.EAST;
             sendWorkerAction(WorkerAction.EAST);
-        } else if (result >=25 && result<50 &&!checkPos()) {
+        } else if (result >=25 && result<50) {
             action= WorkerAction.WEST;
             sendWorkerAction(WorkerAction.WEST);
-        } else if (result>= 50 && result<75 && !checkPos()) {
+        } else if (result>= 50 && result<75) {
             action= WorkerAction.NORTH;
             sendWorkerAction(WorkerAction.NORTH);
-        } else if (result>= 75 && !checkPos()) {
+        } else if (result>= 75) {
             action= WorkerAction.SOUTH;
             sendWorkerAction(WorkerAction.SOUTH);
-        } else {
+        } else if(order != null && checkPos()){
             sendWorkerAction(WorkerAction.ORDER);
         }
     }
