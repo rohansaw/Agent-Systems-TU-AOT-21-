@@ -18,10 +18,10 @@
 
 				<bean parent="WorkerAgent_Random" />
 				<bean parent="WorkerAgent_Astar" />
+				<bean parent="WorkerAgent" />
+				<bean parent="WorkerAgent_Random" />
 				<bean parent="WorkerAgent_Astar" />
-				<bean parent="WorkerAgent_Astar" />
-				<bean parent="WorkerAgent_Astar" />
-<!--				<bean parent="WorkerAgent_variation" />-->
+                                        <!--				<bean parent="WorkerAgent_variation" />-->
 			</list>
 		</property>
 	</bean>
@@ -29,7 +29,7 @@
 	<bean name="BrokerAgent" parent="SimpleAgent" scope="prototype">
 		<property name="agentBeans">
 			<list>
-				<bean name="BetterBrokerBean" class="de.dailab.jiactng.aot.gridworld.client.BrokerBean_requestDistance" scope="prototype">
+				<bean name="BetterBrokerBean" class="de.dailab.jiactng.aot.gridworld.client.BetterBrokerBean" scope="prototype">
 					<property name="logLevel" value="INFO" />
 					<property name="executionInterval" value="1000" />
 				</bean>
@@ -52,7 +52,7 @@
 	<bean name="WorkerAgent_Random" parent="SimpleAgent" scope="prototype">
 		<property name="agentBeans">
 			<list>
-				<bean name="WorkerBean_variation" class="de.dailab.jiactng.aot.gridworld.client.WorkerBean_Random" scope="prototype">
+				<bean name="WorkerBean_Random" class="de.dailab.jiactng.aot.gridworld.client.WorkerBean_Random" scope="prototype">
 					<property name="logLevel" value="INFO" />
 					<property name="executionInterval" value="1000" />
 				</bean>
