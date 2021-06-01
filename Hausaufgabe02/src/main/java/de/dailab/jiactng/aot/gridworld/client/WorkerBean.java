@@ -28,6 +28,8 @@ public class WorkerBean extends AbstractAgentBean {
 	private ArrayList<CallForProposal> unansweredCallsForProposal;
 	private Order currentOrder = null;
 	private ArrayList<Order> acceptedOrders = new ArrayList<Order>();
+	private ArrayList<CallForProposal> currentBestPath = new ArrayList<CallForProposal>();
+	private ArrayList<CallForProposal> activeCfps = new ArrayList<CallForProposal>();
 
 	private Position gameSize = null;
 	private GridGraph graph = null;
@@ -89,8 +91,8 @@ public class WorkerBean extends AbstractAgentBean {
 	}
 
 	private void updateReceivedProposals() {
-		// delete all that have deadline < 0
 		// decrement deadline by one for each
+		// delete all that have deadline < 0 -> should never be required
 	}
 
 	private void handleProposalAccept(ProposalAccept message) {
@@ -98,7 +100,7 @@ public class WorkerBean extends AbstractAgentBean {
 	}
 
 	private void handleProposalReject(ProposalReject message) {
-		// Maybe need to remove
+		// Remove from activeCfps
 	}
 
 	private void handleCallForProposal(CallForProposal message) {
@@ -118,9 +120,8 @@ public class WorkerBean extends AbstractAgentBean {
 	}
 
 	private ArrayList<CallForProposal> calculateBestPath() {
-		CSPGraph cspGraph = CSPGraph();
-		// csp graph needs to consider the already accepted orders
-		// csp graph needs to consider the a* distances with obstacles
+		// we use all active CSPs because we do not care if we quit a running order if this leads to us completing more
+		CSPGraph cspGraph = CSPGraph(activeCfps);
 		ArrayList<CallForProposal> bestPath = cspGraph.getBestPath();
 		return bestPath;
 	}
