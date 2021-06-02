@@ -7,6 +7,7 @@ import de.dailab.jiactng.agentcore.ontology.AgentDescription;
 import de.dailab.jiactng.agentcore.ontology.IAgentDescription;
 import de.dailab.jiactng.aot.gridworld.messages.*;
 import de.dailab.jiactng.aot.gridworld.model.*;
+import de.dailab.jiactng.aot.gridworld.util.CFPGraph;
 import org.sercho.masp.space.event.SpaceEvent;
 import org.sercho.masp.space.event.SpaceObserver;
 import org.sercho.masp.space.event.WriteCallEvent;
@@ -17,6 +18,7 @@ import de.dailab.jiactng.agentcore.knowledge.IFact;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class WorkerBean extends AbstractAgentBean {
 
@@ -25,11 +27,11 @@ public class WorkerBean extends AbstractAgentBean {
 	private int gameId;
 	private Worker worker;
 
-	private ArrayList<CallForProposal> unansweredCallsForProposal;
+	private ArrayList<CallForProposal> unansweredCallsForProposal = new ArrayList<CallForProposal>();
 	private Order currentOrder = null;
-	private ArrayList<Order> acceptedOrders = new ArrayList<Order>();
-	private ArrayList<CallForProposal> currentBestPath = new ArrayList<CallForProposal>();
-	private ArrayList<CallForProposal> activeCfps = new ArrayList<CallForProposal>();
+	private List<Order> acceptedOrders = new ArrayList<Order>();
+	private List<Order> currentBestPath = new ArrayList<Order>();
+	private List<Order> activeOrders = new ArrayList<Order>();
 
 	private Position gameSize = null;
 	private GridGraph graph = null;
@@ -38,7 +40,6 @@ public class WorkerBean extends AbstractAgentBean {
 
 	@Override
 	public void doStart() throws Exception {
-		unansweredCallsForProposal = new ArrayList<CallForProposal>();
 		memory.attach(new MessageObserver(), new JiacMessage());
 		log.info("starting...");
 	}
@@ -91,8 +92,14 @@ public class WorkerBean extends AbstractAgentBean {
 	}
 
 	private void updateReceivedProposals() {
-		// decrement deadline by one for each
-		// delete all that have deadline < 0 -> should never be required
+		for(CallForProposal cfp : unansweredCallsForProposal) {
+			cfp.deadline--;
+		}
+		for(CallForProposal cfp: unansweredCallsForProposal) {
+			if(cfp.deadline < 0) {
+				unansweredCallsForProposal.remove(cfp);
+			}
+		}
 	}
 
 	private void handleProposalAccept(ProposalAccept message) {
@@ -100,29 +107,40 @@ public class WorkerBean extends AbstractAgentBean {
 	}
 
 	private void handleProposalReject(ProposalReject message) {
-		// Remove from activeCfps
+		activeOrders = activeOrders.stream()
+				.filter((Order order) -> order.id != message.orderID)
+				.collect(Collectors.toList());
 	}
 
 	private void handleCallForProposal(CallForProposal message) {
 		unansweredCallsForProposal.add(message);
+		activeOrders.add(message.order);
 	}
 
 	private void answerCallsForProposal(){
-		ArrayList<CallForProposal> bestPath = calculateBestPath();
+		List<Order> bestPath = calculateBestPath();
+		currentBestPath = bestPath;
 		for (int i = 0; i < bestPath.size(); i++) {
-			CallForProposal cfp = bestPath.get(i);
+			CallForProposal cfp = getCfpForOrder(bestPath.get(i));
 			// Wait till last possible moment to propose to cfp
-			if (cfp.deadline == 0) {
+			if (cfp != null && cfp.deadline == 0) {
 				propose(bestPath.get(i), i);
 				unansweredCallsForProposal.remove(cfp);
 			}
 		}
 	}
 
-	private ArrayList<CallForProposal> calculateBestPath() {
+	private CallForProposal getCfpForOrder(Order order) {
+		return unansweredCallsForProposal.stream()
+				.filter((CallForProposal cfp) -> cfp.order.id == order.id)
+				.findFirst()
+				.orElse(null);
+	}
+
+	private List<Order> calculateBestPath() {
 		// we use all active CSPs because we do not care if we quit a running order if this leads to us completing more
-		CSPGraph cspGraph = CSPGraph(activeCfps);
-		ArrayList<CallForProposal> bestPath = cspGraph.getBestPath();
+		CFPGraph cspGraph = new CFPGraph(activeOrders, worker.position, graph);
+		List<Order> bestPath = cspGraph.getBestPath();
 		return bestPath;
 	}
 
@@ -213,8 +231,13 @@ public class WorkerBean extends AbstractAgentBean {
 		sendMessage(serverAddress, message);
 	}
 
-	private void propose(CallForProposal cfp, int value) {
+	private void propose(Order order, int value) {
 		Proposal proposal = new Proposal();
+		proposal.gameId = gameId;
+		proposal.worker = worker;
+		proposal.orderID = order.id;
+		proposal.bid = value;
+
 		sendMessage(brokerAddress, proposal);
 	}
 
