@@ -36,7 +36,6 @@ public class BrokerBean extends AbstractAgentBean {
 	private Position gridsize;
 	private int gameId;
 	private List<Worker> workers;
-	private HashMap<String, Order> acceptedOrders;
 	private HashMap<String, Worker> orderAssignments;
 	private HashMap<String, ICommunicationAddress> workerAddresses;
 
@@ -65,7 +64,6 @@ public class BrokerBean extends AbstractAgentBean {
 		serverAddress = null;
 		workerAddresses = new HashMap<String, ICommunicationAddress>();
 		orderAssignments = new HashMap<>();
-		acceptedOrders = new HashMap<String, Order>();
 		bids = new HashMap<>();
 		memory.attach(new BrokerBean.MessageObserver(), new JiacMessage());
 	}
@@ -94,7 +92,6 @@ public class BrokerBean extends AbstractAgentBean {
 			startGame();
 		} else {
 			updateOrders();
-			decideOnAcceptingOrders();
 			turn++;
 		}
 	}
@@ -103,6 +100,7 @@ public class BrokerBean extends AbstractAgentBean {
 
 	private void handleIncomingMessage(JiacMessage message) {
 		Object payload = message.getPayload();
+		log.info(payload);
 		if (state == BrokerState.AWAIT_GAME_START_RESPONSE) {
 
 			if (payload instanceof StartGameResponse) {
@@ -138,16 +136,41 @@ public class BrokerBean extends AbstractAgentBean {
 	}
 
 	private void handleProposal(Proposal msg){
+		HashMap<String, Integer> table = bids.get(msg.orderID);
+		if(msg.refuse)
+			table.put(msg.worker.id, Integer.MAX_VALUE);
+		else
+			table.put(msg.worker.id, msg.bid);
 
+		// got all proposals
+		if(table.size() == workers.size()) {
+			int bestBid = Collections.min(table.values());
+			long minCount = table.values().stream().filter(v -> v == bestBid).count();
+			long rejectCount = table.values().stream().filter(v -> v == Integer.MAX_VALUE).count();
+
+			if (rejectCount + minCount < workers.size()) {
+				//start new iteration of iCNP
+				CallForProposal cfp = new CallForProposal();
+				cfp.gameId = gameId;
+				cfp.bestBid = bestBid;
+				cfp.order = getOrderByID(msg.orderID);
+				cfp.startTime = turn;
+				table.forEach((k, v) -> {
+					if (v > bestBid && v != Integer.MAX_VALUE) {
+						sendMessage(workerAddresses.get(k), cfp);
+						table.remove(k);
+					}
+				});
+			}else if(rejectCount < workers.size()){
+				//best worker found -> send TakeOrderMsg to server
+				TakeOrderMessage tom = new TakeOrderMessage();
+				tom.brokerId = BROKER_ID;
+				tom.orderId = msg.orderID;
+				tom.gameId = gameId;
+				sendMessage(serverAddress, tom);
+			}
+		}
 	}
-
-	private void handleGameSizeRequest(GameSizeRequest msg){
-		GameSizeResponse resp = new GameSizeResponse();
-		resp.size = gridsize;
-		resp.gameId = gameId;
-		sendMessage(workerAddresses.get(msg.workerID), resp);
-	}
-
 
 	private void handleIncomingOrder(Order order) {
 		log.info("Order received: " + order);
@@ -155,7 +178,6 @@ public class BrokerBean extends AbstractAgentBean {
 		bids.put(order.id, new HashMap<>());
 		CallForProposal msg = new CallForProposal();
 		msg.startTime = turn;
-		msg.deadline = turn + 2;
 		msg.bestBid = Integer.MAX_VALUE;
 		msg.gameId = gameId;
 		for(Worker w : workers){
@@ -165,6 +187,13 @@ public class BrokerBean extends AbstractAgentBean {
 
 			}
 		}
+	}
+
+	private void handleGameSizeRequest(GameSizeRequest msg){
+		GameSizeResponse resp = new GameSizeResponse();
+		resp.size = gridsize;
+		resp.gameId = gameId;
+		sendMessage(workerAddresses.get(msg.workerID), resp);
 	}
 
 	private void handleStartGameResponse(StartGameResponse message) {
@@ -180,11 +209,28 @@ public class BrokerBean extends AbstractAgentBean {
 	}
 
 	private void handleTakeOrderConfirm(TakeOrderConfirm message) {
+		HashMap<String, Integer> table = bids.remove(message.orderId);
 		if (message.state == Result.SUCCESS) {
-			Order order = acceptedOrders.get(message.orderId);
-			assignOrder(order);
-		} else {
-			orderAssignments.remove(message.orderId);
+			int bestBid = Collections.min(table.values());
+			Map.Entry<String, Integer> accepted_worker = table.entrySet().stream()
+					.filter(e -> e.getValue() == bestBid)
+					.findFirst().get();
+
+			//send ProposalAck to the first worker with bestBid
+			ProposalAccept ack = new ProposalAccept();
+			ack.bid = accepted_worker.getValue();
+			ack.order = getOrderByID(message.orderId);
+			ack.gameId = gameId;
+			sendMessage(workerAddresses.get(accepted_worker.getKey()), ack);
+
+			//send ProposalRej to other workers
+			ProposalReject rej = new ProposalReject();
+			rej.orderID = message.orderId;
+			rej.gameId = gameId;
+			for(String workerID : table.keySet()){
+				if(!workerID.equals(accepted_worker.getKey()))
+					sendMessage(workerAddresses.get(workerID), rej);
+			}
 		}
 	}
 
@@ -199,6 +245,16 @@ public class BrokerBean extends AbstractAgentBean {
 
 	/** -------------- Orders logic -------------- **/
 
+	public Order getOrderByID(String id){
+		for(List<Order> l : receivedOrders){
+			for(Order o : l){
+				if(o.id.equals(id))
+					return o;
+			}
+		}
+		return null;
+	}
+
 	private void updateOrders() {
 		receivedOrders.get(2).clear();
 		receivedOrders.get(2).addAll(receivedOrders.get(1));
@@ -207,51 +263,6 @@ public class BrokerBean extends AbstractAgentBean {
 		receivedOrders.get(0).clear();
 	}
 
-	private void decideOnAcceptingOrders() {
-		for(int i = 0; i < 3; i++) {
-			ArrayList<Order> ordersToRemove = new ArrayList<>();
-			for(Order order: receivedOrders.get(i)) {
-				if(shouldAcceptOrder(order)) {
-					TakeOrderMessage message = new TakeOrderMessage();
-					message.brokerId = BROKER_ID;
-					message.orderId = order.id;
-					message.gameId = gameId;
-					sendMessage(serverAddress, message);
-					ordersToRemove.add(order);
-					acceptedOrders.put(order.id, order);
-				}
-			}
-			receivedOrders.get(i).removeAll(ordersToRemove);
-		}
-	}
-
-	private Worker getBestWorkerForOrder(Order order) {
-		/** Currently very simple. ToDo use proper Metric **/
-		PriorityQueue<Worker> Q = new PriorityQueue<Worker>(Comparator.comparing(n -> n.position.distance(order.position)));
-		for(Worker w : Q){
-			if(!orderAssignments.containsValue(w)) {
-				return w;
-			}
-		}
-		return null;
-	}
-
-	private boolean shouldAcceptOrder(Order order) {
-		Worker bestWorker = getBestWorkerForOrder(order);
-		if(bestWorker!= null) {
-			log.info("Order accepted");
-			orderAssignments.put(order.id, bestWorker);
-			return true;
-		} else {
-			log.info("Order denied");
-			return false;
-		}
-	}
-
-	private void assignOrder(Order order) {
-		Worker worker = orderAssignments.get(order.id);
-		sendOrderToWorker(worker, order);
-	}
 
 	/** -------------- Setup -------------- **/
 
@@ -299,12 +310,6 @@ public class BrokerBean extends AbstractAgentBean {
 		sendMessage(workerAddresses.get(worker.id), message);
 	}
 
-	private void endGame(EndGameMessage message) {
-		log.info("Game ended: " + message);
-		state = BrokerState.AWAIT_GAME_START;
-		/** Maybe ToDo some cleanup stuff **/
-	}
-
 	/** -------------- Game Control -------------- **/
 
 	/** Send start-game message to the server **/
@@ -323,6 +328,12 @@ public class BrokerBean extends AbstractAgentBean {
 		state = BrokerState.AWAIT_GAME_START_RESPONSE;
 	}
 
+	private void endGame(EndGameMessage message) {
+		log.info("Game ended: " + message);
+		state = BrokerState.AWAIT_GAME_START;
+		/** Maybe ToDo some cleanup stuff **/
+	}
+
 	/** -------------- Helpers -------------- **/
 
 	/** Send messages to other agents */
@@ -331,21 +342,6 @@ public class BrokerBean extends AbstractAgentBean {
 		JiacMessage message = new JiacMessage(payload);
 		invoke(sendAction, new Serializable[] {message, receiver});
 		System.out.println("BROKER SENDING " + payload);
-	}
-
-	private void sendOrderToWorker(Worker worker, Order order) {
-		OrderAssignMessage message = new OrderAssignMessage();
-		message.workerId = worker.id;
-		message.order = order;
-		message.gameId = gameId;
-		log.info(workerAddresses.get(worker.id));
-		log.info(message);
-
-		sendMessage(workerAddresses.get(worker.id), message);
-	}
-
-	private boolean isAssigned(Worker worker) {
-		return orderAssignments.containsValue(worker);
 	}
 
 	/** This is an example of using the SpaceObeserver for message processing. */
