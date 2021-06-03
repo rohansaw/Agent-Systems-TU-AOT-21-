@@ -123,7 +123,7 @@ public class WorkerBean extends AbstractAgentBean {
 		List<Order> bestPath = calculateBestPath();
 		currentBestPath = bestPath;
 		for (int i = 0; i < bestPath.size(); i++) {
-			// only send answer for unanswered CFPs not already send orders
+			// only send answer for unanswered CFPs not already sent orders
 			CallForProposal cfp = getCfpForOrder(bestPath.get(i));
 			// Wait till last possible moment to propose to cfp
 			if (cfp != null && cfp.deadline == 0) {
@@ -142,10 +142,32 @@ public class WorkerBean extends AbstractAgentBean {
 
 	private List<Order> calculateBestPath() {
 		// we use all active CSPs because we do not care if we quit a running order if this leads to us completing more
-		CFPGraph cspGraph = new CFPGraph(activeOrders, worker.position, graph);
-		List<Order> bestPath = cspGraph.getBestPath();
-		return bestPath;
+		// CFPGraph cspGraph = new CFPGraph(activeOrders, worker.position, graph);
+		// List<Order> bestPath = cspGraph.getBestPath();
+		class OrderDist  implements Comparable<OrderDist>{
+			Order order;
+			Integer distance;
+			public OrderDist(Order order, Integer distance) {
+				this.order = order;
+				this.distance = distance;
+			}
+
+			@Override
+			public int compareTo(OrderDist od) {
+				return this.distance - od.distance;
+			}
+		}
+		List<OrderDist> bestArrangement = new ArrayList<OrderDist>();
+		for (Order order : activeOrders) {
+			graph.aStar(worker.position, order.position, false);
+			Integer dist = graph.path.size();
+			bestArrangement.add(new OrderDist(order, dist));
+		}
+		Collections.sort(bestArrangement);
+		List<Order> res = bestArrangement.stream().map((OrderDist od) -> od.order).collect(Collectors.toList());
+		return res;
 	}
+
 
 	private void handleMoveConfirmation(WorkerConfirm message) {
 		if(message.state == Result.SUCCESS) {
