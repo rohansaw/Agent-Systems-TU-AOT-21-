@@ -55,8 +55,10 @@ public class WorkerBean extends AbstractAgentBean {
 		if(gameSize == null && worker != null)
 			getGameSize();
 
-		updateReceivedProposals();
-		answerCallsForProposal();
+		if(worker != null) {
+			updateReceivedProposals();
+			answerCallsForProposal();
+		}
 
 		if(currentOrder != null)
 			moveToOrder();
@@ -121,6 +123,7 @@ public class WorkerBean extends AbstractAgentBean {
 		List<Order> bestPath = calculateBestPath();
 		currentBestPath = bestPath;
 		for (int i = 0; i < bestPath.size(); i++) {
+			// only send answer for unanswered CFPs not already send orders
 			CallForProposal cfp = getCfpForOrder(bestPath.get(i));
 			// Wait till last possible moment to propose to cfp
 			if (cfp != null && cfp.deadline == 0) {
@@ -150,7 +153,7 @@ public class WorkerBean extends AbstractAgentBean {
 			worker.position = newPosition.orElse(worker.position);
 			worker.steps++;
 			if(message.action == WorkerAction.ORDER) {
-				currentOrder = null;
+				handleOrderTerminated();
 			}
 			if(graph != null && graph.path != null && message.action != WorkerAction.ORDER)
 				graph.path.removeFirst();
@@ -171,13 +174,27 @@ public class WorkerBean extends AbstractAgentBean {
 			}
 		}else if(message.state == Result.FAIL && message.action == WorkerAction.ORDER && graph != null){
 			graph.path = null;
-			acceptedOrders.remove(0);
-			if(acceptedOrders.size() > 0) {
-				currentOrder = acceptedOrders.get(0);
-			} else {
-				currentOrder = null;
+			handleOrderTerminated();
+		}
+	}
+
+	private void handleOrderTerminated() {
+		acceptedOrders.remove(0);
+		if(currentBestPath.size() > 0 && acceptedOrders.size() > 0) {
+			currentOrder = getNextOrder();
+		} else {
+			currentOrder = null;
+		}
+	}
+
+	private Order getNextOrder() {
+		// Get the next order we would want to go to in our path and that was accepted already
+		for (Order order : currentBestPath) {
+			if (acceptedOrders.contains(order)) {
+				return order;
 			}
 		}
+		return null;
 	}
 
 	private void handleGameSizeResponse(GameSizeResponse message) {
