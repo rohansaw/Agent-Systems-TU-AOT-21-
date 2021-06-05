@@ -56,7 +56,6 @@ public class WorkerBean extends AbstractAgentBean {
 			getGameSize();
 
 		if(worker != null) {
-			updateReceivedProposals();
 			answerCallsForProposal();
 		}
 
@@ -93,17 +92,6 @@ public class WorkerBean extends AbstractAgentBean {
 			handleGameSizeResponse((GameSizeResponse) payload);
 	}
 
-	private void updateReceivedProposals() {
-		for(CallForProposal cfp : unansweredCallsForProposal) {
-			cfp.deadline--;
-		}
-		for(CallForProposal cfp: unansweredCallsForProposal) {
-			if(cfp.deadline < 0) {
-				unansweredCallsForProposal.remove(cfp);
-			}
-		}
-	}
-
 	private void handleProposalAccept(ProposalAccept message) {
 		acceptedOrders.add(message.order);
 	}
@@ -126,7 +114,7 @@ public class WorkerBean extends AbstractAgentBean {
 			// only send answer for unanswered CFPs not already sent orders
 			CallForProposal cfp = getCfpForOrder(bestPath.get(i));
 			// Wait till last possible moment to propose to cfp
-			if (cfp != null && cfp.deadline == 0) {
+			if (cfp != null) {
 				propose(bestPath.get(i), i);
 				unansweredCallsForProposal.remove(cfp);
 			}
