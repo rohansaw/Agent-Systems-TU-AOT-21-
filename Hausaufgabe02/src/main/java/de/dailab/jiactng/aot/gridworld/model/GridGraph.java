@@ -25,51 +25,6 @@ public class GridGraph {
         }
     }
 
-    public GridGraph(String file){
-        InputStream is = Util.class.getResourceAsStream(file);
-        if (is == null) {
-            throw new IllegalArgumentException("Invalid grid file: " + file);
-        }
-        try (Scanner scanner = new Scanner(is)) {
-
-            // first line: general game parameters
-            width = scanner.nextInt();
-            height = scanner.nextInt();
-            for (int i = 0; i < 4; i++) {
-                scanner.nextInt();
-            }
-
-            adj = new LinkedList[height][width];
-
-            String last_line = null, next_line = null, line = null;
-            for (int y = 0; y < height; y++) {
-                if(y == 0) {
-                    line = scanner.next(String.format(".{%d}", width));
-                    next_line = scanner.next(String.format(".{%d}", width));
-                }if(y > 0 && y < height - 1){
-                    last_line = line;
-                    line = next_line;
-                    next_line = scanner.next(String.format(".{%d}", width));
-                }else if(y == height - 1){
-                    last_line = line;
-                    line = next_line;
-                    next_line = null;
-                }
-                for (int x = 0; x < width; x++) {
-                    adj[y][x] = new LinkedList<>();
-                    if(x + 1 < width && line.charAt(x + 1) != '#')
-                        adj[y][x].add(new Position(x + 1, y));
-                    if(x - 1 >= 0 && line.charAt(x - 1) != '#')
-                        adj[y][x].add(new Position(x - 1, y));
-                    if(y + 1 < height && next_line != null && next_line.charAt(x) != '#')
-                        adj[y][x].add(new Position(x, y + 1));
-                    if(y - 1 >= 0 && last_line != null && last_line.charAt(x) != '#')
-                        adj[y][x].add(new Position(x, y - 1));
-                }
-            }
-        }
-    }
-
     public GridGraph(int width, int height, Set<Position> obstacles){
         this.width = width;
         this.height = height;

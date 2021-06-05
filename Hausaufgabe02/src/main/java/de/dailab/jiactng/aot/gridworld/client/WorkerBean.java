@@ -98,7 +98,7 @@ public class WorkerBean extends AbstractAgentBean {
 
 	private void handleProposalReject(ProposalReject message) {
 		activeOrders = activeOrders.stream()
-				.filter((Order order) -> order.id != message.orderID)
+				.filter((Order order) -> !order.id.equals(message.orderID))
 				.collect(Collectors.toList());
 	}
 
@@ -123,7 +123,7 @@ public class WorkerBean extends AbstractAgentBean {
 
 	private CallForProposal getCfpForOrder(Order order) {
 		return unansweredCallsForProposal.stream()
-				.filter((CallForProposal cfp) -> cfp.order.id == order.id)
+				.filter((CallForProposal cfp) -> cfp.order.id.equals(order.id))
 				.findFirst()
 				.orElse(null);
 	}
@@ -187,7 +187,7 @@ public class WorkerBean extends AbstractAgentBean {
 
 	private void handleGameSizeResponse(GameSizeResponse message) {
 		gameSize = message.size;
-		graph = new GridGraph(gameSize.x, gameSize.y, obstacles);
+		graph = new GridGraph(message.size.x, message.size.y, obstacles);
 	}
 
 	/** pull gameSize */
