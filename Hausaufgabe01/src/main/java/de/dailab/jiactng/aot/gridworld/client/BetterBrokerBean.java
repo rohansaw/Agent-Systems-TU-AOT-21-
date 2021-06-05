@@ -29,6 +29,8 @@ public class BetterBrokerBean extends AbstractAgentBean {
     public static String BROKER_ID = "Some_Id";
     public static String GRID_FILE = "/grids/22_22.grid";
 
+
+
     private BrokerState state = BrokerState.AWAIT_GAME_START;
     private int turn;
     private List obstacles;

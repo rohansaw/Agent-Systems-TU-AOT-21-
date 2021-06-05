@@ -1,0 +1,69 @@
+@startuml
+hide footbox
+skinparam shadowing false
+
+participant "Server" as S
+participant "Broker" as B
+participant "Worker" as W
+
+== game handling ==
+
+S <- B: StartGameMessage(BrokerID)
+S -> B: StartGameResponse(Broker)
+
+    ... [order handling] ...
+
+S -> B: EndGameMessage(Score, Winner)
+
+
+== order handling ==
+
+S -> B: OrderMessage(Order)
+
+B -> B: <take order?>
+
+opt take order?
+
+    S <- B: TakeOrderMessage(Order, Broker)
+
+    alt got order?
+
+        S -> B: TakeOrderConfirm(SUCCESS)
+
+        ... [worker handling] ...
+        
+        alt completed in time?
+            S -> B: OrderCompleted(SUCCESS)
+        else
+            S -> B: OrderCompleted(FAIL)
+        end
+    else
+        S -> B: TakeOrderConfirm(FAIL)
+    end
+end
+
+== worker handling ==
+
+B -> W: <assign order>
+B <- W
+B -> W
+
+loop move towards target
+    S <- W: WorkerMessage(N|S|E|W)
+    alt valid move?
+        S -> W: WorkerConfirm(SUCCESS)
+    else
+        S -> W: WorkerConfirm(FAIL)
+    end
+end
+
+opt arrived?
+    S <- W: WorkerMessage(ORDER)
+    alt at target?
+        S -> W: WorkerConfirm(SUCCESS)
+    else
+        S -> W: WorkerConfirm(FAIL)
+    end
+end
+
+@enduml
