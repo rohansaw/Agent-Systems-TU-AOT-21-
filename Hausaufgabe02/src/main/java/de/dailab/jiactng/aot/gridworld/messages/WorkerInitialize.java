@@ -10,6 +10,8 @@ public class WorkerInitialize extends GameMessage{
 
     public String brokerId;
 
+    public int turn;
+
     @Override
     public String toString() {
         return String.format("WorkerInitialize(game=%d, brokerId=%s, worker=%s)", gameId, brokerId, worker);

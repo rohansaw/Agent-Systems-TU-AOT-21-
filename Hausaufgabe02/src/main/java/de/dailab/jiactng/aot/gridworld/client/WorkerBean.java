@@ -7,7 +7,7 @@ import de.dailab.jiactng.agentcore.ontology.AgentDescription;
 import de.dailab.jiactng.agentcore.ontology.IAgentDescription;
 import de.dailab.jiactng.aot.gridworld.messages.*;
 import de.dailab.jiactng.aot.gridworld.model.*;
-import de.dailab.jiactng.aot.gridworld.util.CFPGraph;
+import de.dailab.jiactng.aot.gridworld.util.OrderDist;
 import org.sercho.masp.space.event.SpaceEvent;
 import org.sercho.masp.space.event.SpaceObserver;
 import org.sercho.masp.space.event.WriteCallEvent;
@@ -36,6 +36,7 @@ public class WorkerBean extends AbstractAgentBean {
 	private Position gameSize = null;
 	private GridGraph graph = null;
 	private Set<Position> obstacles = new HashSet<Position>();
+	private Integer turn = null;
 
 
 	@Override
@@ -71,6 +72,7 @@ public class WorkerBean extends AbstractAgentBean {
 		if (payload instanceof WorkerInitialize) {
 			worker = ((WorkerInitialize) payload).worker;
 			gameId = ((WorkerInitialize) payload).gameId;
+			turn = ((WorkerInitialize) payload).turn;
 		}
 
 		if (payload instanceof CallForProposal) {
@@ -108,14 +110,14 @@ public class WorkerBean extends AbstractAgentBean {
 	}
 
 	private void answerCallsForProposal(){
-		List<Order> bestPath = calculateBestPath();
-		currentBestPath = bestPath;
-		for (int i = 0; i < bestPath.size(); i++) {
+		List<Order> arrangement = calculateOrderArrangement();
+		currentBestPath = arrangement;
+		for (int i = 0; i < arrangement.size(); i++) {
 			// only send answer for unanswered CFPs not already sent orders
-			CallForProposal cfp = getCfpForOrder(bestPath.get(i));
+			CallForProposal cfp = getCfpForOrder(arrangement.get(i));
 			// Wait till last possible moment to propose to cfp
-			if (cfp != null) {
-				propose(bestPath.get(i), i);
+			if (cfp != null && i < cfp.bestBid) {
+				propose(arrangement.get(i), i);
 				unansweredCallsForProposal.remove(cfp);
 			}
 		}
@@ -128,23 +130,7 @@ public class WorkerBean extends AbstractAgentBean {
 				.orElse(null);
 	}
 
-	private List<Order> calculateBestPath() {
-		// we use all active CSPs because we do not care if we quit a running order if this leads to us completing more
-		// CFPGraph cspGraph = new CFPGraph(activeOrders, worker.position, graph);
-		// List<Order> bestPath = cspGraph.getBestPath();
-		class OrderDist  implements Comparable<OrderDist>{
-			Order order;
-			Integer distance;
-			public OrderDist(Order order, Integer distance) {
-				this.order = order;
-				this.distance = distance;
-			}
-
-			@Override
-			public int compareTo(OrderDist od) {
-				return this.distance - od.distance;
-			}
-		}
+	private List<Order> calculateOrderArrangement() {
 		List<OrderDist> bestArrangement = new ArrayList<OrderDist>();
 		for (Order order : activeOrders) {
 			graph.aStar(worker.position, order.position, false);
@@ -152,10 +138,11 @@ public class WorkerBean extends AbstractAgentBean {
 			bestArrangement.add(new OrderDist(order, dist));
 		}
 		Collections.sort(bestArrangement);
+		// Only consider orders that could be completed in the deadline
+		bestArrangement.stream().filter((OrderDist od) -> turn + od.distance < od.order.deadline);
 		List<Order> res = bestArrangement.stream().map((OrderDist od) -> od.order).collect(Collectors.toList());
 		return res;
 	}
-
 
 	private void handleMoveConfirmation(WorkerConfirm message) {
 		if(message.state == Result.SUCCESS) {
@@ -208,7 +195,9 @@ public class WorkerBean extends AbstractAgentBean {
 	}
 
 	private void handleGameSizeResponse(GameSizeResponse message) {
+		log.info("received");
 		gameSize = message.size;
+		log.info(gameSize);
 		graph = new GridGraph(gameSize.x, gameSize.y, obstacles);
 	}
 

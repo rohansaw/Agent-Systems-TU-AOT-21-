@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 public class BrokerBean extends AbstractAgentBean {
 
 	public static String BROKER_ID = "Some_Id";
-	public static String GRID_FILE = "/grids/grid_2.grid";
+	public static String GRID_FILE = "/grids/example.grid";
 
 	private BrokerState state = BrokerState.AWAIT_GAME_START;
 	private int turn;
@@ -307,6 +307,7 @@ public class BrokerBean extends AbstractAgentBean {
 		message.gameId = gameId;
 		message.brokerId = BROKER_ID;
 		message.worker = worker;
+		message.turn = turn;
 		sendMessage(workerAddresses.get(worker.id), message);
 	}
 
