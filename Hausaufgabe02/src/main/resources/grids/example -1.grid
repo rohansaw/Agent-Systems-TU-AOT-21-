@@ -34,7 +34,8 @@ w3 9 1 999
 w4 10 1 999
 w5 11 1 999
 
-/* in diesem Beispiel sind die Order in der linken Seite zuerst 'created' . dies werden von worker angenommen , da sie erreichbar sind .
-währenddessen werden die Orders in der rechten Seite 'created' und verfügbare Worker zugewiesen werden .
-wegen der Hindernisse werden mehr turns benötigt, bis Workers ihre Ziele zu erreichen. somit führt es zum schlechten 'score'
-des Brokers, allerdings ist der Ziel der Worker (soviel Orders wie möglich annehmen) erfüllt .*/
+/* In diesem Beispiel werden die Order auf der linken Seite zuerst 'created'. Diese können von den workern angenommen
+werden, da sie erreichbar sind. Währenddessen werden die Orders auf der rechten Seite 'created' und verfügbare Worker können
+zugewiesen werden. Wegen der Hindernisse werden mehr turns benötigt, bis Workers ihre Ziele erreichen un somit wird ein
+schlechter 'score' des Brokers erzielt. Allerdings könnte das Ziel der Worker (soviel Orders wie möglich annehmen)
+erfüllt werden.*/
