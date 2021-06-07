@@ -36,7 +36,6 @@ public class BrokerBean extends AbstractAgentBean {
 	private Position gridsize;
 	private int gameId;
 	private List<Worker> workers;
-	private HashMap<String, Worker> orderAssignments;
 	private HashMap<String, ICommunicationAddress> workerAddresses;
 
 	//first index orderID, second workerID -> bid
@@ -48,6 +47,7 @@ public class BrokerBean extends AbstractAgentBean {
 		 * this will be called once when the agent starts and can be used for initialization work
 		 * note that when this method is executed, (a) it is not guaranteed that all the other
 		 * agents are already started and/or their actions are known, and (b) the agent's execution
+		 * has not yet started, so do not wait for any actions to be completed in this method (you
 		 * has not yet started, so do not wait for any actions to be completed in this method (you
 		 * can invoke actions, though, if they are already known to the agent)
 		 *
@@ -63,7 +63,6 @@ public class BrokerBean extends AbstractAgentBean {
 		turn = 0;
 		serverAddress = null;
 		workerAddresses = new HashMap<String, ICommunicationAddress>();
-		orderAssignments = new HashMap<>();
 		bids = new HashMap<>();
 		memory.attach(new BrokerBean.MessageObserver(), new JiacMessage());
 	}
@@ -180,6 +179,7 @@ public class BrokerBean extends AbstractAgentBean {
 		msg.startTime = turn;
 		msg.bestBid = Integer.MAX_VALUE;
 		msg.gameId = gameId;
+		msg.order = order;
 		for(Worker w : workers){
 			try {
 				sendMessage(workerAddresses.get(w.id), msg);
@@ -215,6 +215,7 @@ public class BrokerBean extends AbstractAgentBean {
 			Map.Entry<String, Integer> accepted_worker = table.entrySet().stream()
 					.filter(e -> e.getValue() == bestBid)
 					.findFirst().get();
+			table.remove(accepted_worker.getKey());
 
 			//send ProposalAck to the first worker with bestBid
 			ProposalAccept ack = new ProposalAccept();
@@ -222,21 +223,20 @@ public class BrokerBean extends AbstractAgentBean {
 			ack.order = getOrderByID(message.orderId);
 			ack.gameId = gameId;
 			sendMessage(workerAddresses.get(accepted_worker.getKey()), ack);
-
-			//send ProposalRej to other workers
-			ProposalReject rej = new ProposalReject();
-			rej.orderID = message.orderId;
-			rej.gameId = gameId;
-			for(String workerID : table.keySet()){
-				if(!workerID.equals(accepted_worker.getKey()))
-					sendMessage(workerAddresses.get(workerID), rej);
-			}
+		}
+		//send ProposalRej to other workers
+		ProposalReject rej = new ProposalReject();
+		rej.orderID = message.orderId;
+		rej.gameId = gameId;
+		for (String workerID : table.keySet()) {
+			sendMessage(workerAddresses.get(workerID), rej);
 		}
 	}
 
+
+
 	private void handleOrderCompleted(OrderCompleted message) {
 		if (message.state == Result.SUCCESS) {
-			orderAssignments.remove(message.orderId);
 		} else {
 			/** ToDo If end is still far enough away maybe try to redo order **/
 			/** Also maybe blacklist this worker, because he produces a bad result? **/

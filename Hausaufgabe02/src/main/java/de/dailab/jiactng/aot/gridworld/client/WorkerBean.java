@@ -27,10 +27,9 @@ public class WorkerBean extends AbstractAgentBean {
 	private int gameId;
 	private Worker worker;
 
-	private ArrayList<CallForProposal> unansweredCallsForProposal = new ArrayList<CallForProposal>();
 	private Order currentOrder = null;
 	private List<Order> acceptedOrders = new ArrayList<Order>();
-	private List<Order> currentBestPath = new ArrayList<Order>();
+	private List<OrderDist> currentBestPath = new ArrayList<OrderDist>();
 	private List<Order> activeOrders = new ArrayList<Order>();
 
 	private Position gameSize = null;
@@ -55,10 +54,6 @@ public class WorkerBean extends AbstractAgentBean {
 
 		if(gameSize == null && worker != null)
 			getGameSize();
-
-		if(worker != null) {
-			answerCallsForProposal();
-		}
 
 		if(currentOrder != null)
 			moveToOrder();
@@ -100,34 +95,28 @@ public class WorkerBean extends AbstractAgentBean {
 
 	private void handleProposalReject(ProposalReject message) {
 		activeOrders = activeOrders.stream()
-				.filter((Order order) -> order.id != message.orderID)
+				.filter((Order order) -> !order.id.equals(message.orderID))
 				.collect(Collectors.toList());
 	}
 
-	private void handleCallForProposal(CallForProposal message) {
-		unansweredCallsForProposal.add(message);
-		activeOrders.add(message.order);
-	}
-
-	private void answerCallsForProposal(){
-		List<Order> arrangement = calculateOrderArrangement();
-		currentBestPath = arrangement;
-		for (int i = 0; i < arrangement.size(); i++) {
-			// only send answer for unanswered CFPs not already sent orders
-			CallForProposal cfp = getCfpForOrder(arrangement.get(i));
-			// Wait till last possible moment to propose to cfp
-			if (cfp != null && i < cfp.bestBid) {
-				propose(arrangement.get(i), i);
-				unansweredCallsForProposal.remove(cfp);
-			}
+	private void handleCallForProposal(CallForProposal cfp) {
+		activeOrders.add(cfp.order);
+		Integer bid = calculateBid(cfp.order);
+		if (bid != null && bid < cfp.bestBid) {
+			propose(cfp.order, bid);
 		}
 	}
 
-	private CallForProposal getCfpForOrder(Order order) {
-		return unansweredCallsForProposal.stream()
-				.filter((CallForProposal cfp) -> cfp.order.id == order.id)
-				.findFirst()
-				.orElse(null);
+	private Integer calculateBid(Order order) {
+		graph.aStar(worker.position, order.position, false);
+		Integer dist = graph.path.size();
+		OrderDist od = new OrderDist(order, dist);
+		// We only want to bid if we could reach it in time
+		if (turn + od.distance < od.order.deadline) {
+
+		}
+
+		return null;
 	}
 
 	private List<Order> calculateOrderArrangement() {
@@ -197,8 +186,7 @@ public class WorkerBean extends AbstractAgentBean {
 	private void handleGameSizeResponse(GameSizeResponse message) {
 		log.info("received");
 		gameSize = message.size;
-		log.info(gameSize);
-		graph = new GridGraph(gameSize.x, gameSize.y, obstacles);
+		graph = new GridGraph(message.size.x, message.size.y, obstacles);
 	}
 
 	/** pull gameSize */
