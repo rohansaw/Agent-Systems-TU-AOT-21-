@@ -29,7 +29,7 @@ public class WorkerBean extends AbstractAgentBean {
 
 	private Order currentOrder = null;
 	private List<Order> acceptedOrders = new ArrayList<Order>();
-	private List<OrderDist> currentBestPath = new ArrayList<OrderDist>();
+	private List<Order> currentBestPath = new ArrayList<Order>();
 	private List<Order> activeOrders = new ArrayList<Order>();
 
 	private Position gameSize = null;
@@ -110,27 +110,39 @@ public class WorkerBean extends AbstractAgentBean {
 	private Integer calculateBid(Order order) {
 		graph.aStar(worker.position, order.position, false);
 		Integer dist = graph.path.size();
-		OrderDist od = new OrderDist(order, dist);
 		// We only want to bid if we could reach it in time
-		if (turn + od.distance < od.order.deadline) {
-
+		if (turn + dist < order.deadline) {
+			int bestPosition = bestPosition(order);
+			currentBestPath.add(bestPosition, order);
+			// ToDo calculate how much we should bid here and return bid
+			return 0;
 		}
 
 		return null;
 	}
 
-	private List<Order> calculateOrderArrangement() {
-		List<OrderDist> bestArrangement = new ArrayList<OrderDist>();
-		for (Order order : activeOrders) {
-			graph.aStar(worker.position, order.position, false);
-			Integer dist = graph.path.size();
-			bestArrangement.add(new OrderDist(order, dist));
+	private Integer bestPosition(Order order) {
+		graph.aStar(order.position, currentBestPath.get(0).position,false);
+		int lowestIncrease = graph.path.size();
+		int bestPosition = 0;
+		for(int i = 0; i < currentBestPath.size(); i++) {
+			graph.aStar(currentBestPath.get(i).position, order.position, false);
+			int costToNewOrder = graph.path.size();
+			graph.aStar(order.position, currentBestPath.get(i+1).position, false);
+			int costFromNewOrder = graph.path.size();
+			int costIncrease = costToNewOrder + costFromNewOrder;
+			if (costIncrease < lowestIncrease) {
+				bestPosition = i + 1;
+				lowestIncrease = costIncrease;
+			}
 		}
-		Collections.sort(bestArrangement);
-		// Only consider orders that could be completed in the deadline
-		bestArrangement.stream().filter((OrderDist od) -> turn + od.distance < od.order.deadline);
-		List<Order> res = bestArrangement.stream().map((OrderDist od) -> od.order).collect(Collectors.toList());
-		return res;
+
+		graph.aStar(currentBestPath.get(currentBestPath.size() -1 ).position, order.position, false);
+		int costIfAtLastPosition = graph.path.size();
+		if (costIfAtLastPosition < lowestIncrease) {
+			bestPosition = currentBestPath.size();
+		}
+		return bestPosition;
 	}
 
 	private void handleMoveConfirmation(WorkerConfirm message) {
