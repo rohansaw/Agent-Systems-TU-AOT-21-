@@ -210,11 +210,11 @@ public class BrokerBean extends AbstractAgentBean {
 		gameId = message.gameId;
 		gridsize = message.size;
 		workers = message.initialWorkers;
+		turn = 0;
 		log.info(message.initialWorkers);
 		setWorkerAddresses(workers);
 		initializeWorkerBeans();
 		state = BrokerState.GAME_STARTED;
-		turn = 0;
 	}
 
 	private void handleTakeOrderConfirm(TakeOrderConfirm message) {
@@ -357,6 +357,7 @@ public class BrokerBean extends AbstractAgentBean {
 		message.gameId = gameId;
 		message.brokerId = BROKER_ID;
 		message.worker = worker;
+		message.turn = turn;
 		sendMessage(workerAddresses.get(worker.id), message);
 	}
 
