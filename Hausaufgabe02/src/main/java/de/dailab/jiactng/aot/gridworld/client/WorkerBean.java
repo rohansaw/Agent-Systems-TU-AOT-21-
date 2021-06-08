@@ -110,8 +110,7 @@ public class WorkerBean extends AbstractAgentBean {
 	}
 
 	private Integer calculateBid(Order order) {
-		graph.aStar(worker.position, order.position);
-		Integer dist = graph.path.size();
+		Integer dist = graph.getPathLength(worker.position, order.position);
 		// We only want to bid if we could reach it in time
 		if (turn + dist < order.deadline) {
 			int bestPosition = bestPosition(order);
@@ -124,14 +123,11 @@ public class WorkerBean extends AbstractAgentBean {
 	}
 
 	private Integer bestPosition(Order order) {
-		graph.aStar(order.position, currentBestPath.get(0).position);
-		int lowestIncrease = graph.path.size();
+		int lowestIncrease = graph.getPathLength(order.position, currentBestPath.get(0).position);
 		int bestPosition = 0;
 		for(int i = 0; i < currentBestPath.size(); i++) {
-			graph.aStar(currentBestPath.get(i).position, order.position);
-			int costToNewOrder = graph.path.size();
-			graph.aStar(order.position, currentBestPath.get(i+1).position);
-			int costFromNewOrder = graph.path.size();
+			int costToNewOrder = graph.getPathLength(currentBestPath.get(i).position, order.position);
+			int costFromNewOrder = graph.getPathLength(order.position, currentBestPath.get(i+1).position);
 			int costIncrease = costToNewOrder + costFromNewOrder;
 			if (costIncrease < lowestIncrease) {
 				bestPosition = i + 1;
@@ -139,8 +135,7 @@ public class WorkerBean extends AbstractAgentBean {
 			}
 		}
 
-		graph.aStar(currentBestPath.get(currentBestPath.size() -1 ).position, order.position);
-		int costIfAtLastPosition = graph.path.size();
+		int costIfAtLastPosition = graph.getPathLength(currentBestPath.get(currentBestPath.size() -1 ).position, order.position);
 		if (costIfAtLastPosition < lowestIncrease) {
 			bestPosition = currentBestPath.size();
 		}
@@ -156,8 +151,6 @@ public class WorkerBean extends AbstractAgentBean {
 			if(message.action == WorkerAction.ORDER) {
 				handleOrderTerminated();
 			}
-			if(graph != null && graph.path != null && message.action != WorkerAction.ORDER)
-				graph.path.removeFirst();
 		}else if(message.action != WorkerAction.ORDER && gameSize != null){
 			int y = worker.position.y;
 			int x = worker.position.x;
@@ -170,11 +163,9 @@ public class WorkerBean extends AbstractAgentBean {
 				obstacles.add(pos);
 				if(graph != null) {
 					graph.addObstacle(pos);
-					if(currentOrder != null) graph.aStar(worker.position, currentOrder.position);
 				}
 			}
 		}else if(message.state == Result.FAIL && message.action == WorkerAction.ORDER && graph != null){
-			graph.path = null;
 			handleOrderTerminated();
 		}
 	}
@@ -212,6 +203,28 @@ public class WorkerBean extends AbstractAgentBean {
 		sendMessage(brokerAddress, msg);
 	}
 
+	private void moveToOrder() {
+		sendWorkerAction(graph.getNextMove(worker.position, currentOrder.position));
+	}
+
+	private void sendWorkerAction(WorkerAction action) {
+		WorkerMessage message = new WorkerMessage();
+		message.action = action;
+		message.gameId = gameId;
+		message.workerId = worker.id;
+		sendMessage(serverAddress, message);
+	}
+
+	private void propose(Order order, int value) {
+		Proposal proposal = new Proposal();
+		proposal.gameId = gameId;
+		proposal.worker = worker;
+		proposal.order = order;
+		proposal.bid = value;
+
+		sendMessage(brokerAddress, proposal);
+	}
+
 	/** Retrieve and set the servers address **/
 	private void setServerAddress() {
 		while(serverAddress == null) {
@@ -234,30 +247,6 @@ public class WorkerBean extends AbstractAgentBean {
 				log.warn("Worker could not connect to the Broker!");
 			}
 		}
-	}
-
-	private void moveToOrder() {
-		if(graph.path == null)
-			graph.dijkstra(worker.position);
-		sendWorkerAction(graph.getNextMove(worker.position, currentOrder.position));
-	}
-
-	private void sendWorkerAction(WorkerAction action) {
-		WorkerMessage message = new WorkerMessage();
-		message.action = action;
-		message.gameId = gameId;
-		message.workerId = worker.id;
-		sendMessage(serverAddress, message);
-	}
-
-	private void propose(Order order, int value) {
-		Proposal proposal = new Proposal();
-		proposal.gameId = gameId;
-		proposal.worker = worker;
-		proposal.order = order;
-		proposal.bid = value;
-
-		sendMessage(brokerAddress, proposal);
 	}
 
 	/** Send messages to other agents */

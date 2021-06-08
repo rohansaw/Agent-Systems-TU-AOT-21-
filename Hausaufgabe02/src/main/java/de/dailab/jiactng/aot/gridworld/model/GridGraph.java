@@ -8,25 +8,11 @@ import java.util.*;
 public class GridGraph {
     public final int width;
     public final int height;
-    public LinkedList<Position> path = null;
     //[y][x]
-    private LinkedList<Position>[][] adj;
-    private HashMap<Position, int[][]> dists = new HashMap<>();
-    private HashMap<Position, Position[][]> parents = new HashMap<>();
-    private HashSet<Position> obstacles = new HashSet<>();
-
-    class Node{
-        public Position pos;
-        public Integer f;
-        public Integer g;
-        public Integer h;
-        public Node(Position pos, int g, int h){
-            this.pos = pos;
-            this.g = g;
-            this.h = h;
-            this.f = g + h;
-        }
-    }
+    private final LinkedList<Position>[][] adj;
+    private final HashMap<Position, int[][]> dists = new HashMap<>();
+    private final HashMap<Position, Position[][]> parents = new HashMap<>();
+    private final HashSet<Position> obstacles = new HashSet<>();
 
     public GridGraph(int width, int height, Set<Position> obstacles){
         this.width = width;
@@ -86,9 +72,11 @@ public class GridGraph {
         if(current.equals(to))
             return WorkerAction.ORDER;
 
+        //use path from order position, because dijkstra(current) is probably not calculateted
         if(!parents.containsKey(to) || pathContainsObstacle(to, current))
             dijkstra(to);
 
+        //parent of current on path(to -> current) is next move
         Position next = parents.get(to)[current.y][current.x];
 
         if(next.x > current.x)
@@ -141,47 +129,5 @@ public class GridGraph {
         }
         dists.put(from, dist);
         parents.put(from, parent);
-    }
-
-    //returns g of node if pos is in Q
-    private int QcontainsPos(Position pos, PriorityQueue<Node> Q){
-        for(Node n : Q){
-            if(n.pos.equals(pos))
-                return n.g;
-        }
-        return Integer.MAX_VALUE;
-    }
-
-    public void aStar(Position from, Position to){
-        boolean[][] visited = new boolean[height][width];
-        Position[][] parent = new Position[height][width];
-        PriorityQueue<Node> Q = new PriorityQueue<>(Comparator.comparing(n -> n.f));
-        path = new LinkedList<Position>();
-
-        for(int i = 0; i < height; i++){
-            for(int j = 0; j < width; j++){
-                visited[i][j] = false;
-                parent[i][j] = null;
-            }
-        }
-        visited[from.y][from.x] = true;
-        Q.add(new Node(from, 0, 0));
-
-        while (!Q.isEmpty()){
-            Node v = Q.poll();
-            if(v.pos.equals(to))
-                break;
-            visited[v.pos.y][v.pos.x] = true;
-            for(Position u : adj[v.pos.y][v.pos.x]){
-                if(visited[u.y][u.x] || v.g + 1 >= QcontainsPos(u, Q))
-                    continue;
-
-                Node node = new Node(u, v.g + 1, u.distance(to));
-
-                Q.removeIf(n -> n.pos.equals(u));
-                Q.offer(node);
-                parent[u.y][u.x] = v.pos;
-            }
-        }
     }
 }
