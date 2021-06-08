@@ -25,16 +25,17 @@ public class WorkerBean extends AbstractAgentBean {
 	private ICommunicationAddress brokerAddress;
 	private ICommunicationAddress serverAddress;
 	private int gameId;
+	private int turn;
 	private Worker worker;
 
-	private ArrayList<CallForProposal> unansweredCallsForProposal = new ArrayList<CallForProposal>();
 	private Order currentOrder = null;
+	private Set<Order> proposedOrders = new HashSet<>();
 	private List<Order> acceptedOrders = new ArrayList<Order>();
 	private List<Order> currentBestPath = new ArrayList<Order>();
-	private List<Order> activeOrders = new ArrayList<Order>();
 
 	private Position gameSize = null;
 	private GridGraph graph = null;
+	private CFPGraph cfpGraph = null;
 	private Set<Position> obstacles = new HashSet<Position>();
 
 
@@ -42,25 +43,22 @@ public class WorkerBean extends AbstractAgentBean {
 	public void doStart() throws Exception {
 		memory.attach(new MessageObserver(), new JiacMessage());
 		log.info("starting...");
+		turn = 0;
 	}
 
 	@Override
 	public void execute() {
-		if(serverAddress == null)
-			setServerAddress();
+		if(serverAddress == null) setServerAddress();
 
-		if(brokerAddress == null)
-			setBrokerAddress();
+		if(brokerAddress == null) setBrokerAddress();
 
-		if(gameSize == null && worker != null)
-			getGameSize();
+		if(currentOrder != null) moveToOrder();
 
-		if(worker != null) {
-			answerCallsForProposal();
+		if(worker != null){
+			turn++;
+			if(gameSize == null) getGameSize();
+			if(cfpGraph != null) cfpGraph.updateTurn();
 		}
-
-		if(currentOrder != null)
-			moveToOrder();
 	}
 
 	private void handleIncomingMessage(JiacMessage message) {
@@ -71,6 +69,7 @@ public class WorkerBean extends AbstractAgentBean {
 		if (payload instanceof WorkerInitialize) {
 			worker = ((WorkerInitialize) payload).worker;
 			gameId = ((WorkerInitialize) payload).gameId;
+			turn = 0;
 		}
 
 		if (payload instanceof CallForProposal) {
@@ -97,17 +96,12 @@ public class WorkerBean extends AbstractAgentBean {
 	}
 
 	private void handleProposalReject(ProposalReject message) {
-		activeOrders = activeOrders.stream()
-				.filter((Order order) -> !order.id.equals(message.orderID))
-				.collect(Collectors.toList());
+		proposedOrders.removeIf(o -> o.id.equals(message.order.id));
+		cfpGraph.removeNode(message.order);
 	}
 
-	private void handleCallForProposal(CallForProposal message) {
-		unansweredCallsForProposal.add(message);
-		activeOrders.add(message.order);
-	}
-
-	private void answerCallsForProposal(){
+	private void handleCallForProposal(CallForProposal msg) {
+		proposedOrders.add(msg.order);
 		List<Order> bestPath = calculateBestPath();
 		currentBestPath = bestPath;
 		for (int i = 0; i < bestPath.size(); i++) {
@@ -116,21 +110,14 @@ public class WorkerBean extends AbstractAgentBean {
 			// Wait till last possible moment to propose to cfp
 			if (cfp != null) {
 				propose(bestPath.get(i), i);
-				unansweredCallsForProposal.remove(cfp);
 			}
 		}
 	}
 
-	private CallForProposal getCfpForOrder(Order order) {
-		return unansweredCallsForProposal.stream()
-				.filter((CallForProposal cfp) -> cfp.order.id.equals(order.id))
-				.findFirst()
-				.orElse(null);
-	}
 
 	private List<Order> calculateBestPath() {
 		// we use all active CSPs because we do not care if we quit a running order if this leads to us completing more
-		CFPGraph cspGraph = new CFPGraph(activeOrders, worker.position, graph);
+		CFPGraph cspGraph = new CFPGraph(acceptedOrders, proposedOrders, graph, turn);
 		List<Order> bestPath = cspGraph.getBestPath();
 		return bestPath;
 	}
@@ -157,7 +144,7 @@ public class WorkerBean extends AbstractAgentBean {
 				obstacles.add(pos);
 				if(graph != null) {
 					graph.addObstacle(pos);
-					if(currentOrder != null) graph.aStar(worker.position, currentOrder.position, false);
+					if(currentOrder != null) graph.aStar(worker.position, currentOrder.position);
 				}
 			}
 		}else if(message.state == Result.FAIL && message.action == WorkerAction.ORDER && graph != null){
@@ -167,7 +154,7 @@ public class WorkerBean extends AbstractAgentBean {
 	}
 
 	private void handleOrderTerminated() {
-		acceptedOrders.remove(0);
+		cfpGraph.removeNode(acceptedOrders.remove(0));
 		if(currentBestPath.size() > 0 && acceptedOrders.size() > 0) {
 			currentOrder = getNextOrder();
 		} else {
@@ -188,6 +175,7 @@ public class WorkerBean extends AbstractAgentBean {
 	private void handleGameSizeResponse(GameSizeResponse message) {
 		gameSize = message.size;
 		graph = new GridGraph(message.size.x, message.size.y, obstacles);
+		cfpGraph = new CFPGraph(acceptedOrders, proposedOrders, graph, turn);
 	}
 
 	/** pull gameSize */
@@ -224,8 +212,8 @@ public class WorkerBean extends AbstractAgentBean {
 
 	private void moveToOrder() {
 		if(graph.path == null)
-			graph.aStar(worker.position, currentOrder.position, false);
-		sendWorkerAction(graph.getNextMove(worker.position));
+			graph.aStar(worker.position, currentOrder.position);
+		sendWorkerAction(graph.getNextMove(worker.position, currentOrder.position));
 	}
 
 	private void sendWorkerAction(WorkerAction action) {
@@ -240,7 +228,7 @@ public class WorkerBean extends AbstractAgentBean {
 		Proposal proposal = new Proposal();
 		proposal.gameId = gameId;
 		proposal.worker = worker;
-		proposal.orderID = order.id;
+		proposal.order = order;
 		proposal.bid = value;
 
 		sendMessage(brokerAddress, proposal);

@@ -135,7 +135,7 @@ public class BrokerBean extends AbstractAgentBean {
 	}
 
 	private void handleProposal(Proposal msg){
-		HashMap<String, Integer> table = bids.get(msg.orderID);
+		HashMap<String, Integer> table = bids.get(msg.order.id);
 		if(msg.refuse)
 			table.put(msg.worker.id, Integer.MAX_VALUE);
 		else
@@ -152,21 +152,31 @@ public class BrokerBean extends AbstractAgentBean {
 				CallForProposal cfp = new CallForProposal();
 				cfp.gameId = gameId;
 				cfp.bestBid = bestBid;
-				cfp.order = getOrderByID(msg.orderID);
-				cfp.startTime = turn;
+				cfp.order = msg.order;
 				table.forEach((k, v) -> {
 					if (v > bestBid && v != Integer.MAX_VALUE) {
 						sendMessage(workerAddresses.get(k), cfp);
 						table.remove(k);
 					}
 				});
-			}else if(rejectCount < workers.size()){
-				//best worker found -> send TakeOrderMsg to server
-				TakeOrderMessage tom = new TakeOrderMessage();
-				tom.brokerId = BROKER_ID;
-				tom.orderId = msg.orderID;
-				tom.gameId = gameId;
-				sendMessage(serverAddress, tom);
+			}else if(rejectCount < workers.size()){ // best bid found
+				//reject all proposals, if expected profit is negative
+				if(getExpectedProfit(bestBid, msg.order) < 0){
+					ProposalReject rej = new ProposalReject();
+					rej.order = msg.order;
+					rej.gameId = gameId;
+					for (String workerID : table.keySet()) {
+						sendMessage(workerAddresses.get(workerID), rej);
+					}
+					
+				}else {
+					//best worker found -> send TakeOrderMsg to server
+					TakeOrderMessage tom = new TakeOrderMessage();
+					tom.brokerId = BROKER_ID;
+					tom.orderId = msg.order.id;
+					tom.gameId = gameId;
+					sendMessage(serverAddress, tom);
+				}
 			}
 		}
 	}
@@ -176,7 +186,6 @@ public class BrokerBean extends AbstractAgentBean {
 		receivedOrders.get(0).add(order);
 		bids.put(order.id, new HashMap<>());
 		CallForProposal msg = new CallForProposal();
-		msg.startTime = turn;
 		msg.bestBid = Integer.MAX_VALUE;
 		msg.gameId = gameId;
 		msg.order = order;
@@ -226,7 +235,7 @@ public class BrokerBean extends AbstractAgentBean {
 		}
 		//send ProposalRej to other workers
 		ProposalReject rej = new ProposalReject();
-		rej.orderID = message.orderId;
+		rej.order = getOrderByID(message.orderId);
 		rej.gameId = gameId;
 		for (String workerID : table.keySet()) {
 			sendMessage(workerAddresses.get(workerID), rej);
@@ -255,12 +264,53 @@ public class BrokerBean extends AbstractAgentBean {
 		return null;
 	}
 
+	private void resendCFP(){
+		for(List<Order>l : receivedOrders){
+			for(Order o : l){
+				if(bids.get(o.id).size() != workers.size()){
+					HashMap<String, Integer> table = bids.get(o.id);
+					int bestBid = Collections.min(table.values());
+					for(Worker w : workers){
+						if(!table.containsKey(w.id)){
+							CallForProposal cfp = new CallForProposal();
+							cfp.order = o;
+							cfp.bestBid = bestBid;
+							cfp.gameId = gameId;
+							sendMessage(workerAddresses.get(w.id), cfp);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	private void updateOrders() {
+		for(Order o : receivedOrders.get(2)) {
+			ProposalReject rej = new ProposalReject();
+			rej.order = o;
+			rej.gameId = gameId;
+			for (Worker w : workers) {
+				sendMessage(workerAddresses.get(w.id), rej);
+			}
+		}
 		receivedOrders.get(2).clear();
 		receivedOrders.get(2).addAll(receivedOrders.get(1));
 		receivedOrders.get(1).clear();
 		receivedOrders.get(1).addAll(receivedOrders.get(0));
 		receivedOrders.get(0).clear();
+		resendCFP();
+	}
+
+	private int getExpectedProfit(int distance, Order order) {
+		if(distance > (order.deadline - turn)) {
+			// if this worker cant finish the order in time
+			return -order.value;
+		} else {
+			int profit = Math.max(order.value - distance * order.turnPenalty, 0);
+			// The distance are the turns needed to reach the order, and this will be subtracted from the profit
+			profit = profit - distance;
+			return Math.max(profit, 0);
+		}
 	}
 
 

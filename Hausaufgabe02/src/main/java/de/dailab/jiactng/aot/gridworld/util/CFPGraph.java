@@ -4,46 +4,66 @@ import de.dailab.jiactng.aot.gridworld.model.GridGraph;
 import de.dailab.jiactng.aot.gridworld.model.Order;
 import de.dailab.jiactng.aot.gridworld.model.Position;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class CFPGraph {
-
     private class Node {
         Order order;
         public Node(Order order) {
             this.order = order;
         }
-    }
 
-    private class Edge {
-        int weight;
-        Node source;
-        Node destination;
-        public Edge(Node v1, Node v2, Integer weight) {
-            this.source = v1;
-            this.destination = v2;
-            this.weight = weight;
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Node node = (Node) o;
+            return order.id.equals(node.order.id);
+        }
+
+        @Override
+        public int hashCode() {
+            return order.hashCode();
         }
     }
 
-    List<Node> nodes;
-    List<Edge> edges;
-    public CFPGraph(List<Order> activeOrders, Position currentPosition, GridGraph gridGraph) {
-        Order fakeOrder = new Order();
-        fakeOrder.position = currentPosition;
-        this.nodes.add(new Node(fakeOrder));
+    private List<Node> nodes = new LinkedList<>();
+    private HashMap<Node, List<Node>> edges = new HashMap<>();
+    private GridGraph gridGraph;
+    private int turn;
 
-        for(Order o : activeOrders) {
-            this.nodes.add(new Node(o));
+    public CFPGraph(List<Order> activeOrders, GridGraph gridGraph, int turn) {
+        this.turn = turn;
+        this.gridGraph = gridGraph;
+
+        for(Order o : activeOrders){
+            addNode(o);
         }
-        for(Node v1 : this.nodes) {
-            for(Node v2 : this.nodes) {
-                gridGraph.aStar(v1.order.position, v2.order.position, false);
-                Integer weight = gridGraph.path.size();
-                edges.add(new Edge(v1, v2, weight));
+    }
+
+    public void addNode(Order order){
+        gridGraph.dijkstra(order.position);
+        Node node = new Node(order);
+        for(List<Node> l : edges.values()){
+            l.add(node);
+        }
+        edges.put(node, new LinkedList<>(nodes));
+        nodes.add(node);
+    }
+
+    public void removeNode(Order order){
+        Optional<Node> node = nodes.stream().filter(n -> n.order.id.equals(order.id)).findFirst();
+        if(node.isPresent()){
+            edges.remove(node.get());
+            for(List<Node> l : edges.values()){
+                l.removeIf(n -> n.order.id.equals(node.get().order.id));
             }
+            nodes.remove(node.get());
         }
+    }
+
+    public void updateTurn(){
+        turn++;
     }
 
     public List<Order> getBestPath() {

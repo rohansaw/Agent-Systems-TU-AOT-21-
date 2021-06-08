@@ -11,6 +11,9 @@ public class GridGraph {
     public LinkedList<Position> path = null;
     //[y][x]
     private LinkedList<Position>[][] adj;
+    private HashMap<Position, int[][]> dists = new HashMap<>();
+    private HashMap<Position, Position[][]> parents = new HashMap<>();
+    private HashSet<Position> obstacles = new HashSet<>();
 
     class Node{
         public Position pos;
@@ -50,6 +53,7 @@ public class GridGraph {
                 }
             }
         }
+        this.obstacles.addAll(obstacles);
     }
 
     public void addObstacle(Position pos){
@@ -61,15 +65,32 @@ public class GridGraph {
             adj[pos.y - 1][pos.x].remove(pos);
         if(pos.x + 1 < height)
             adj[pos.y + 1][pos.x].remove(pos);
+
+        obstacles.add(pos);
     }
 
-    public WorkerAction getNextMove(Position current){
-        if(path.isEmpty()) {
-            path = null;
-            return WorkerAction.ORDER;
+    private boolean pathContainsObstacle(Position from, Position to){
+        if(parents.containsKey(from)){
+            Position[][] path = parents.get(from);
+            Position v = to;
+            while (!v.equals(from)){
+                if(obstacles.contains(v))
+                    return true;
+                v = path[v.y][v.x];
+            }
         }
+        return false;
+    }
 
-        Position next = path.getFirst();
+    public WorkerAction getNextMove(Position current, Position to){
+        if(current.equals(to))
+            return WorkerAction.ORDER;
+
+        if(!parents.containsKey(to) || pathContainsObstacle(to, current))
+            dijkstra(to);
+
+        Position next = parents.get(to)[current.y][current.x];
+
         if(next.x > current.x)
             return WorkerAction.EAST;
         if(next.x < current.x)
@@ -78,6 +99,48 @@ public class GridGraph {
             return WorkerAction.NORTH;
 
         return WorkerAction.SOUTH;
+    }
+
+    public int getPathLength(Position from, Position to) {
+        if (dists.containsKey(from) && !pathContainsObstacle(from, to)) {
+            return dists.get(from)[to.y][to.x];
+        }
+
+        if (dists.containsKey(to) && !pathContainsObstacle(to, from)) {
+            return dists.get(to)[from.y][from.x];
+        }
+
+        dijkstra(from);
+        return dists.get(from)[to.y][to.x];
+    }
+
+    public void dijkstra(Position from){
+        int[][] dist = new int[height][width];
+        Position[][] parent = new Position[height][width];
+        PriorityQueue<Position> Q = new PriorityQueue<>(Comparator.comparing(p -> dist[p.y][p.x]));
+        for(int i = 0; i < height; i++){
+            for(int j = 0; j < width; j++){
+                dist[i][j] = Integer.MAX_VALUE;
+                parent[i][j] = null;
+            }
+        }
+        dist[from.y][from.x] = 0;
+        Q.add(from);
+
+        while (!Q.isEmpty()){
+            Position v = Q.poll();
+            for(Position u : adj[v.y][v.x]){
+                int newDist = dist[v.y][v.x] + 1;
+                if(newDist < dist[u.y][u.x]){
+                    dist[u.y][u.x] = newDist;
+                    parent[u.y][u.x] = v;
+                    Q.remove(u);
+                    Q.offer(u);
+                }
+            }
+        }
+        dists.put(from, dist);
+        parents.put(from, parent);
     }
 
     //returns g of node if pos is in Q
@@ -89,9 +152,7 @@ public class GridGraph {
         return Integer.MAX_VALUE;
     }
 
-
-
-    public void aStar(Position from, Position to, boolean useBadHeuristic){
+    public void aStar(Position from, Position to){
         boolean[][] visited = new boolean[height][width];
         Position[][] parent = new Position[height][width];
         PriorityQueue<Node> Q = new PriorityQueue<>(Comparator.comparing(n -> n.f));
@@ -116,21 +177,11 @@ public class GridGraph {
                     continue;
 
                 Node node = new Node(u, v.g + 1, u.distance(to));
-                if(useBadHeuristic && u.distance(to) < v.pos.distance(to)) {
-                    node.f += 2;
-                    node.h += 2;
-                }
 
                 Q.removeIf(n -> n.pos.equals(u));
                 Q.offer(node);
                 parent[u.y][u.x] = v.pos;
             }
-        }
-
-        Position v = to;
-        while(!v.equals(from)){
-            path.push(v);
-            v = parent[v.y][v.x];
         }
     }
 }
