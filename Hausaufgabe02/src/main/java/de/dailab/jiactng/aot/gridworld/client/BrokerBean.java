@@ -265,6 +265,8 @@ public class BrokerBean extends AbstractAgentBean {
 	}
 
 	private void resendCFP(){
+		//resend cfp to all workes, that not responded
+		CallForProposal cfp = new CallForProposal();
 		for(List<Order>l : receivedOrders){
 			for(Order o : l){
 				if(bids.get(o.id).size() != workers.size()){
@@ -272,7 +274,6 @@ public class BrokerBean extends AbstractAgentBean {
 					int bestBid = Collections.min(table.values());
 					for(Worker w : workers){
 						if(!table.containsKey(w.id)){
-							CallForProposal cfp = new CallForProposal();
 							cfp.order = o;
 							cfp.bestBid = bestBid;
 							cfp.gameId = gameId;

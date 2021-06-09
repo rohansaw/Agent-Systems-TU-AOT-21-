@@ -82,7 +82,7 @@ public class WorkerBean extends AbstractAgentBean {
 		}
 
 		if (payload instanceof ProposalAccept) {
-			handleProposalAccept((ProposalAccept) payload);
+			acceptedOrders.add(((ProposalAccept) payload).order);
 		}
 
 		if (payload instanceof WorkerConfirm)
@@ -90,10 +90,6 @@ public class WorkerBean extends AbstractAgentBean {
 
 		if (payload instanceof GameSizeResponse)
 			handleGameSizeResponse((GameSizeResponse) payload);
-	}
-
-	private void handleProposalAccept(ProposalAccept message) {
-		acceptedOrders.add(message.order);
 	}
 
 	private void handleProposalReject(ProposalReject message) {
