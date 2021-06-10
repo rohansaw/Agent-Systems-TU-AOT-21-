@@ -23,7 +23,7 @@ public class CFPGraph {
 
         @Override
         public int hashCode() {
-            return order.hashCode();
+            return order.id.hashCode();
         }
     }
 
@@ -62,7 +62,9 @@ public class CFPGraph {
         }
     }
 
+    public getMST(){
 
+    }
 
     public void updateTurn(){
         turn++;
