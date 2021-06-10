@@ -102,14 +102,22 @@ public class WorkerBean extends AbstractAgentBean {
 	}
 
 	private void handleCallForProposal(CallForProposal cfp) {
-		if(!activeOrders.contains(cfp.order)) {
+		if (!activeOrders.contains(cfp.order)) {
 			activeOrders.add(cfp.order);
-			cfpGraph.addNode(cfp.order, false);
 		}
+		cfpGraph.removeNode(cfp.order);
+		int bid = cfpGraph.getBid(cfp.order, false);
+
+		if(bid > cfp.bestBid)
+			bid = Integer.MAX_VALUE;
+
+		propose(cfp.order, bid);
+		/*
 		Integer bid = calculateBid(cfp.order);
 		if (bid != null && bid < cfp.bestBid) {
 			propose(cfp.order, bid);
 		}
+		*/
 	}
 
 	private Integer calculateBid(Order order) {
@@ -165,6 +173,7 @@ public class WorkerBean extends AbstractAgentBean {
 			if(message.action == WorkerAction.ORDER) {
 				handleOrderTerminated();
 			}
+			if(cfpGraph != null) cfpGraph.setCurrentPos(worker.position);
 		}else if(message.action != WorkerAction.ORDER && gameSize != null){
 			int y = worker.position.y;
 			int x = worker.position.x;
@@ -206,7 +215,7 @@ public class WorkerBean extends AbstractAgentBean {
 	private void handleGameSizeResponse(GameSizeResponse message) {
 		gameSize = message.size;
 		graph = new GridGraph(message.size.x, message.size.y, obstacles);
-		cfpGraph = new CFPGraph(graph, turn);
+		cfpGraph = new CFPGraph(graph, turn, worker.position);
 	}
 
 	/** pull gameSize */
