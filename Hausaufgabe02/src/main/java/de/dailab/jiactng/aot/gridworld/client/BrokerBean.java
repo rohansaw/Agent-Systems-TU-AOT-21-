@@ -254,6 +254,18 @@ public class BrokerBean extends AbstractAgentBean {
 
 	/** -------------- Orders logic -------------- **/
 
+	private int getExpectedProfit(int distance, Order order) {
+		if(distance > (order.deadline - turn)) {
+			// if this worker cant finish the order in time
+			return -order.value;
+		} else {
+			int profit = Math.max(order.value - distance * order.turnPenalty, 0);
+			// The distance are the turns needed to reach the order, and this will be subtracted from the profit
+			profit = profit - distance;
+			return Math.max(profit, 0);
+		}
+	}
+
 	public Order getOrderByID(String id){
 		for(List<Order> l : receivedOrders){
 			for(Order o : l){
@@ -300,18 +312,6 @@ public class BrokerBean extends AbstractAgentBean {
 		receivedOrders.get(1).addAll(receivedOrders.get(0));
 		receivedOrders.get(0).clear();
 		resendCFP();
-	}
-
-	private int getExpectedProfit(int distance, Order order) {
-		if(distance > (order.deadline - turn)) {
-			// if this worker cant finish the order in time
-			return -order.value;
-		} else {
-			int profit = Math.max(order.value - distance * order.turnPenalty, 0);
-			// The distance are the turns needed to reach the order, and this will be subtracted from the profit
-			profit = profit - distance;
-			return Math.max(profit, 0);
-		}
 	}
 
 

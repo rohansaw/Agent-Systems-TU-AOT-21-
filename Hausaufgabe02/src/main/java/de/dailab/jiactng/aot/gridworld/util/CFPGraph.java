@@ -5,12 +5,15 @@ import de.dailab.jiactng.aot.gridworld.model.Order;
 import de.dailab.jiactng.aot.gridworld.model.Position;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CFPGraph {
     private class Node {
         Order order;
-        public Node(Order order) {
+        boolean accepted;
+        public Node(Order order, boolean accepted) {
             this.order = order;
+            this.accepted = accepted;
         }
 
         @Override
@@ -28,27 +31,27 @@ public class CFPGraph {
     }
 
     private List<Node> nodes = new LinkedList<>();
+    private List<Node> acceptedNodes = new LinkedList<>();
     private HashMap<Node, List<Node>> edges = new HashMap<>();
     private GridGraph gridGraph;
     private int turn;
+    private List<Node> path;
 
-    public CFPGraph(List<Order> activeOrders, GridGraph gridGraph, int turn) {
+    public CFPGraph(GridGraph gridGraph, int turn) {
         this.turn = turn;
         this.gridGraph = gridGraph;
 
-        for(Order o : activeOrders){
-            addNode(o);
-        }
     }
 
-    public void addNode(Order order){
+    public void addNode(Order order, boolean accepted){
         gridGraph.dijkstra(order.position);
-        Node node = new Node(order);
+        Node node = new Node(order, accepted);
         for(List<Node> l : edges.values()){
             l.add(node);
         }
         edges.put(node, new LinkedList<>(nodes));
         nodes.add(node);
+        if(accepted) acceptedNodes.add(node);
     }
 
     public void removeNode(Order order){
@@ -59,15 +62,35 @@ public class CFPGraph {
                 l.removeIf(n -> n.order.id.equals(node.get().order.id));
             }
             nodes.remove(node.get());
+            acceptedNodes.remove(node.get());
         }
     }
 
-    public getMST(){
-
+    public void setNodeToAccepted(Order order){
+        Optional<Node> node = nodes.stream().filter(n -> n.order.id.equals(order.id)).findFirst();
+        if(node.isPresent()){
+            node.get().accepted = true;
+            acceptedNodes.add(node.get());
+        }
     }
 
     public void updateTurn(){
         turn++;
+    }
+
+    private int pathTotalDist(Position current, Position to){
+        int dist = 0;
+        Position pos = current;
+        for (Node n : path){
+            dist += gridGraph.getPathLength(n.order.position, pos);
+            pos = n.order.position;
+        }
+        return dist;
+    }
+
+    public void findBestPath(Position current){
+        int bestDist = pathTotalDist(current, path.get(path.size() - 1).order.position);
+
     }
 
     public List<Order> getBestPath() {

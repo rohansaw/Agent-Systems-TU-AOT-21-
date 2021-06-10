@@ -13,11 +13,13 @@ public class GridGraph {
     private final HashMap<Position, int[][]> dists = new HashMap<>();
     private final HashMap<Position, Position[][]> parents = new HashMap<>();
     private final HashSet<Position> obstacles = new HashSet<>();
+    private final boolean[][] obstacleOnPath;
 
     public GridGraph(int width, int height, Set<Position> obstacles){
         this.width = width;
         this.height = height;
         adj = new LinkedList[height][width];
+        obstacleOnPath = new boolean[height][width];
         for(int y = 0; y < height; y++){
             for(int x = 0; x < width; x++){
                 adj[y][x] = new LinkedList<>();
@@ -37,9 +39,11 @@ public class GridGraph {
                     Position pos = new Position(x, y + 1);
                     if(!obstacles.contains(pos)) adj[y][x].add(pos);
                 }
+                obstacleOnPath[y][x] = false;
             }
         }
         this.obstacles.addAll(obstacles);
+
     }
 
     public void addObstacle(Position pos){
@@ -53,27 +57,19 @@ public class GridGraph {
             adj[pos.y + 1][pos.x].remove(pos);
 
         obstacles.add(pos);
-    }
-
-    private boolean pathContainsObstacle(Position from, Position to){
-        if(parents.containsKey(from)){
-            Position[][] path = parents.get(from);
-            Position v = to;
-            while (!v.equals(from)){
-                if(obstacles.contains(v))
-                    return true;
-                v = path[v.y][v.x];
+        for(int y = 0; y < height; y++){
+            for(int x = 0; x < width; x++){
+                obstacleOnPath[y][x] = true;
             }
         }
-        return false;
     }
 
     public WorkerAction getNextMove(Position current, Position to){
         if(current.equals(to))
             return WorkerAction.ORDER;
 
-        //use path from order position, because dijkstra(current) is probably not calculateted
-        if(!parents.containsKey(to) || pathContainsObstacle(to, current))
+        //use path from order position, because dijkstra(current) is probably not calculated
+        if(!parents.containsKey(to) || obstacleOnPath[to.y][to.x])
             dijkstra(to);
 
         //parent of current on path(to -> current) is next move
@@ -90,11 +86,11 @@ public class GridGraph {
     }
 
     public int getPathLength(Position from, Position to) {
-        if (dists.containsKey(from) && !pathContainsObstacle(from, to)) {
+        if (dists.containsKey(from) && !obstacleOnPath[from.y][from.x]) {
             return dists.get(from)[to.y][to.x];
         }
 
-        if (dists.containsKey(to) && !pathContainsObstacle(to, from)) {
+        if (dists.containsKey(to) && !obstacleOnPath[to.y][to.x]) {
             return dists.get(to)[from.y][from.x];
         }
 
@@ -129,5 +125,6 @@ public class GridGraph {
         }
         dists.put(from, dist);
         parents.put(from, parent);
+        obstacleOnPath[from.y][from.x] = false;
     }
 }

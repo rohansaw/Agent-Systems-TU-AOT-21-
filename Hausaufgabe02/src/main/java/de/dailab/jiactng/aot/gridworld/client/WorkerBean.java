@@ -68,9 +68,7 @@ public class WorkerBean extends AbstractAgentBean {
 		log.info(payload);
 
 		if (payload instanceof WorkerInitialize) {
-			worker = ((WorkerInitialize) payload).worker;
-			gameId = ((WorkerInitialize) payload).gameId;
-			turn = ((WorkerInitialize) payload).turn;
+			handlWorkerInit((WorkerInitialize) payload);
 		}
 
 		if (payload instanceof CallForProposal) {
@@ -82,7 +80,7 @@ public class WorkerBean extends AbstractAgentBean {
 		}
 
 		if (payload instanceof ProposalAccept) {
-			acceptedOrders.add(((ProposalAccept) payload).order);
+			handleProposalAccept((ProposalAccept) payload);
 		}
 
 		if (payload instanceof WorkerConfirm)
@@ -92,13 +90,22 @@ public class WorkerBean extends AbstractAgentBean {
 			handleGameSizeResponse((GameSizeResponse) payload);
 	}
 
-	private void handleProposalReject(ProposalReject message) {
-		acceptedOrders.removeIf(o -> o.id.equals(message.order.id));
-		cfpGraph.removeNode(message.order);
+	private void handleProposalAccept(ProposalAccept msg){
+		acceptedOrders.add(msg.order);
+		acceptedOrders.remove(msg.order);
+		cfpGraph.setNodeToAccepted(msg.order);
+	}
+
+	private void handleProposalReject(ProposalReject msg) {
+		acceptedOrders.remove(msg.order);
+		cfpGraph.removeNode(msg.order);
 	}
 
 	private void handleCallForProposal(CallForProposal cfp) {
-		activeOrders.add(cfp.order);
+		if(!activeOrders.contains(cfp.order)) {
+			activeOrders.add(cfp.order);
+			cfpGraph.addNode(cfp.order, false);
+		}
 		Integer bid = calculateBid(cfp.order);
 		if (bid != null && bid < cfp.bestBid) {
 			propose(cfp.order, bid);
@@ -111,11 +118,17 @@ public class WorkerBean extends AbstractAgentBean {
 		if (turn + dist < order.deadline) {
 			int bestPosition = bestPosition(order);
 			currentBestPath.add(bestPosition, order);
-			// ToDo calculate how much we should bid here and return bid
-			return 0;
+			int bid = 0;
+			Position pos = worker.position;
+			for(int i = 0; i <= bestPosition; i++){
+				Order o = currentBestPath.get(i);
+				bid += graph.getPathLength(o.position, pos) + 1;
+				pos = o.position;
+			}
+			return bid;
 		}
 
-		return null;
+		return Integer.MAX_VALUE;
 	}
 
 	private Integer bestPosition(Order order) {
@@ -138,6 +151,11 @@ public class WorkerBean extends AbstractAgentBean {
 		return bestPosition;
 	}
 
+	private void handlWorkerInit(WorkerInitialize msg){
+		worker = msg.worker;
+		gameId = msg.gameId;
+		turn = msg.turn;
+	}
 
 	private void handleMoveConfirmation(WorkerConfirm message) {
 		if(message.state == Result.SUCCESS) {
@@ -188,7 +206,7 @@ public class WorkerBean extends AbstractAgentBean {
 	private void handleGameSizeResponse(GameSizeResponse message) {
 		gameSize = message.size;
 		graph = new GridGraph(message.size.x, message.size.y, obstacles);
-		cfpGraph = new CFPGraph(acceptedOrders, graph, turn);
+		cfpGraph = new CFPGraph(graph, turn);
 	}
 
 	/** pull gameSize */
@@ -217,7 +235,9 @@ public class WorkerBean extends AbstractAgentBean {
 		proposal.worker = worker;
 		proposal.order = order;
 		proposal.bid = value;
-
+		proposal.refuse = false;
+		if(value == Integer.MAX_VALUE)
+			proposal.refuse = true;
 		sendMessage(brokerAddress, proposal);
 	}
 
