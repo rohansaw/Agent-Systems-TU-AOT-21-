@@ -1,0 +1,53 @@
+210610-150457
+GAME No. 1910929870
+TURN 101/100
+Brokers
+B(Some_Id, workers=[W(w1, Pos(12, 14), 0), W(w2, Pos(7, 9), 0), W(w3, Pos(19, 1), 0), W(w4, Pos(10, 10), 0), W(w5, Pos(17, 9), 0)], taken=[], completed=[], failed=[])
+Orders
+O(o1, Pos(16, 15), cr=0, dl=20, cp=-1, val=10, tp=0)
+O(o2, Pos(12, 3), cr=0, dl=20, cp=-1, val=30, tp=0)
+O(o3, Pos(1, 4), cr=10, dl=25, cp=-1, val=40, tp=2)
+O(o4, Pos(0, 3), cr=11, dl=23, cp=-1, val=15, tp=1)
+O(o5, Pos(4, 7), cr=25, dl=55, cp=-1, val=50, tp=0)
+O(o6, Pos(5, 13), cr=26, dl=45, cp=-1, val=55, tp=3)
+O(o7, Pos(13, 10), cr=60, dl=77, cp=-1, val=5, tp=0)
+O(o8, Pos(2, 11), cr=71, dl=99, cp=-1, val=10, tp=1)
+O(o9, Pos(0, 19), cr=90, dl=99, cp=-1, val=10, tp=0)
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	w3
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	w2	.	.	.	.	.	.	.	.	.	w5	.	.
+	.	.	.	.	.	.	.	.	.	.	w4	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	w1	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	#	#	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	#	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+
+210610-150315: Sending StartGameResponse(game=1910929870, size=Pos(20, 20), workers=[W(w1, Pos(12, 14), 0), W(w2, Pos(7, 9), 0), W(w3, Pos(19, 1), 0), W(w4, Pos(10, 10), 0), W(w5, Pos(17, 9), 0)], obstacles: 3)
+210610-150316: Sending OrderMessage(game=1910929870, order=O(o1, Pos(16, 15), cr=0, dl=20, cp=-1, val=10, tp=0))
+210610-150316: Sending OrderMessage(game=1910929870, order=O(o2, Pos(12, 3), cr=0, dl=20, cp=-1, val=30, tp=0))
+210610-150326: Sending OrderMessage(game=1910929870, order=O(o3, Pos(1, 4), cr=10, dl=25, cp=-1, val=40, tp=2))
+210610-150327: Sending OrderMessage(game=1910929870, order=O(o4, Pos(0, 3), cr=11, dl=23, cp=-1, val=15, tp=1))
+210610-150341: Sending OrderMessage(game=1910929870, order=O(o5, Pos(4, 7), cr=25, dl=55, cp=-1, val=50, tp=0))
+210610-150342: Sending OrderMessage(game=1910929870, order=O(o6, Pos(5, 13), cr=26, dl=45, cp=-1, val=55, tp=3))
+210610-150416: Sending OrderMessage(game=1910929870, order=O(o7, Pos(13, 10), cr=60, dl=77, cp=-1, val=5, tp=0))
+210610-150427: Sending OrderMessage(game=1910929870, order=O(o8, Pos(2, 11), cr=71, dl=99, cp=-1, val=10, tp=1))
+210610-150446: Sending OrderMessage(game=1910929870, order=O(o9, Pos(0, 19), cr=90, dl=99, cp=-1, val=10, tp=0))
+210610-150457: Sending WorkerScoreMessage(game=1910929870, worker=w1, winner?=true, orders completed=0)
+210610-150457: Sending WorkerScoreMessage(game=1910929870, worker=w2, winner?=false, orders completed=0)
+210610-150457: Sending WorkerScoreMessage(game=1910929870, worker=w3, winner?=false, orders completed=0)
+210610-150457: Sending WorkerScoreMessage(game=1910929870, worker=w4, winner?=false, orders completed=0)
+210610-150457: Sending WorkerScoreMessage(game=1910929870, worker=w5, winner?=false, orders completed=0)
+210610-150457: Sending EndGameMessage(game=1910929870, broker=Some_Id, winner?=true, reward=0,00)
+

@@ -1,5 +1,6 @@
 package de.dailab.jiactng.aot.gridworld.messages;
 
+import de.dailab.jiactng.aot.gridworld.model.Position;
 import de.dailab.jiactng.aot.gridworld.model.Worker;
 
 public class WorkerInitialize extends GameMessage{
@@ -12,8 +13,10 @@ public class WorkerInitialize extends GameMessage{
 
     public int turn;
 
+    public Position gridSize;
+
     @Override
     public String toString() {
-        return String.format("WorkerInitialize(game=%d, brokerId=%s, worker=%s)", gameId, brokerId, worker);
+        return String.format("WorkerInitialize(game=%d, brokerId=%s, worker=%s, gridSize=%s)", gameId, brokerId, worker, gridSize.toString());
     }
 }

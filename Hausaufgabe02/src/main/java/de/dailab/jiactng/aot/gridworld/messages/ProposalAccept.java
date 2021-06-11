@@ -10,6 +10,6 @@ public class ProposalAccept extends GameMessage{
 
     @Override
     public String toString() {
-        return String.format("ProposalAccept(game=%d, bid=%d, order=%d)", gameId, bid, order.id);
+        return String.format("ProposalAccept(game=%d, bid=%d, order=%s)", gameId, bid, order.id);
     }
 }

@@ -44,7 +44,8 @@ public class CFPGraph {
             path.add(node);
             return gridGraph.getPathLength(node.order.position, currentPos) + 1;
         }else if(path.size() <= 5){
-
+            insertNode(node);
+            optimize();
         }else{
             insertNode(node);
             optimize();
@@ -117,6 +118,8 @@ public class CFPGraph {
         //the new Order doesn't interfere with accepted orders
         while (!testAcceptedOrderDeadlines(path)){
             path.remove(ppic.index);
+            if(pathPos.isEmpty())
+                break;
             ppic = pathPos.poll();
             path.add(ppic.index, node);
         }
@@ -150,6 +153,7 @@ public class CFPGraph {
             }
             nodes.remove(node.get());
             acceptedNodes.remove(node.get());
+            path.remove(node.get());
         }
     }
 
@@ -159,6 +163,12 @@ public class CFPGraph {
             node.get().accepted = true;
             acceptedNodes.add(node.get());
         }
+    }
+
+    public Order getOrder(){
+        if(path.isEmpty())
+            return null;
+        return path.get(0).order;
     }
 
     public void updateTurn(){

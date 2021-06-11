@@ -99,6 +99,7 @@ public class BrokerBean extends AbstractAgentBean {
 
 	private void handleIncomingMessage(JiacMessage message) {
 		Object payload = message.getPayload();
+		log.info("BROKER receive:");
 		log.info(payload);
 		if (state == BrokerState.AWAIT_GAME_START_RESPONSE) {
 
@@ -124,10 +125,6 @@ public class BrokerBean extends AbstractAgentBean {
 				endGame((EndGameMessage) payload);
 			}
 
-			if (payload instanceof GameSizeRequest) {
-				handleGameSizeRequest((GameSizeRequest) payload);
-			}
-
 			if (payload instanceof Proposal) {
 				handleProposal((Proposal) payload);
 			}
@@ -136,6 +133,8 @@ public class BrokerBean extends AbstractAgentBean {
 
 	private void handleProposal(Proposal msg){
 		HashMap<String, Integer> table = bids.get(msg.order.id);
+		if(table == null) //
+			return;
 		if(msg.refuse)
 			table.put(msg.worker.id, Integer.MAX_VALUE);
 		else
@@ -153,12 +152,13 @@ public class BrokerBean extends AbstractAgentBean {
 				cfp.gameId = gameId;
 				cfp.bestBid = bestBid;
 				cfp.order = msg.order;
-				table.forEach((k, v) -> {
-					if (v > bestBid && v != Integer.MAX_VALUE) {
-						sendMessage(workerAddresses.get(k), cfp);
-						table.remove(k);
-					}
-				});
+				List<Map.Entry<String, Integer>> toRemove = table.entrySet().stream()
+						.filter(e -> e.getValue() > bestBid && e.getValue() != Integer.MAX_VALUE)
+						.collect(Collectors.toList());
+				for (Map.Entry<String, Integer> entry: toRemove){
+					sendMessage(workerAddresses.get(entry.getKey()), cfp);
+					table.remove(entry.getKey());
+				}
 			}else if(rejectCount < workers.size()){ // best bid found
 				//reject all proposals, if expected profit is negative
 				if(getExpectedProfit(bestBid, msg.order) < 0){
@@ -198,13 +198,6 @@ public class BrokerBean extends AbstractAgentBean {
 		}
 	}
 
-	private void handleGameSizeRequest(GameSizeRequest msg){
-		GameSizeResponse resp = new GameSizeResponse();
-		resp.size = gridsize;
-		resp.gameId = gameId;
-		sendMessage(workerAddresses.get(msg.workerID), resp);
-	}
-
 	private void handleStartGameResponse(StartGameResponse message) {
 		log.info("Start Game Response received");
 		gameId = message.gameId;
@@ -219,6 +212,7 @@ public class BrokerBean extends AbstractAgentBean {
 
 	private void handleTakeOrderConfirm(TakeOrderConfirm message) {
 		HashMap<String, Integer> table = bids.remove(message.orderId);
+
 		if (message.state == Result.SUCCESS) {
 			int bestBid = Collections.min(table.values());
 			Map.Entry<String, Integer> accepted_worker = table.entrySet().stream()
@@ -239,6 +233,10 @@ public class BrokerBean extends AbstractAgentBean {
 		rej.gameId = gameId;
 		for (String workerID : table.keySet()) {
 			sendMessage(workerAddresses.get(workerID), rej);
+		}
+		//remove order from receivedOrders
+		for(List<Order> l : receivedOrders){
+			l.removeIf(o -> o.id.equals(message.orderId));
 		}
 	}
 
@@ -281,7 +279,7 @@ public class BrokerBean extends AbstractAgentBean {
 		CallForProposal cfp = new CallForProposal();
 		for(List<Order>l : receivedOrders){
 			for(Order o : l){
-				if(bids.get(o.id).size() != workers.size()){
+				if(bids.get(o.id) != null && bids.get(o.id).size() != workers.size()){
 					HashMap<String, Integer> table = bids.get(o.id);
 					int bestBid = Collections.min(table.values());
 					for(Worker w : workers){
@@ -298,7 +296,9 @@ public class BrokerBean extends AbstractAgentBean {
 	}
 
 	private void updateOrders() {
+		//reject all proposals for orders that are out of time limit
 		for(Order o : receivedOrders.get(2)) {
+			bids.remove(o.id);
 			ProposalReject rej = new ProposalReject();
 			rej.order = o;
 			rej.gameId = gameId;
@@ -311,7 +311,7 @@ public class BrokerBean extends AbstractAgentBean {
 		receivedOrders.get(1).clear();
 		receivedOrders.get(1).addAll(receivedOrders.get(0));
 		receivedOrders.get(0).clear();
-		resendCFP();
+		//resendCFP();
 	}
 
 
@@ -359,6 +359,7 @@ public class BrokerBean extends AbstractAgentBean {
 		message.brokerId = BROKER_ID;
 		message.worker = worker;
 		message.turn = turn;
+		message.gridSize = gridsize;
 		sendMessage(workerAddresses.get(worker.id), message);
 	}
 
@@ -393,7 +394,8 @@ public class BrokerBean extends AbstractAgentBean {
 		Action sendAction = retrieveAction(ICommunicationBean.ACTION_SEND);
 		JiacMessage message = new JiacMessage(payload);
 		invoke(sendAction, new Serializable[] {message, receiver});
-		System.out.println("BROKER SENDING " + payload);
+		log.info("BROKER SENDING:");
+		log.info(payload);
 	}
 
 	/** This is an example of using the SpaceObeserver for message processing. */

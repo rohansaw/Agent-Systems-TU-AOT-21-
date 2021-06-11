@@ -1,0 +1,103 @@
+210610-162503
+GAME No. 241922950
+TURN 101/100
+Brokers
+B(Some_Id, workers=[W(w1, Pos(12, 14), 0), W(w2, Pos(12, 3), 0), W(w3, Pos(12, 3), 1), W(w4, Pos(10, 10), 0), W(w5, Pos(17, 9), 0)], taken=[], completed=[o2], failed=[o1])
+Orders
+O(o1, Pos(16, 15), cr=0, dl=20, cp=-1, val=10, tp=0)
+O(o2, Pos(12, 3), cr=0, dl=20, cp=9, val=30, tp=0)
+O(o3, Pos(1, 4), cr=10, dl=25, cp=-1, val=40, tp=2)
+O(o4, Pos(0, 3), cr=11, dl=23, cp=-1, val=15, tp=1)
+O(o5, Pos(4, 7), cr=25, dl=55, cp=-1, val=50, tp=0)
+O(o6, Pos(5, 13), cr=26, dl=45, cp=-1, val=55, tp=3)
+O(o7, Pos(13, 10), cr=60, dl=77, cp=-1, val=5, tp=0)
+O(o8, Pos(2, 11), cr=71, dl=99, cp=-1, val=10, tp=1)
+O(o9, Pos(0, 19), cr=90, dl=99, cp=-1, val=10, tp=0)
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	w3	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	w5	.	.
+	.	.	.	.	.	.	.	.	.	.	w4	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	w1	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	#	#	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+	.	#	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.
+
+210610-162321: Sending StartGameResponse(game=241922950, size=Pos(20, 20), workers=[W(w1, Pos(12, 14), 0), W(w2, Pos(7, 9), 0), W(w3, Pos(19, 1), 0), W(w4, Pos(10, 10), 0), W(w5, Pos(17, 9), 0)], obstacles: 3)
+210610-162321: Sending OrderMessage(game=241922950, order=O(o1, Pos(16, 15), cr=0, dl=20, cp=-1, val=10, tp=0))
+210610-162321: Sending OrderMessage(game=241922950, order=O(o2, Pos(12, 3), cr=0, dl=20, cp=-1, val=30, tp=0))
+210610-162322: Received TakeOrderMessage(game=241922950, order=o2, broker=Some_Id)
+210610-162322: Sending TakeOrderConfirm(game=241922950, order=o2, broker=Some_Id, SUCCESS)
+210610-162322: Received TakeOrderMessage(game=241922950, order=o1, broker=Some_Id)
+210610-162322: Sending TakeOrderConfirm(game=241922950, order=o1, broker=Some_Id, SUCCESS)
+210610-162322: Received WorkerMessage(game=241922950, worker=w3, action=SOUTH)
+210610-162322: Sending WorkerConfirm(game=241922950, worker=w3, action=SOUTH, SUCCESS)
+210610-162322: Received WorkerMessage(game=241922950, worker=w2, action=NORTH)
+210610-162322: Sending WorkerConfirm(game=241922950, worker=w2, action=NORTH, SUCCESS)
+210610-162323: Received WorkerMessage(game=241922950, worker=w3, action=SOUTH)
+210610-162323: Sending WorkerConfirm(game=241922950, worker=w3, action=SOUTH, SUCCESS)
+210610-162323: Received WorkerMessage(game=241922950, worker=w2, action=NORTH)
+210610-162323: Sending WorkerConfirm(game=241922950, worker=w2, action=NORTH, SUCCESS)
+210610-162324: Received WorkerMessage(game=241922950, worker=w3, action=WEST)
+210610-162324: Sending WorkerConfirm(game=241922950, worker=w3, action=WEST, SUCCESS)
+210610-162324: Received WorkerMessage(game=241922950, worker=w2, action=NORTH)
+210610-162324: Sending WorkerConfirm(game=241922950, worker=w2, action=NORTH, SUCCESS)
+210610-162325: Received WorkerMessage(game=241922950, worker=w3, action=WEST)
+210610-162325: Sending WorkerConfirm(game=241922950, worker=w3, action=WEST, SUCCESS)
+210610-162325: Received WorkerMessage(game=241922950, worker=w2, action=NORTH)
+210610-162325: Sending WorkerConfirm(game=241922950, worker=w2, action=NORTH, SUCCESS)
+210610-162326: Received WorkerMessage(game=241922950, worker=w3, action=WEST)
+210610-162326: Sending WorkerConfirm(game=241922950, worker=w3, action=WEST, SUCCESS)
+210610-162326: Received WorkerMessage(game=241922950, worker=w2, action=EAST)
+210610-162326: Sending WorkerConfirm(game=241922950, worker=w2, action=EAST, SUCCESS)
+210610-162327: Received WorkerMessage(game=241922950, worker=w3, action=WEST)
+210610-162327: Sending WorkerConfirm(game=241922950, worker=w3, action=WEST, SUCCESS)
+210610-162327: Received WorkerMessage(game=241922950, worker=w2, action=NORTH)
+210610-162327: Sending WorkerConfirm(game=241922950, worker=w2, action=NORTH, SUCCESS)
+210610-162328: Received WorkerMessage(game=241922950, worker=w3, action=WEST)
+210610-162328: Sending WorkerConfirm(game=241922950, worker=w3, action=WEST, SUCCESS)
+210610-162328: Received WorkerMessage(game=241922950, worker=w2, action=NORTH)
+210610-162328: Sending WorkerConfirm(game=241922950, worker=w2, action=NORTH, SUCCESS)
+210610-162329: Received WorkerMessage(game=241922950, worker=w3, action=WEST)
+210610-162329: Sending WorkerConfirm(game=241922950, worker=w3, action=WEST, SUCCESS)
+210610-162329: Received WorkerMessage(game=241922950, worker=w2, action=EAST)
+210610-162329: Sending WorkerConfirm(game=241922950, worker=w2, action=EAST, SUCCESS)
+210610-162330: Received WorkerMessage(game=241922950, worker=w3, action=WEST)
+210610-162330: Sending WorkerConfirm(game=241922950, worker=w3, action=WEST, SUCCESS)
+210610-162330: Received WorkerMessage(game=241922950, worker=w2, action=EAST)
+210610-162330: Sending WorkerConfirm(game=241922950, worker=w2, action=EAST, SUCCESS)
+210610-162331: Received WorkerMessage(game=241922950, worker=w3, action=ORDER)
+210610-162331: Sending WorkerConfirm(game=241922950, worker=w3, action=ORDER, SUCCESS)
+210610-162331: Sending OrderCompleted(game=241922950, order=o2, SUCCESS, reward=30)
+210610-162331: Received WorkerMessage(game=241922950, worker=w2, action=EAST)
+210610-162331: Sending WorkerConfirm(game=241922950, worker=w2, action=EAST, SUCCESS)
+210610-162331: Sending OrderMessage(game=241922950, order=O(o3, Pos(1, 4), cr=10, dl=25, cp=-1, val=40, tp=2))
+210610-162332: Received WorkerMessage(game=241922950, worker=w3, action=ORDER)
+210610-162332: Sending WorkerConfirm(game=241922950, worker=w3, action=ORDER, FAIL)
+210610-162332: Received WorkerMessage(game=241922950, worker=w2, action=EAST)
+210610-162332: Sending WorkerConfirm(game=241922950, worker=w2, action=EAST, SUCCESS)
+210610-162332: Sending OrderMessage(game=241922950, order=O(o4, Pos(0, 3), cr=11, dl=23, cp=-1, val=15, tp=1))
+210610-162342: Sending OrderCompleted(game=241922950, order=o1, FAIL, reward=-10)
+210610-162346: Sending OrderMessage(game=241922950, order=O(o5, Pos(4, 7), cr=25, dl=55, cp=-1, val=50, tp=0))
+210610-162347: Sending OrderMessage(game=241922950, order=O(o6, Pos(5, 13), cr=26, dl=45, cp=-1, val=55, tp=3))
+210610-162421: Sending OrderMessage(game=241922950, order=O(o7, Pos(13, 10), cr=60, dl=77, cp=-1, val=5, tp=0))
+210610-162432: Sending OrderMessage(game=241922950, order=O(o8, Pos(2, 11), cr=71, dl=99, cp=-1, val=10, tp=1))
+210610-162452: Sending OrderMessage(game=241922950, order=O(o9, Pos(0, 19), cr=90, dl=99, cp=-1, val=10, tp=0))
+210610-162503: Sending WorkerScoreMessage(game=241922950, worker=w1, winner?=false, orders completed=0)
+210610-162503: Sending WorkerScoreMessage(game=241922950, worker=w2, winner?=false, orders completed=0)
+210610-162503: Sending WorkerScoreMessage(game=241922950, worker=w3, winner?=true, orders completed=1)
+210610-162503: Sending WorkerScoreMessage(game=241922950, worker=w4, winner?=false, orders completed=0)
+210610-162503: Sending WorkerScoreMessage(game=241922950, worker=w5, winner?=false, orders completed=0)
+210610-162503: Sending EndGameMessage(game=241922950, broker=Some_Id, winner?=true, reward=0,00)
+
