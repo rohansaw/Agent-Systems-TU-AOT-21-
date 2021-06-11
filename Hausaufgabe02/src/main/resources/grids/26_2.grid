@@ -1,0 +1,33 @@
+5 9 20 9 1 2
+o.w..
+....o
+o....
+....o
+##o##
+.....
+..o..
+o...o
+..wo.
+
+o1 0 0 1 5 15 1
+o2 4 1 2 10 250 15
+o3 0 2 6 15 500 50
+o4 4 3 9 20 5000 250
+o5 2 5 12 20 500000 5000
+o6 4 7 1 5 20 1
+o7 0 7 3 10 50 1
+o8 2 6 6 12 500 1
+o9 3 8 10 16 5000 1
+w1 2 0 21
+w2 2 8 21
+
+In diesem Grid soll gezeigt werden, dass der Worker verpflichtet ist
+Orders die er angenommen hat auf jeden Fall zu bearbeiten. Auch
+wenn neue Orders auftauchen die für den Broker einen größeren Value
+generieren würden. Der Broker will, dass der Worker zuerst zu der
+neuen Order geht, der Worker wird dem aber nicht nachkommen
+können, da er sonst die Deadline der vorherigen Order verpassen
+würde. Dadurch, dass der Worker verpflichtet ist jede Order die er
+annimmt zu erfüllen, obwohl es aufgrund der Penalties optimal wäre
+diese aufzugeben, wird ein für den Broker nicht optimales Ergebnis
+erzielt und zeigt somit die Schwächen für den Broker auf.

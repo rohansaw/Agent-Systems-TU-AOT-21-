@@ -1,0 +1,21 @@
+10 5 30 2 1 2
+.....o....
+..#.......
+.w#....w..
+..#.o.....
+..........
+o1 5 0 1 30 10 0
+o2 4 3 1 30 10 0
+w1 1 2 999
+w2 7 2 999
+
+//
+width, height, turns, num_orders, num_brokers, num_workers
+order_id, x, y, turn_created, turn_deadline, value, penalty_per_turn
+worker_id, x, y, fuel
+//
+Dieses Grid soll die grundlegende Funktionalität des Nachrichtenaustauschs zwischen Broker und Worker nachvollziehbar testen.
+Turn Deadline ist 30, für beide Workers also erfüllbar und für dieses Szenario nicht relevant.
+w2 ist näher an o1 und an o2. Je nachdem, in welcher Reihenfolge die Orders bei beiden Workern ankommen, könnte w2 also zunächst für beide Orders bessere Angebote machen.
+Wenn w2 eine Order zugeteilt bekommt, kann w1 für die andere Order ein besseres Angebot machen, da die erste Auktion beendet wurde.
+Dieses simple grid testet zusätzlich die Distanzberechnung mit Obstacles.

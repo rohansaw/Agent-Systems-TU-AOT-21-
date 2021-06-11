@@ -1,0 +1,36 @@
+10 10 10 6 1 2
+..........
+.w.o......
+..o.......
+..........
+..........
+..........
+..........
+..o.......
+##w.o.o...
+o#........
+o1 1 3 0 10 10 0
+o2 2 2 1 3 10 0
+o3 0 9 1 3 10 0
+o4 4 8 1 3 10 0
+o5 6 8 2 6 10 0
+o6 6 8 2 5 10 0
+w1 1 1 999
+w2 2 8 999
+
+# hier konzentrieren wir uns auf die maximierung des scores aus der sicht des workers
+# bemerkung: es wird davon ausgegangen das eine alle iterationen des iCNP protokolls für eine order, im selben turn in dem die order
+# reinkommt, durchgagangen wird und so der gewinnende worker im selben turn die erste action ausführen kann(wenn dies mit uerer umseztung der iCNP nicht möglich ist
+# erhöht die deadlines entsprechend), weiterhin sind alle turn penalty =0 und rewards gleich, 
+# damit der broker möglichst wenige order priorisierung vornimmt und der worker unabhängig davon beobachtet werden kann
+
+# w2, o3,o4,o5: grundlegende pathoptimisierung
+# o3: nicht erreichbar
+# o4: erriechbar und nähester worker w2 -> bekommt order
+# o5: während o4 schon angenommen ist kann w2 sehen das o5 nach o3 erreichbar ist und proposal senden -> w2 bekommt die order
+# o6: während o4 schon angenommen ist kann w2 sehen das o6 nicht erreichbar ist ohne o4 nicht zu schaffen -> refuse
+
+# w1, o1, o2: bietverhalten des workers
+# wenn w1 für o1 den waren abstand angibt wird die order für turn 2 ausgegeben, und o2 ist nicht machbar ohne das o1 nicht im angegeben zeitfenster erreicht wird
+# wenn w1 für o1 angibt dies in > 5 runden schaffen zukönnen dann können beide orders von w1 bearbeitet werden 
+# -> es kann sich für die worker lohnen mehr spielraum zuhaben, nach den prinzip der zweitpreisverlosung

@@ -1,0 +1,32 @@
+10 10 50 4 1 3
+.o........
+..........
+o...w.....
+..........
+#####.....
+....w....o
+.......o..
+..........
+..........
+..w.......
+o1 1 0 5 20 20 1
+o2 0 2 6 15 20 1
+o3 9 5 16 30 20 1
+o4 7 6 17 30 20 1
+w1 4 2 100
+w2 4 5 100
+w3 2 9 100
+
+Kommentare
+Bei diesem ganz simplen Szenario geht es lediglich darum, zu bestätigen, 
+dass die Workers in der Lage sind, an mehr als einem Verhandlungsprozess 
+teilzunehmen und dabei mehrere Orders beauftragt zu bekommen. 
+Wenn unsere Workers ihre Angebote machen, geben sie sich--mithilfe von Zufall--
+einen Zeitpuffer. Damit können sie auf andere CFPs reagieren und um andere Orders werben,
+aber trotzdem einen bereits angenommenen Auftrag innerhalb der vereinbarten Frist erledigen. 
+Wenn Worker 1 sein Angebot für Order 1 macht, soll er sich einen groß genug Puffer geben,
+damit er in der folgenden Runde auch noch ein Angebot für Order 2 schafft und damit,
+seine Gewinnfunktion--so viele Orders wie möglich erledigen--maximiert. 
+Die Situation spiegelt sich dann wieder mit Worker 2 und jeweils Orders 3 und 4. Dabei soll 
+Worker 3 es nicht schaffen, Worker 2 zu besiegen, denn letzterer hat offensichtlich den
+Distanz Vorteil.

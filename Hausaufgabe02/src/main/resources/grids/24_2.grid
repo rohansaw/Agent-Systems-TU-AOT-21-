@@ -1,0 +1,24 @@
+7 5 20 1 1 2
+....#..
+....#..
+w#.o#w.
+...##..
+.......
+o1 3 2 0 20 10 1
+w11 0 2 999
+w12 5 2 999
+
+Wir haben dieses Grid erstellt, um das Verhalten der Worker bzw des Brokers hinsichtlich der Hindernisse zu beurteilen.
+Sind die Hindernisse den Workern bekannt, würde der Worker w1 die Order in 5 Schritten(+1 Bestätigung) abschließen und daher ein Angebot von 6 and den Broker senden.
+Der Worker w2 würde ein Angebot von 9 (8 Schritte + Bestätigung) an den Broker schicken, weshalb der Broker dieses Offer rejected.
+Da danach keine weiteren Offers mehr gestellt werden, würde der Broker das Offer von w1 akzeptieren und nach dem Turn Penalty einen Score von 4 erhalten.
+
+Sind die Hindernisse allerdings nicht bekannt, würden beide Worker bessere Angebote schicken (w1=4,w2=3), weshalb der Broker dann w1 rejecten und den Auftarg von w2 annehmen würde.
+Im Worst Case ist w2 nach 17 Schritten(+1 Bestätigung) fertig und der Broker  erhält durch das Turn Penalty einen Score von -7.
+
+Der jeweilige Worker würde in beiden Fällen seine Arbeit erledigt bekommen und somit seinen Score erhöhen, während der Broker bei einer unglücklichen Wahl ein großen Verlust einstreichen könnte.
+
+Im Fall das ein Worker wie hier ein Hindernis zwischen sich und seiner Order hat, würde er bei unbekannten Hindernissen zwei gleich lange Optimale Wege zur Order bekommen und in unserem Code ann zufällig einen der beiden auswählen,
+was im Fall von w2 dann dazu führen kann, dass der Worker entweder nach Oben geht und im Worst Case landet, oder nach unten geht und den kürzeren Weg nimmt.
+
+Im iCNP Protokoll ist es uns nicht möglich eine angenommene Order an einen anderen Worker weiterzugeben, was in diesem Fall aber vielleicht sinnvoll wäre.

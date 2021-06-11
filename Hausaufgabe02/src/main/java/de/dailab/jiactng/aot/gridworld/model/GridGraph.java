@@ -10,8 +10,8 @@ public class GridGraph {
     public final int height;
     //[y][x]
     private final LinkedList<Position>[][] adj;
-    private final HashMap<Position, int[][]> dists = new HashMap<>();
-    private final HashMap<Position, Position[][]> parents = new HashMap<>();
+    private final HashMap<Position, int[][]> dists;
+    private final HashMap<Position, Position[][]> parents;
     private final HashSet<Position> obstacles = new HashSet<>();
     private final boolean[][] obstacleOnPath;
 
@@ -20,6 +20,8 @@ public class GridGraph {
         this.height = height;
         adj = new LinkedList[height][width];
         obstacleOnPath = new boolean[height][width];
+        dists = new HashMap<>(height*width);
+        parents = new HashMap<>(height*width);
         for(int y = 0; y < height; y++){
             for(int x = 0; x < width; x++){
                 adj[y][x] = new LinkedList<>();

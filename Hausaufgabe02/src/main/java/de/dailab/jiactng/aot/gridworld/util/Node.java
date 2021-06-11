@@ -4,10 +4,8 @@ import de.dailab.jiactng.aot.gridworld.model.Order;
 
 public class Node {
     Order order;
-    boolean accepted;
-    public Node(Order order, boolean accepted) {
+    public Node(Order order) {
         this.order = order;
-        this.accepted = accepted;
     }
 
     @Override

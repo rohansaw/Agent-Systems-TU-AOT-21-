@@ -1,0 +1,50 @@
+10 10 10 15 1 5
+
+..o.......
+.w..o..o..
+..o.....o.
+o...o..w..
+...w.o....
+.o.....o..
+.....w....
+..o....o..
+o.....o...
+..w.o.....
+
+o1 2 0 2 7 10 0
+o2 4 1 0 5 10 0
+o3 7 1 2 7 10 0
+o4 2 2 4 10 60 10
+o5 8 2 4 10 60 10
+o6 0 3 0 5 10 0
+o7 4 3 0 5 10 0
+o8 5 4 4 10 60 10
+o9 1 5 2 7 10 0
+o10 7 5 4 10 60 10
+o11 2 7 0 5 10 0
+o12 7 7 2 7 10 0
+o13 0 8 0 5 10 0
+o14 6 8 4 10 60 10
+o15 4 9 2 7 10 0
+
+w1 1 1 999
+w2 7 3 999
+w3 3 4 999
+w4 5 6 999
+w5 2 9 999
+
+
+Dokumentation:
+In diesem Grid geht es darum die Schnelligkeit der Auktion zu testen. Dazu kommen kurzlebige Orders, in kurzen Abständen
+an. Der Broker muss erkennen, dass die Auktion nicht lange laufen darf bevor die Orders verteilt werden, damit die
+Orders noch erfüllt werden können. Zusätzlich wurden Orders eingeführt welche langlebig sind, aber sehr schnell an Wert
+verlieren. Auch hier muss der Broker erkennen, dass die Orders möglichst schnell abgeschlossen werden müssen, diesmal
+jedoch auf Grundlage der erreichbaren Punkte und nicht rein auf Erfüllbarkeit.
+
+
+Unsere Ergebnisse:
+Unser Broker erkennt, weiß wann ein Worker eine order frühestens erreichen kann und kann somit feststellen, ob eine
+Auktion frühzeitig beendet werden muss. Er kann somit die kurzlebigen Orders erfüllen. Bei den langlebigen Orders,
+steht er jedoch vor dem Problem, dass er zwar errechnen kann wie viel Gewinn er erzielt, wenn ein Worker die Order
+zu einem bestimmten Zeitpunkt erfüllt, er jedoch nicht erkennt, dass er mehr Punkte erzielen würde, wenn die Auktion
+vorzeitig beendet wird.

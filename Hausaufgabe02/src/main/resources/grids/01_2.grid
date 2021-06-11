@@ -1,0 +1,24 @@
+10 10 15 4 1 2
+o........o
+#w.......#
+.####.....
+......#...
+..........
+..........
+#..#......
+........#.
+........w#
+o........o
+o1 0 0 0 15 20 0
+o2 0 9 0 15 20 0
+o3 9 0 0 15 20 0
+o4 9 9 2 15 20 0
+w1 1 1 15
+w2 8 8 15
+
+Das zweite Grid hat eine Größe von 10x10, 2 Worker, 4 Orders und eine Dauer
+von 15 Runden. Hier ist die Priorisierung der Aufgaben relevant, da sich die
+Orders in den vier Ecken des Grids befinden. Für die optimale Punktzahl ist
+es relevant,dass ein Worker seine aktive Order ändern kann. Unsere Worker
+verhalten sich hier nicht optimal, da sie ihre aktive Order aktuell noch nicht
+neu zuweisen. Somit erreichen wir hier einen Score von 22.

@@ -1,0 +1,28 @@
+10 10 100 9 1 5
+....w.....
+o......o..
+..w.......
+o....o....
+.o.....w..
+...o....o.
+..........
+....o.....
+o.......w.
+w.........
+o1 7 1 0 10 10 0
+o2 3 5 0 12 30 0
+o3 1 4 10 21 40 0
+o4 0 3 11 23 15 0
+o5 4 7 25 32 50 0
+o6 5 3 26 35 55 0
+o7 8 5 60 69 5 0
+o8 0 8 51 70 10 0
+o9 0 1 70 84 10 0
+w1 8 8 999
+w2 7 4 999
+w3 2 2 999
+w4 4 0 999
+w5 0 9 999
+
+In diesem Grid haben alle Orders eine realtiv frühe Deadline. 
+Es soll dazu genutzt werden, um zu prüfen ob das iterierte Contract Net Protocol nicht zu lange ausgeführt wird und die Worker dann keine Zeit mehr zum Bearbeiten der Order haben.

@@ -1,0 +1,52 @@
+20 20 100 12 1 5
+....w....o.......... 3 3
+..........#o........ 1
+....................
+....####............
+..................o. 9
+....................
+.........o#......... 4
+..........#.........
+....................
+..o...............w. 8 1
+..................#o 11
+....##..............
+....................
+..........w......... 2
+................o... 2
+o................... 5
+............###....o 7
+....w.......#o...... 4 10
+##..........###.....
+o#.....o........w... 12 6 5
+o1 11 1 0 20 20 1
+o2 16 14 0 20 20 1
+o3 9 0 5 25 20 1
+o4 9 6 11 25 20 1 
+o5 0 15 20 40 20 1
+o6 7 19 20 40 20 1
+o7 19 16 33 51 20 1
+o8 2 9 40 63 20 1
+o9 18 4 45 68 20 1
+o10 13 17 62 84 20 1
+o11 19 10 64 90 20 1
+o12 0 19 90 2147483647 20 1
+w1 18 9 999
+w2 10 13 999
+w3 4 0 999
+w4 4 17 999
+w5 16 19 999
+
+In diesem Grid bauen wir ein paar Hindernisse ein. Da unsere Worker aber die Informationen über die Hindernisse am Anfang des Spiel bekommen, 
+können sie mit diesen umgehen und suchen sich einfach eine Route aus, die die Hindernisse umgeht. Da es diesmal mehr Worker gibt, können wir besser
+den Konkurrenzkampf beobachten. Und zwar, wie die Worker ihre Bids gestalten und wie das Trade-off zwischen der Länge des Verhandelns vs. die
+Qualität der Bids gelöst wurde. Unsere Worker geben sofort in der ersten Runde der jeweiligen iCNP Instanz ihre schnellstmögliche Ankunftszeit an.
+Und der Broker beschränkt sich auf maximal 3 Verhandlungsrunden. Wir erwarten also hauptsächlich dann längere Verhandlungen, wenn sich Orders 
+zeitlich überlappen und die Antworten der jeweiligen Worker von Runde zu Runde dadurch variieren,dass sie bei anderen Orders nicht ausgewählt wurden. 
+Auf dem Beispiel von Worker 3 können wir beobachten, ob eine Routenoptimierung stattfindet. Ihm soll die Order 1 zuerst zugeteilt werden und danach
+Order 3, die er theoretisch auf dem Weg zu Order1 erledigen könnte. In unserer Implementierung ist es nicht der Fall: ein Worker hängt den neuen 
+Auftrag an seine Route hinten dran.
+Wir übernehmen aus dem Beispielgrid eine Order, die in der Ecke des Grids liegt und von 3 Seiten mit Hindernissen umkreist ist. Dadurch überprüfen 
+wir die Handhabung von den Rändern des Spielfelds, die Robustheit unserer Implementierung der Breitensuche bei dem Worker und die Refuse-Messages an
+den Broker. Die Deadline haben wir dabei auf MaxInt gesetzt um zu überprüfen, ob in diesem Fall dieser Auftrag doch einem Worker zugewiesen wird.
+Die restlichen Parameter (‘value’ und ‘penalty_per_turn’) sind gleich für alle Aufträge, um die Auswertung des Experiments zu erleichtern.

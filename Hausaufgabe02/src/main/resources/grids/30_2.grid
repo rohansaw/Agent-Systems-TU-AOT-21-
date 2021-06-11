@@ -1,0 +1,68 @@
+20 20 15 39 1 5
+#w#......#...o#o...o
+......o..o......#...
+##....o##w..o#....#o
+..o.o....o..........
+#.#............#.##.
+.o#..#...........oo#
+......#.........#..#
+#.....o.....#.##..#.
+.o.o...o..####w.o...
+o##.......#o.o.o....
+..#...#..#..oo..#.#.
+##.#.....o..o#......
+o..#....#.o......#..
+.....ow.#.w..o.#.#..
+.o..#o...........o#.
+o......#...#......#.
+.#..#.#....#.#..#...
+........#...o.o#.#..
+......#..#.......#..
+..o.............o...
+o1 13 0 4 14 15 3
+o2 15 0 3 11 14 3
+o3 19 0 5 11 10 3
+o4 6 1 2 3 2 1
+o5 9 1 3 6 8 3
+o6 6 2 2 6 10 3
+o7 12 2 1 15 7 3
+o8 19 2 2 10 7 3
+o9 2 3 1 12 1 1
+o10 4 3 5 15 12 3
+o11 9 3 2 11 5 3
+o12 1 5 2 3 2 1
+o13 17 5 1 7 9 1
+o14 18 5 1 6 1 1
+o15 6 7 5 7 8 2
+o16 1 8 5 7 8 3
+o17 3 8 1 14 15 3
+o18 7 8 3 13 5 3
+o19 16 8 5 7 5 2
+o20 0 9 5 14 13 2
+o21 11 9 2 3 2 1
+o22 13 9 1 2 11 3
+o23 15 9 4 12 5 3
+o24 12 10 1 2 6 2
+o25 13 10 2 5 3 1
+o26 9 11 5 14 14 2
+o27 12 11 5 7 1 0
+o28 0 12 3 12 4 1
+o29 10 12 5 11 8 2
+o30 5 13 2 4 5 2
+o31 13 13 2 4 8 3
+o32 1 14 5 14 11 3
+o33 5 14 1 3 14 2
+o34 17 14 5 7 4 1
+o35 0 15 4 12 15 2
+o36 12 17 2 7 6 3
+o37 14 17 2 3 13 4
+o38 2 19 4 12 6 1
+o39 16 19 3 9 13 3
+w1 1 0 999
+w2 9 2 999
+w3 14 8 999
+w4 6 13 999
+w5 10 13 999
+
+Wir haben dieses Grid erstellt, um zu testen, wie viel Reward der Broker erhält, wenn es viele Orders gibt, deren Wert teilweise schnell sinkt.
+Mit unsererer Implementierung werden nur zwei Orders rechtzeitig erledigt, sodass ein positiver Reward entsteht. Die meisten Orders bringen nur den Reward 0. Somit gibt es insgesamt sogar einen negativen Reward wegen den Workerschritten. Die Worker schaffen aber jeweils 1 oder 2 Orders.

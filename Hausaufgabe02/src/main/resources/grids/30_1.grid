@@ -1,0 +1,30 @@
+10 10 15 5 1 5
+..........
+..........
+....o.....
+..ow.wo...
+....w.....
+...w.w..o.
+..o.......
+..........
+..........
+..........
+o1 4 2 1 6 15 2
+o2 2 3 1 6 14 3
+o3 6 3 2 7 10 2
+o4 8 5 3 9 16 1
+o5 2 6 4 10 18 3
+w1 3 3 999
+w2 5 5 999
+w3 5 3 999
+w4 3 5 999
+w5 4 4 999
+
+Wir haben dieses Grid erstellt, um zu testen, wie viel Reward der Broker erhält, wenn es nur wenige Orders gibt, um die die Worker konkurrieren.
+Mit unsererer Implementierung gibt es je nach Reihenfolge, in der Nachrichten ankommen, verschiedene Ergebnisse:
+Meistens:
+Vier Worker erledigen je eine Order und ein Worker erledigt gar keine. Der Broker bekommt einen Reward von ungefähr 23 bis 30.
+Selten:
+Alle Worker erledigen eine Order, der Broker bekommt einen Reward von 43.
+
+Dabei sagen die Workeragenten dem Brokeragenten nicht, wie viele Züge sie wirklich brauchen, um eine Order zu erledigen. Der Broker muss mit den Iterationen des Protokolls versuchen, einen für die Order guten Broker zu finden.

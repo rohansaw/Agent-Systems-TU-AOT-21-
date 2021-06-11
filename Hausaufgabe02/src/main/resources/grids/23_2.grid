@@ -1,0 +1,36 @@
+5 5 15 2 1 1
+.....
+..w..
+o..o.
+.....
+.....
+o1 0 2 5 15 10 1
+o2 4 2 6 8 20 5
+w1 2 3 999
+
+Kommentar
+
+Dieses Grid dient zur Illustration des Reject-Verhaltens der Worker
+und der Berücksichtigung bereits angenommen Order, sowie dem
+Testen ob ein Worker bestimmte Order, die auf dem Weg zu einer bereits
+angenommenen Order, prioritisiert.
+
+Für eine genaue Erklärung unseres iCNP vgl. die andere Grid-Datei.
+
+Zuerst wird o1 ausgeschrieben mit rfp(o1, w1, 7).
+w1 antwortet proposal(o1, 7). Broker antwortet mit rfp(o1, w1, 6).
+w1 antwortet mit proposal(o1, 4). Broker antwortet mit rfp(o1, w2, 3).
+w1 antwortet mit proposal(o1, 3). Broker antwortet mit rfp(o1, w2, 2).
+w1 antwortet mit proposal(o1, 3). Dieses Angebot ist ungültig und 
+der Broker nimmt das aus der vorherigen Runde.
+Nun bewegt sich der Worker einen Schritt nach (2,2).
+Nun wird o2 ausgeschrieben mit rfp(o2, w1, 2). w1 berechnet die kürzeste Route
+durch seine bereits akzeptierten und diesen neuen Order, und stellt fest
+dass keine Route exisitiert, die sowohl das bindende erste Proposal (
+o1 in 3 Schritten abarbeiten) respektiert als auch o2 rechtzeitig abarbeitet.
+w1 antwortet also sofort mit refuse.
+Dieses Grid ist so konstruiert dass unter der Bedingung dass akzeptierte
+Proposals bindend sind die optimale Lösung für beide Parteien nicht erreicht
+werden kann.
+
+

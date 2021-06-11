@@ -1,0 +1,56 @@
+15 15 30 11 1 5
+o..............
+...............
+...wo..........
+........w.o....
+..........#....
+##......####...
+.....o.....o...
+....w.......#..
+##....o....#...
+.........w.....
+...............
+#######..o....#
+..o.....w...o.#
+..............#
+....o......o...
+o1 0 0 1 10 30 1
+o2 4 2 3 14 10 0
+o3 10 3 4 15 10 1
+o4 5 6 4 15 10 1
+o5 6 8 4 15 10 1
+o6 11 6 5 22 90 5
+o7 9 11 15 30 15 0
+o8 2 12 15 30 27 2
+o9 12 12 15 30 20 1
+o10 4 14 15 30 100 4
+o11 11 14 15 30 80 6
+w1 3 2 999
+w2 8 3 999
+w3 4 7 999
+w4 9 9 999
+w2 8 12 999
+
+//
+width, height, turns, num_orders, num_brokers, num_workers
+order_id, x, y, turn_created, turn_deadline, value, penalty_per_turn
+worker_id, x, y, fuel
+//
+Da wir den Broker/Worker noch nicht fertig implementiert haben, wissen wir noch nicht genau, wie die Agenten sich verhalten werden. Die Problematik der Orders ist unten beschrieben.
+Je nach spezifischer Implementierung (und Parametertuning) entscheiden sich die Agenten für die eine oder andere Handlung.
+o1: Nimmt w1 diese Order an? (Randorder, deadline knapp, w1 kann sie als einziger erreichen)
+o2: Folgerung zu o1, bekommt w1 oder w2 die Order? Wirkt sich auch auf o3 aus.
+o3-6: Testet Handling der Agenten mit für den Worker attraktiven Orders (sehr nah) sowie für den Broker attraktiven Orders (hoher value, aber hoher penalty)
+o7-11: Kommen in Runde 15, sodass 10 Züge seit den letzten Orders vergangen sind. Bekommt w4 hiervon orders ab? w5 schafft nicht alle orders vor der Deadline.
+       Welche werden w5 zugeteilt? Wie verlaufen die Auktionen (wie viele Runden)?
+
+mögliche Use-Cases (nicht relevant für Bewertung durch Tutor(in(nen)):).
+Fall Worker beschäftig aber nahe Order kommt rein, Wege ändern sich
+Ab wann werden Orders angenommen
+Gewinnmaximierung Broker/Worker testen
+- Orders mit hohen TurnPenalties
+- Orders mit hohen Values und hohen/tiefen Turnpenalties, die nah/weit entfernt sind
+- Orders am Rand
+- Orders mit geringen Deadlines
+- Orders mit hohen Deadlines aber geringem Value
+- Orders mit geringen Deadlines aber hohem Value

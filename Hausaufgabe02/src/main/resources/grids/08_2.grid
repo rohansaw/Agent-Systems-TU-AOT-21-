@@ -1,0 +1,43 @@
+19 15 130 11 1 5
+w...#.............w
+o..#..o........oo..
+..#.......#........
+......#........#...
+..#....w...........
+o#.#.........###...
+##o##....#o...#o...
+#...#....o#...#..#.
+.w.......#.........
+...................
+....#.....#........
+.....#........#####
+..#...#.....#.#o...
+.o...........#####.
+w..........#.......
+o1  0   1   0   10  10  0
+o2  10  6   10  20  11  1
+o3  15  1   20  30  12  2
+o4  16  1   21  40  13  3
+o5  0   5   40  60  14  0
+o6  2   6   50  60  15  1
+o7  6   1   60  70  16  2
+o8  15  6   70  80  17  3
+o9  9   7   80  90  18  0
+o10 15  12  90  125 19  1
+o11 1   13  110 130 20  2
+w11 0   0   999
+w12 0   14  999
+w13 1   8   999
+w14 18  0   999
+w15 7   4   999
+
+Zum aktuellen Zeitpunkt werden die meisten Orders erfolgreich bedient und abgeliefert.
+Lediglich exakt nebeneinander liegende Orders wie o3 und o4, werden manchmal nicht erfolgreich abgeliefert.
+(Dies wird noch gefixed werden).
+
+Die Order 10 (o10) ist so desigend worden, dass man zu ihr nur durch einen schmalen gang gelangt.
+Dies funktioniert glücklicherweise aush.
+
+Ab und zu passiert es, dass die Worker nicht schnell genug sind eine Order abzuarbeiten,
+obwohl es rein rechnerisch machbar seien sollte. Wir haben uns bewusst dagegen entschieden, dass Problem durch verändern
+der Map zu lösen, damit wir noch herausfinden können warum es die worker manchmal nicht schaffen, es aber schaffen müssten.

@@ -1,0 +1,71 @@
+210611-233259
+GAME No. 52256510
+TURN 21/20
+Brokers
+B(Some_Id, workers=[W(w1, Pos(3, 3), 0), W(w2, Pos(6, 7), 0)], taken=[], completed=[], failed=[o5])
+Orders
+O(o1, Pos(4, 1), cr=0, dl=10, cp=-1, val=10, tp=1)
+O(o2, Pos(1, 3), cr=0, dl=10, cp=-1, val=25, tp=1)
+O(o4, Pos(8, 3), cr=0, dl=7, cp=-1, val=20, tp=0)
+O(o3, Pos(0, 5), cr=5, dl=15, cp=-1, val=10, tp=1)
+O(o5, Pos(8, 1), cr=5, dl=13, cp=-1, val=20, tp=0)
+O(o6, Pos(9, 1), cr=5, dl=11, cp=-1, val=20, tp=0)
+O(o7, Pos(4, 7), cr=5, dl=10, cp=-1, val=100, tp=3)
+	.	.	.	.	.	#	.	.	.	.
+	.	.	.	.	.	#	.	.	.	.
+	.	.	.	.	.	#	.	.	.	.
+	.	.	.	w1	.	#	#	.	.	.
+	.	.	.	.	#	.	.	#	.	.
+	.	.	.	.	.	.	.	#	.	.
+	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	w2	.	.	.
+	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.
+
+210611-233237: Sending StartGameResponse(game=52256510, size=Pos(10, 10), workers=[W(w1, Pos(1, 1), 0), W(w2, Pos(6, 7), 0)], obstacles: 8)
+210611-233237: Sending OrderMessage(game=52256510, order=O(o1, Pos(4, 1), cr=0, dl=10, cp=-1, val=10, tp=1))
+210611-233237: Sending OrderMessage(game=52256510, order=O(o2, Pos(1, 3), cr=0, dl=10, cp=-1, val=25, tp=1))
+210611-233237: Sending OrderMessage(game=52256510, order=O(o4, Pos(8, 3), cr=0, dl=7, cp=-1, val=20, tp=0))
+210611-233242: Sending OrderMessage(game=52256510, order=O(o3, Pos(0, 5), cr=5, dl=15, cp=-1, val=10, tp=1))
+210611-233242: Sending OrderMessage(game=52256510, order=O(o5, Pos(8, 1), cr=5, dl=13, cp=-1, val=20, tp=0))
+210611-233242: Sending OrderMessage(game=52256510, order=O(o6, Pos(9, 1), cr=5, dl=11, cp=-1, val=20, tp=0))
+210611-233242: Sending OrderMessage(game=52256510, order=O(o7, Pos(4, 7), cr=5, dl=10, cp=-1, val=100, tp=3))
+210611-233243: Received TakeOrderMessage(game=52256510, order=o2, broker=Some_Id)
+210611-233243: Sending TakeOrderConfirm(game=52256510, order=o2, broker=Some_Id, FAIL)
+210611-233244: Received TakeOrderMessage(game=52256510, order=o5, broker=Some_Id)
+210611-233244: Sending TakeOrderConfirm(game=52256510, order=o5, broker=Some_Id, SUCCESS)
+210611-233244: Received WorkerMessage(game=52256510, worker=w1, action=EAST)
+210611-233244: Sending WorkerConfirm(game=52256510, worker=w1, action=EAST, SUCCESS)
+210611-233245: Received WorkerMessage(game=52256510, worker=w1, action=EAST)
+210611-233245: Sending WorkerConfirm(game=52256510, worker=w1, action=EAST, SUCCESS)
+210611-233246: Received WorkerMessage(game=52256510, worker=w1, action=EAST)
+210611-233246: Sending WorkerConfirm(game=52256510, worker=w1, action=EAST, SUCCESS)
+210611-233247: Received WorkerMessage(game=52256510, worker=w1, action=EAST)
+210611-233247: Sending WorkerConfirm(game=52256510, worker=w1, action=EAST, FAIL)
+210611-233248: Received WorkerMessage(game=52256510, worker=w1, action=SOUTH)
+210611-233248: Sending WorkerConfirm(game=52256510, worker=w1, action=SOUTH, SUCCESS)
+210611-233249: Received WorkerMessage(game=52256510, worker=w1, action=EAST)
+210611-233249: Sending WorkerConfirm(game=52256510, worker=w1, action=EAST, FAIL)
+210611-233250: Received WorkerMessage(game=52256510, worker=w1, action=NORTH)
+210611-233250: Sending WorkerConfirm(game=52256510, worker=w1, action=NORTH, SUCCESS)
+210611-233251: Received WorkerMessage(game=52256510, worker=w1, action=NORTH)
+210611-233251: Sending WorkerConfirm(game=52256510, worker=w1, action=NORTH, SUCCESS)
+210611-233251: Sending OrderCompleted(game=52256510, order=o5, FAIL, reward=-20)
+210611-233252: Received WorkerMessage(game=52256510, worker=w1, action=EAST)
+210611-233252: Sending WorkerConfirm(game=52256510, worker=w1, action=EAST, FAIL)
+210611-233253: Received WorkerMessage(game=52256510, worker=w1, action=SOUTH)
+210611-233253: Sending WorkerConfirm(game=52256510, worker=w1, action=SOUTH, SUCCESS)
+210611-233254: Received WorkerMessage(game=52256510, worker=w1, action=SOUTH)
+210611-233254: Sending WorkerConfirm(game=52256510, worker=w1, action=SOUTH, SUCCESS)
+210611-233255: Received WorkerMessage(game=52256510, worker=w1, action=SOUTH)
+210611-233255: Sending WorkerConfirm(game=52256510, worker=w1, action=SOUTH, SUCCESS)
+210611-233256: Received WorkerMessage(game=52256510, worker=w1, action=EAST)
+210611-233256: Sending WorkerConfirm(game=52256510, worker=w1, action=EAST, FAIL)
+210611-233257: Received WorkerMessage(game=52256510, worker=w1, action=SOUTH)
+210611-233257: Sending WorkerConfirm(game=52256510, worker=w1, action=SOUTH, FAIL)
+210611-233258: Received WorkerMessage(game=52256510, worker=w1, action=WEST)
+210611-233258: Sending WorkerConfirm(game=52256510, worker=w1, action=WEST, SUCCESS)
+210611-233259: Sending WorkerScoreMessage(game=52256510, worker=w1, winner?=true, orders completed=0)
+210611-233259: Sending WorkerScoreMessage(game=52256510, worker=w2, winner?=false, orders completed=0)
+210611-233259: Sending EndGameMessage(game=52256510, broker=Some_Id, winner?=true, reward=-30,00)
+

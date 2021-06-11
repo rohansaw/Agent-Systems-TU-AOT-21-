@@ -1,0 +1,46 @@
+11 11 20 4 1 3
+....w......
+...........
+.....w.....
+.........#.
+...#oo...#.
+..o#######.
+.....w...o.
+...........
+...........
+...........
+...........
+o1 2 5 0 7 15 1
+o2 9 6 1 15 15 1
+o3 4 4 2 20 10 0
+o4 5 4 2 20 10 0
+w1 5 2 999
+w2 5 6 999
+w3 4 0 999
+
+===============================================================
+
+Motivation zur Erstellung des Grids:
+
+Dieses Grid demonstriert, dass die Workerstrategie nicht immer ein optimales Ergebnis für den Broker erzielt. 
+Weiterhin wird ein Nachteil der Workerstrategie beleuchtet. 
+
+================================================================
+
+Brokerverhalten:
+
+Der Broker nimmt alle Orders an und verteilt sie an die Worker. Dabei erhält immer der Worker die jeweilige Order, der ein Angebot zu den geringsten Kosten liefern konnte.
+
+================================================================
+
+Workerverhalten: 
+
+In Runde 0 kann w2 alle anderen Worker mit seinem Angebot unterbieten und erhält o1. 
+In Runde 1 kann w2 kein besseres Angebot für o2 unterbreiten als w1 und somit erhält w1 die Order o2. 
+Da w2 nun o2 zu einer knappen deadline angenommen hat, hat w3 die besten Angebote für das Cluster an Orders (o3, o4) und w2 kann nicht konkurrieren.
+
+================================================================
+
+Weitere Anmerkungen:
+
+Die Verteilung w2->o1 und w1->o2 ist nicht optimal für den Broker, ist aber die Folge der Strategie der Worker.

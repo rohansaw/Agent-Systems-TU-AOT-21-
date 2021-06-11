@@ -1,0 +1,19 @@
+5 5 10 2 1 2
+..w.o
+.....
+o....
+.....
+...w.
+o1 4 0 0 7 50 1
+o2 0 2 1 7 50 1
+w1 2 0 999
+w2 3 4 999
+
+Wir haben dieses Grid erstellt um eine Situation aus der Vorlesung nachzustellen. Dabei handelt es sich um die Situation, welche in Vorlesung 3 - 
+Contracting auf Seite 11 vorgestellt wurde. Aufgrund der Reihenfolge, in der die Orders erstellt werden, wird Order1 vor Order2 zugewiesen. Da
+Worker1 näher an Order1 ist, erhält dieser den Zuschlag für diese Order. Zu dem Zeitpunkt wenn Order2 erstellt wird, ist die endgültige Zuweisung
+von Order1 noch nicht geschehen, daher sind die Angebote der Angebote der beiden Worker für Order2 höher als die ursprüngliche Deadline. Nach der
+Zuweisung von Order1 an Worker1, gibt Worker2 für Order2 ein verbessertes Angebot ab, worauf er die Order2 zugewiesen bekommt. Durch den langen
+Bietprozess ist allerdings die Rundenzahl soweit fortgeschritten, dass er die Aufgabe nicht rechtzeitig erledigen kann.
+Diese Situation schildert, dass mit iCNP nicht immer eine optimale Zuordnung der Aufträge möglich ist. Denn es gäbe eine Zuordnung (w2,01) und
+(w1,o2), die sowohl für den Broker als auch für beide Workers besser wäre.

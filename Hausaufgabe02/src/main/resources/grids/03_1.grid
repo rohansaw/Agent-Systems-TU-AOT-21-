@@ -1,0 +1,28 @@
+10 10 20 1 1 2
+o......#..
+....#.....
+..........
+......#...
+w........#
+w.........
+.....#....
+..........
+....###...
+.......#..
+o1 0 0 0 10 20 1
+w1 0 4 100
+w2 0 5 100
+
+Warum wird dieses Grid gewählt haben?
+Dieses Szenario haben wir gewählt, um zu prüfen inwiefern die Umsetzung des Brokers auch bei mehreren Worker, die die Order gewinnbringend (für den Broker) abarbeiten
+können, in der Lage ist, den optimalen Worker auszuwählen. Wir prüfen hier also auch die iterative Durchführung des Protokolls, um das zu erwartende Ergebnis
+zu maximieren.
+
+o1: Diese Order wäre mit Wissen über die Worker rentabel abarbeitbar. Der Broker berechnet eine neue Deadline für o1, bis wann diese 
+    fertig sein müsste, um einen positiven Reward zu liefern(Value - Aufwand - Aufwand * Turnpenalty). Diese Deadline ist erst nach 5 Iterationen des iCNP 
+    (wir verringern in jeder Iteration die Deadline, die an alle Worker geschickt wird) für den Broker aussagekräftig genug um herauszufinden,
+     dass der Worker w1 die optimale Wahl für Order 1 wäre.
+     Deadline der 1.Iteration: 9
+     Deadline der 5.Iteration: 5
+
+    Der Broker sollte demnach die Order vom Server annehmen und an Worker w1 zuweisen.

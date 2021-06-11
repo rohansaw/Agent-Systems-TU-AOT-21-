@@ -1,0 +1,37 @@
+20	20	150	10	1	4
+....#....#.o.#......
+....#...w#...#..o...
+....#....#...#......
+.........#...#......
+..o.####.#.#.#.####.
+..#....#...#...#..#.
+.###.###########.o#.
+.#....##.......#.##.
+.####.#..o.#...#.#..
+.#..#.###..#.w.#.#..
+.#..#.#.#..#...#....
+.####.#.#.##########
+..#w#.#.#.#...#.....
+#.#.#.#o..#.#.#.###.
+......###.#.#.#...#.
+.#..#.#o#.#.#.#.###.
+.#.####.###.#...#...
+.#...#...#..#####.##
+.#.#.#...#......#..o
+o#.#...#.......w#..o
+o1	4	2	2	100	42	3
+o2	0	11	1	80	34	3
+o3	15	7	12	60	65	3
+o4	13	7	31	67	31	2
+o5	19	19	61	150	100	2
+o6	18	19	1	50	90	1
+o7	8	9	7	130	55	1
+o8	1	16	9	112	69	3
+o9	19	0	4	132	75	2
+o10	6	17	4	102	14	0
+w1	13	9	300
+w2	3	12	150
+w3	8	1	75
+w4	15	19	75
+
+Grundidee ist ein Labyrinth indem die Koordinierung zwischen den Worker getestet werden soll. w1 ist eingesperrt und versucht in seinem "Minigrid die Aufträge zu erfüllen" w2 hat ein Entscheidungsproblem da nachdem er zwei Schritte gegangen ist eine nähere höherwertige Order erscheint. W3 muss entscheiden ob sich der längere Weg zu dem relativ niederwertigen o10 lohnt. W4 erhält einen Auftrag für einen sehr langes Labyrinth welches er schnellst möglich lösen muss. Nachdem er einen Auftrag dort erledigt hat versucht er das labyrinth zu verlassen und muss kurz darauf wieder für den nächsten Auftrag hinnein.

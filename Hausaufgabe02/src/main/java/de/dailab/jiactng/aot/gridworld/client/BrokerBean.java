@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 public class BrokerBean extends AbstractAgentBean {
 
 	public static String BROKER_ID = "Some_Id";
-	public static String GRID_FILE = "/grids/example.grid";
+	public static String GRID_FILE = "/grids/27_2.grid";
 
 	private BrokerState state = BrokerState.AWAIT_GAME_START;
 	private int turn;
@@ -143,8 +143,8 @@ public class BrokerBean extends AbstractAgentBean {
 		// got all proposals
 		if(table.size() == workers.size()) {
 			int bestBid = Collections.min(table.values());
-			long minCount = table.values().stream().filter(v -> v == bestBid).count();
-			long rejectCount = table.values().stream().filter(v -> v == Integer.MAX_VALUE).count();
+			long minCount = table.values().stream().filter(v -> v.equals(bestBid)).count();
+			long rejectCount = table.values().stream().filter(v -> v.equals(Integer.MAX_VALUE)).count();
 
 			if (rejectCount + minCount < workers.size()) {
 				//start new iteration of iCNP
@@ -153,7 +153,7 @@ public class BrokerBean extends AbstractAgentBean {
 				cfp.bestBid = bestBid;
 				cfp.order = msg.order;
 				List<Map.Entry<String, Integer>> toRemove = table.entrySet().stream()
-						.filter(e -> e.getValue() > bestBid && e.getValue() != Integer.MAX_VALUE)
+						.filter(e -> e.getValue() > bestBid && !e.getValue().equals(Integer.MAX_VALUE))
 						.collect(Collectors.toList());
 				for (Map.Entry<String, Integer> entry: toRemove){
 					sendMessage(workerAddresses.get(entry.getKey()), cfp);
@@ -182,7 +182,6 @@ public class BrokerBean extends AbstractAgentBean {
 	}
 
 	private void handleIncomingOrder(Order order) {
-		log.info("Order received: " + order);
 		receivedOrders.get(0).add(order);
 		bids.put(order.id, new HashMap<>());
 		CallForProposal msg = new CallForProposal();
@@ -190,11 +189,7 @@ public class BrokerBean extends AbstractAgentBean {
 		msg.gameId = gameId;
 		msg.order = order;
 		for(Worker w : workers){
-			try {
-				sendMessage(workerAddresses.get(w.id), msg);
-			} catch (Exception e){
-
-			}
+			sendMessage(workerAddresses.get(w.id), msg);
 		}
 	}
 
@@ -212,24 +207,24 @@ public class BrokerBean extends AbstractAgentBean {
 
 	private void handleTakeOrderConfirm(TakeOrderConfirm message) {
 		HashMap<String, Integer> table = bids.remove(message.orderId);
-
+		Order order = getOrderByID(message.orderId);
 		if (message.state == Result.SUCCESS) {
-			int bestBid = Collections.min(table.values());
+			int bestBid = Collections.min(table.values()).intValue();
 			Map.Entry<String, Integer> accepted_worker = table.entrySet().stream()
-					.filter(e -> e.getValue() == bestBid)
+					.filter(e -> e.getValue().equals(bestBid))
 					.findFirst().get();
-			table.remove(accepted_worker.getKey());
 
 			//send ProposalAck to the first worker with bestBid
 			ProposalAccept ack = new ProposalAccept();
 			ack.bid = accepted_worker.getValue();
-			ack.order = getOrderByID(message.orderId);
+			ack.order = order;
 			ack.gameId = gameId;
 			sendMessage(workerAddresses.get(accepted_worker.getKey()), ack);
+			table.remove(accepted_worker.getKey());
 		}
 		//send ProposalRej to other workers
 		ProposalReject rej = new ProposalReject();
-		rej.order = getOrderByID(message.orderId);
+		rej.order = order;
 		rej.gameId = gameId;
 		for (String workerID : table.keySet()) {
 			sendMessage(workerAddresses.get(workerID), rej);
@@ -281,13 +276,15 @@ public class BrokerBean extends AbstractAgentBean {
 			for(Order o : l){
 				if(bids.get(o.id) != null && bids.get(o.id).size() != workers.size()){
 					HashMap<String, Integer> table = bids.get(o.id);
-					int bestBid = Collections.min(table.values());
-					for(Worker w : workers){
-						if(!table.containsKey(w.id)){
-							cfp.order = o;
-							cfp.bestBid = bestBid;
-							cfp.gameId = gameId;
-							sendMessage(workerAddresses.get(w.id), cfp);
+					if(table != null) {
+						int bestBid = Collections.min(table.values());
+						for (Worker w : workers) {
+							if (!table.containsKey(w.id)) {
+								cfp.order = o;
+								cfp.bestBid = bestBid;
+								cfp.gameId = gameId;
+								sendMessage(workerAddresses.get(w.id), cfp);
+							}
 						}
 					}
 				}

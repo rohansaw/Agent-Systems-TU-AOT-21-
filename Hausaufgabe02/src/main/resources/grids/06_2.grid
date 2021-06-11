@@ -1,0 +1,32 @@
+10 10 75 8 1 3
+.....#####
+....#.o...
+...#o.##o#
+.###o#....
+w.o..#.w..
+.####.o...
+.......###
+..o..##...
+........o.
+..w.......
+o1  2 4 2  10 10 1
+o2  4 3 2  10 15 2
+o3  8 8 10  25 80 4
+o4  6 1 15  30 20 2
+o5  4 2 17  30 30 2
+o6  2 7 26  40 10 0
+o7  8 2 50  60 15 1
+o8  6 5 65  70 30 0
+w1 0 4 999
+w2 7 4 999
+w3 2 9 999
+
+//Idee -> Worker kann mehrere Orders auf seiner Route einsammeln, Broker muss abhängig von der Schnelligkeit der Implementierung
+//Selektion betreiben (nicht alle Aufträge,die innerhalb der Deadline erreichbar sind annehmen) um Reward zu maximieren
+//und Zeit bis zur Deadline während d. iCNP weiter beachten.
+//Außerdem kann sich der Vorteil mancher Worker ändern, da es möglich ist, dass sich ein Worker
+//immer näher auf eine Order durch einen anderen Auftrag zubewegt und sich so die Präferenz des Brokers ändern kann.
+
+//Worker 1 sammelt o1, o5, o2 scheitert
+//Worker 2 sammelt o4, o7
+//Worker 3 sammelt o3, o6

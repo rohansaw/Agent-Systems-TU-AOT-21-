@@ -1,0 +1,55 @@
+15 15 20 16 1 4
+
+..o#.......#o..
+.###.......###.
+...............
+...............
+.......o.......
+..o.......o....
+....w.....w..o.
+..o....o.......
+o...w.o...wo...
+..o....o.......
+............o..
+...............
+...............
+.###.......###.
+..o#.......#o..
+
+o1 2 0 0 20 100 0
+o2 12 0 0 20 100 0
+o3 2 14 0 20 100 0
+o4 12 14 0 20 100 0
+o5 7 4 2 20 5 0
+o6 2 5 0 20 5 0
+o7 10 5 1 20 5 0
+o8 13 6 0 20 5 0
+o9 2 7 2 20 5 0
+o10 7 7 3 20 5 0
+o11 0 8 0 20 5 0
+o12 6 8 3 20 5 0
+o13 11 8 0 20 5 0
+o14 2 9 1 20 5 0
+o15 7 9 2 20 5 0
+o16 12 10 0 20 5 0
+
+
+w1 4 6 20
+w2 10 6 20
+w3 4 8 20
+w4 10 8 20
+
+
+Dokumentation:
+In diesem Grid geht es darum die Bedürfnisse der Worker gegen die des Brokers zu stellen. Die Worker möchten einfach
+möglichst viele Orders abschließen, wohingegen der Broker eine möglichst hohe Punktzahl erreichen will. Dazu werden
+mehrere wenig wertvolle Orders in der Nähe und wenig sehr wertvolle Orders weit weg von den Startpunkten der Worker
+erscheinen. Dabei ist das Zusammenspiel aus Fuel pro Worker sowie Punkte für die Orders so ausgelegt, dass es aus Sicht
+der Worker ab besten wäre die Orders, welche weit weg sind, zu ignorieren und stattdessen die nahegelegenen zu
+priorisieren. Aus Sicht des Brokers ist es jedoch genau andersherum.
+
+Unsere Ergebnisse:
+Bei uns schließen die Worker zu erst die Aufträge ab, welche am meisten Gewinn bringen. Dadurch schneidet der Broker gut
+ab, wohingegen die Worker nur wenige Orders erfüllen. Das liegt daran, dass der Broker die Orders die er in Runde 0
+bekommt sortiert und zu erst die Orders verteil, die am meisten Gewinn bringen. Der Broker sitzt hier am längeren Hebel,
+aber auch nur, weil die gewinnbringenden Orders bereits in Runde 0 erscheinen.

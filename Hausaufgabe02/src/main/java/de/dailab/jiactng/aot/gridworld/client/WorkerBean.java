@@ -64,7 +64,8 @@ public class WorkerBean extends AbstractAgentBean {
 
 	private void handleIncomingMessage(JiacMessage message) {
 		Object payload = message.getPayload();
-		log.info("WORKER receive:");
+		if(worker != null)
+			log.info("WORKER " + worker.id + " receive:");
 		log.info(payload);
 
 		if (payload instanceof WorkerInitialize) {
@@ -90,7 +91,9 @@ public class WorkerBean extends AbstractAgentBean {
 	private void handleProposalAccept(ProposalAccept msg) {
 		acceptedOrders.add(msg.order);
 		proposedOrders.remove(msg.order);
-		cfpGraph.setNodeToAccepted(msg.order);
+		//remove for new calculation that respects deadline of new order
+		cfpGraph.removeNode(msg.order);
+		cfpGraph.getBid(msg.order, true);
 	}
 
 	private void handleProposalReject(ProposalReject msg) {
@@ -102,7 +105,7 @@ public class WorkerBean extends AbstractAgentBean {
 		if (!proposedOrders.contains(cfp.order)) {
 			proposedOrders.add(cfp.order);
 		}
-		//remove order, because getBid inserts it at a new place
+		//remove order, because getBid probably inserts it at a new place
 		cfpGraph.removeNode(cfp.order);
 		int bid = cfpGraph.getBid(cfp.order, false);
 
@@ -141,9 +144,8 @@ public class WorkerBean extends AbstractAgentBean {
 			if (!obstacles.contains(pos) && x >= 0 && x < gameSize.x && y >= 0 && y < gameSize.y) {
 				obstacles.add(pos);
 				graph.addObstacle(pos);
-
 			}
-		} else if (message.state == Result.FAIL && message.action == WorkerAction.ORDER) {
+		} else if (message.state == Result.FAIL) {
 			handleOrderTerminated();
 		}
 	}
@@ -153,16 +155,6 @@ public class WorkerBean extends AbstractAgentBean {
 			cfpGraph.removeNode(currentOrder);
 			acceptedOrders.remove(currentOrder);
 		}
-	}
-
-	private Order getNextOrder() {
-		// Get the next order we would want to go to in our path and that was accepted already
-		for (Order order : currentBestPath) {
-			if (acceptedOrders.contains(order)) {
-				return order;
-			}
-		}
-		return null;
 	}
 
 	private void moveToOrder() {
@@ -185,9 +177,7 @@ public class WorkerBean extends AbstractAgentBean {
 		proposal.worker = worker;
 		proposal.order = order;
 		proposal.bid = value;
-		proposal.refuse = false;
-		if (value == Integer.MAX_VALUE)
-			proposal.refuse = true;
+		proposal.refuse = value == Integer.MAX_VALUE;
 		sendMessage(brokerAddress, proposal);
 	}
 
@@ -226,7 +216,8 @@ public class WorkerBean extends AbstractAgentBean {
 		Action sendAction = retrieveAction(ICommunicationBean.ACTION_SEND);
 		JiacMessage message = new JiacMessage(payload);
 		invoke(sendAction, new Serializable[]{message, receiver});
-		log.info("WORKER SENDING:");
+		if(worker != null)
+			log.info("WORKER " + worker.id + " SENDING:");
 		log.info(payload);
 	}
 

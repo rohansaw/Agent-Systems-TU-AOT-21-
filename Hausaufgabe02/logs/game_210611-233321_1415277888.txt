@@ -1,0 +1,42 @@
+210611-233321
+GAME No. 1415277888
+TURN 21/20
+Brokers
+B(Some_Id, workers=[W(w1, Pos(1, 1), 0), W(w2, Pos(6, 7), 0)], taken=[], completed=[], failed=[o4, o1])
+Orders
+O(o1, Pos(4, 1), cr=0, dl=10, cp=-1, val=10, tp=1)
+O(o2, Pos(1, 3), cr=0, dl=10, cp=-1, val=25, tp=1)
+O(o4, Pos(8, 3), cr=0, dl=7, cp=-1, val=20, tp=0)
+O(o3, Pos(0, 5), cr=5, dl=15, cp=-1, val=10, tp=1)
+O(o5, Pos(8, 1), cr=5, dl=13, cp=-1, val=20, tp=0)
+O(o6, Pos(9, 1), cr=5, dl=11, cp=-1, val=20, tp=0)
+O(o7, Pos(4, 7), cr=5, dl=10, cp=-1, val=100, tp=3)
+	.	.	.	.	.	#	.	.	.	.
+	.	w1	.	.	.	#	.	.	.	.
+	.	.	.	.	.	#	.	.	.	.
+	.	.	.	.	.	#	#	.	.	.
+	.	.	.	.	#	.	.	#	.	.
+	.	.	.	.	.	.	.	#	.	.
+	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	w2	.	.	.
+	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.
+
+210611-233259: Sending StartGameResponse(game=1415277888, size=Pos(10, 10), workers=[W(w1, Pos(1, 1), 0), W(w2, Pos(6, 7), 0)], obstacles: 8)
+210611-233300: Sending OrderMessage(game=1415277888, order=O(o1, Pos(4, 1), cr=0, dl=10, cp=-1, val=10, tp=1))
+210611-233300: Sending OrderMessage(game=1415277888, order=O(o2, Pos(1, 3), cr=0, dl=10, cp=-1, val=25, tp=1))
+210611-233300: Sending OrderMessage(game=1415277888, order=O(o4, Pos(8, 3), cr=0, dl=7, cp=-1, val=20, tp=0))
+210611-233300: Received TakeOrderMessage(game=1415277888, order=o1, broker=Some_Id)
+210611-233300: Sending TakeOrderConfirm(game=1415277888, order=o1, broker=Some_Id, SUCCESS)
+210611-233300: Received TakeOrderMessage(game=1415277888, order=o4, broker=Some_Id)
+210611-233300: Sending TakeOrderConfirm(game=1415277888, order=o4, broker=Some_Id, SUCCESS)
+210611-233305: Sending OrderMessage(game=1415277888, order=O(o3, Pos(0, 5), cr=5, dl=15, cp=-1, val=10, tp=1))
+210611-233305: Sending OrderMessage(game=1415277888, order=O(o5, Pos(8, 1), cr=5, dl=13, cp=-1, val=20, tp=0))
+210611-233305: Sending OrderMessage(game=1415277888, order=O(o6, Pos(9, 1), cr=5, dl=11, cp=-1, val=20, tp=0))
+210611-233305: Sending OrderMessage(game=1415277888, order=O(o7, Pos(4, 7), cr=5, dl=10, cp=-1, val=100, tp=3))
+210611-233308: Sending OrderCompleted(game=1415277888, order=o4, FAIL, reward=-20)
+210611-233311: Sending OrderCompleted(game=1415277888, order=o1, FAIL, reward=-10)
+210611-233321: Sending WorkerScoreMessage(game=1415277888, worker=w1, winner?=true, orders completed=0)
+210611-233321: Sending WorkerScoreMessage(game=1415277888, worker=w2, winner?=false, orders completed=0)
+210611-233321: Sending EndGameMessage(game=1415277888, broker=Some_Id, winner?=true, reward=-30,00)
+

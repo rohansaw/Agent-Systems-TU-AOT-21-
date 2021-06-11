@@ -1,0 +1,24 @@
+5 5 45 3 1 2
+w....
+.....
+w...o
+###..
+o#o..
+o1 0 4 5 35 100 0
+o2 4 2 10 35 10 3
+o3 2 4 15 45 10 0
+w1 0 0 999
+w2 0 2 999
+
+
+Bevor der Broker eine Order annimmt, wird abgeschätzt, wie lange jeder Worker bräuchte,
+um diese Order zu erledigen. Da der Broker die genaue Position der Worker nicht kennt,
+benutzt er die Position der letzten Order, die ein Worker absolviert hat.
+
+Ist mindestens ein Worker in der Nähe (d. h. könnte die Order vor Ablauf der Deadline erreichen
+und einen Reward > 0 erzielen), wird die Order angenommen. Somit werden o1 und o2 direkt eliminiert:
+o1 ist topologisch nicht erreichbar und o2 hat eine so große turnPenalty, dass es sich
+für beide Worker nicht lohnen würde.
+
+Derselbe Check wird auch vor dem Start des iCNP durchgeführt: Da w1 zu weit weg ist, wird ein
+CallForProposals nur an w2 geschickt, welcher mangels weiterer Orders ein Proposal zurückschicken wird.

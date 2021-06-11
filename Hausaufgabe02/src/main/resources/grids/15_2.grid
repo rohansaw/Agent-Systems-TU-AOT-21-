@@ -1,0 +1,46 @@
+9 7 100 14 1 4
+ow......o
+#########
+ow......o
+#########
+o...w...o
+#########
+oooowoooo
+o1  0 0 0 100 70 1
+o2  8 0 0 100 100 4
+o3  0 2 0 100 70 1
+o4  8 2 0 100 100 6
+o5  0 4 0 100 30 1
+o6  8 4 2 100 100 5
+o7  3 6 0 3  10 0
+o8  5 6 0 6  10 0
+o9  2 6 0 10 10 0
+o10 6 6 0 15 10 0
+o11 1 6 0 21 10 0
+o12 7 6 0 28 10 0
+o13 0 6 0 36 10 0
+o14 8 6 0 45 10 0
+w1 1 0 999
+w2 1 2 999
+w3 4 4 999
+w4 4 6 999
+
+################################################################################################
+Dokumentation
+
+Es werden 4 getrennte Fälle betrachtet (die Worker können jeweils nur die Order in ihrem Bereich machen):
+- Fall 1: (w1,o1,o2)
+    - Der Worker muss sich entscheiden welche Reihenfolge besser ist. In diesem Fall sollte zuerst o1 und dann o2 erledigt werden
+    - Bester Score für diesen Worker ist 131 (Falls zuerst o2 und dann o1 ist der Score 126)
+- Fall 2: (w2,o3,o4)
+    - Der Worker muss sich entscheiden welche Reihenfolge besser ist. In diesem Fall sollte zuerst o4 und dann o3 erledigt werden
+    - Bester Score für diesen Worker ist 112 (Falls zuerst o3 und dann o4 ist der Score 109)
+- Fall 3: (w3,o5,o6)
+    - Der Worker ist auf dem Weg zu o5 (links) wenn o6 angekündigt wird. Für einen optimalen score ignoriert der Worker o5 und geht erst zu o6.
+    - Bester Score für diesen Worker ist 83 (Falls der Worker doch zuerst zu o5 geht, und danach o6 macht, ist der Score 71)
+- Fall 4: (w4,o7-14)
+    - der Worker muss zick-zack laufen um die Order alle erledigen zu können. Also in der Reihenfolge o7,08,...,o14.
+    - Bester Score für diesen Worker ist 80
+
+Somit ist der beste Score der erreichbar ist: 406.
+Alle Order sind erreichbar, von daher besteht kein Interessenskonflikt zwischen Broker der Score maximieren will und Worker der die Anzahl erledigter Order maximiert.

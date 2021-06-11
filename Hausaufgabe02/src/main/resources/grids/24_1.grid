@@ -1,0 +1,38 @@
+6 4 10 2 1 2
+w.....
+......
+.....o
+.o.w..
+o1 1 3 0 6 10 1
+02 5 2 0 6 10 1
+w11 0 0 999
+w12 3 3 999
+
+Wir haben dieses Grid erstellt, um das Verhalten  des Brokers hinsichtlich des iCNP zu beurteilen.
+Beide Worker versuchen so viele Order wie möglich zu erfüllen und dabei die als erstes angekommene Nachricht zu priorisieren.
+Da der Broker beider Orders gleichzeitig anbietet, werden auch beide gleichzeitig verhandelt.
+Falls Order 1 zeuerst ankommt:
+Für Order 1 bekommt der Broker von w1 das Angebot 5 (4 Schritte + Bestätigung) und von w2 das Angebot 3 (2 Schritte + Bestätigung).
+Für Order 2 bekommt der Broker von w1 das Angebot 11 (5 Schritte zu o1 + 5 Schritte zu o2 + Bestätigung) und von w2 das Angebot 9 (3 Schritte o1 + 5 Schritte zu o2 + Bestätigung).
+Der Broker nimmt das Angebot für Order 1 von w2 an und rejected das von w1. W2 schickt darauf hin sein Definitives Angebot mit dem gleichen Wert.
+Für Order 2 stellt ihn keines der beiden Ergebnisse zufrieden, weshalb er beiden ein Reject schickt und ein verfeinertes Call for Proposal schickt.
+Worker 2 wird da er nun da bereits ein Accept für Order 1(nicht definitiv) hat und Order 1 priorisiert, da sie zuerst ankam schickt er das selbe Angebot erneut.
+Worker 1 nimmt Order 1 aus seinem Plan und kann daher ein besseres Angbot für Order 2 machen mit einem Wert von 8.
+Der Broker rejected allerdings auch diese Angebote , da beide nicht schnell genug sind und schickt das definitve Accept für o1, da w1 kein besseres Angebot stellt. (Wir gehen davon aus,dass eine nicht mögliche Aufgabe anzunehmen teurer ist, als sie gar nicht auszuführen)
+Somit hat nur Worker 2 eine Order bekommen, was in diesem Fall nicht ganz optimal ist. ({},{o1})
+
+Falls Order 2 zuerst ankommt:
+Für Order 2 bekommt der Broker von w1 das Angebot 8 (7 Schritte + Bestätigung) und von w2 das Angebot 4 (3 Schritte + Bestätigung).
+Für Order 1 bekommt der Broker von w1 das Angebot 14 (8 Schritte zu o1 + 5 Schritte zu o2 + Bestätigung) und von w2 das Angebot 10 (4 Schritte o1 + 5 Schritte zu o2 + Bestätigung).
+Der Broker nimmt das Angebot von w2 für Order 2 an und rejected das von w1.
+Für Order 1 rejected der Broker beide Angebote, da diese nicht vor der Deadline ankommen.
+W2 schickt darauf hin sein Definitives Angebot (O2) mit dem gleichen Wert und Der Broker akezeptiert dieses,da w1 kein besseres Angebot stellen kann.
+Daraufhin schickt der Broker ein verfeinertes CFP für Order 1 an beide Worker, woraufhin ihm  Worker 1 ein Angebot von 5 stellt und Worker das selbe von 10.
+Der Broker akzeptiert nun das Angebot von Worker 1 und rejected das von Worker 2. Worker 1 sendet das definitive Angebot für Order 1.
+Da keine bessere Angebote kommen, schickt der Broker das Definitive Accept für beide Offers an die jeweiligen Worker.
+Dies ist der optimale Fall. ({o1},{o2})
+
+
+
+
+

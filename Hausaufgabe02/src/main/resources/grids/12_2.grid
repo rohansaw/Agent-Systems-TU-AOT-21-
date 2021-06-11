@@ -1,0 +1,50 @@
+7 7 15 6 1 2
+...o...
+....o..
+......w
+...o...
+#####..
+o.w.###
+..o..#o
+o1 4 1 0 10 5 1
+o2 3 0 1 10 8 1
+o3 3 3 4 29 15 6
+o4 6 6 1 100 15 1
+o5 0 5 0 10 4 5
+o6 2 6 1 20 7 3
+w1 6 2 999
+w2 2 5 999
+
+Das Grid prüft Broker und Worker bei problematischen Fällen.
+Es wird geschaut, ob der Broker das Verhältnis von Value zu 
+turnPenatly betrachtet. Zusätzlich wird getestet ob eine unerreichbare
+Order von Workern oder Broker angenommen wird.
+
+Situationen/ Szenarien des iCNP:
+Szenario_0:
+Order o4 ist von Obstacles eingebaut und kann nicht erreicht werden. 
+Der Broker sollte also im Prozess kein Angebot von Seiten der Worker erhalten 
+und die order ablehnen. Vorausgesetzt die Worker haben eine Wegfindung implementiert 
+und der Broker hat die Positionen der Obstacles an die Worker weitergegeben.
+
+Szenario_1:
+Worker w1 nimmt die Order o1 und o2. Die Order o3 hat zwar einen hohen Value aber 
+auch einen hohen turnPenalty und hohe Deadline.
+Die Order ist für den Worker w1 bis zur Deadline sicher zu schaffen. 
+Aber der Value für den Broker wäre aufgrund des hohen turnPenalty negativ. 
+Daher sollte der Broker die Order o3 ablehnen.
+
+Szenario_2:
+Der Worker w2 nimmt Order o5 an und danach Order o6,
+Beide Order o5 und o6 sind für den Worker W2 innerhalb der Deadline schaffbar. 
+Allerdings bringt o5 aufgrund des turnPenalty einen Value von 0 und o6 einen 
+verringerten Value da erst o5 bearbeitet wurde.
+
+Szenario_3:
+Der Broker lehnt Order o5 ab.
+Die Order o6 wird angenommen und von Worker w2 direkt abgeholt. 
+Durch den geringeren Zeitverlust bringt die Order o6 einen höheren Value.
+In diesem Fall wäre es also für den Broker besser die 0-Value Order abzulehnen.
+
+
+

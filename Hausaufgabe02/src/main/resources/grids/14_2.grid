@@ -1,0 +1,25 @@
+10 10 50 7 1 5
+o........w
+##########
+o.......o#
+........w#
+.........#
+.....o...#
+.....o..w#
+.w.......#
+.o.......#
+o.......w#
+o1 0 0 0 20 10 0
+o2 0 2 0 20 30 0
+o3 8 2 10 25 40 2
+o4 5 5 20 23 15 1
+o5 6 5 22 55 50 0
+o6 0 8 25 45 55 3
+o7 0 9 26 77 5 0
+w1 9 0 999
+w2 8 3 999
+w3 8 6 999
+w4 1 7 999
+w5 8 9 999
+
+Dies ist eine random Map ohne speziellen Fokus auf ein zu testendes Verhalten. Die Orders sind so gelegt, dass die Worker eine neue Task erhalten können, die auf dem Weg liegt und erledigt werden kann.

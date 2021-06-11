@@ -1,0 +1,39 @@
+3 6 10 5 1 1 
+w.oooo
+......
+..o...
+o1 2 0 0 10 10 1
+o2 3 0 0 10 10 1
+o3 4 0 4 10 10 1
+o4 5 0 4 10 10 1
+o5 2 2 4 10 100 1
+w1 0 0 999
+
+Ein simples Grid zum testen des Grundkonflikts zwischen Broker(hoher Value) und Worker(viele Order).
+
+Der Worker würde es immer bevorzugen mehr Order zu erfüllen, 
+und verzichtet im Normalfall auf die, für den Broker, weitaus wertvollere Order o5 
+zugunsten der zwei Order o3 und o4.
+Der Broker hat ein Interesse daran die Wertvollere Order o5 erledigt zu bekommen,
+daher muss er sich eine Taktik überlegen wie der Worker auf die Order o5 "gelenkt" werden kann.
+
+Strategien für Broker/ Szenarien des iCNP:
+Szenario_0:
+Broker ohne besondere Taktik 
+Worker erledigt Order o1, o2, o3, o4 und ignoriert o5
+Value positiv aber gering, Worker erledigt vier Order
+
+Szenario_1: 
+Broker lehnt die Order o3 und o4 direkt ab, sodass Worker o5 erledigt
+Value am höchsten, drei Order abgeschlossen
+
+Szenario_2:
+Der Broker verschärft die Deadlines für o3 und o4,
+sodass diese unschaffbar für den Worker und damit zugunsten o5 abgelehnt werden.
+value hoch, drei Order abgeschlossen
+
+Szenario_3: 
+Zurückhalten von o3 und o4, bis o5 bereits von einem worker angenommen wurde
+Value hoch, drei Order abgeschlossen
+
+

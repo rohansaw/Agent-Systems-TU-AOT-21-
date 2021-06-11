@@ -1,0 +1,51 @@
+10 10 35 5 1 5
+w........w
+....o.....
+....w.....
+..........
+.o........
+......o...
+..........
+...o......
+..........
+w...o....w
+o1 4 9 0 10 10 0
+o2 4 1 5 20 30 2
+o3 6 5 10 25 40 2
+o4 3 7 20 33 15 1
+o5 1 4 25 35 50 3
+w1 0 0 999
+w2 0 9 999
+w3 9 0 999
+w4 9 9 999
+w5 4 2 999
+
+
+Unsere Implementierungsidee:
+-   Die Worker senden im Proposel die zugehörige Order und ihre benötigte Anzahl an Schritten zum Ziel.
+-   Unsere Worker bewegen sich in eine Zufällige Richtung wenn sie keine Order haben.
+
+
+
+Mit diesem Grid wollen wir so einfach wie möglich die Grundlagen des iCNP testen.
+Wir betrachten ein sehr einfaches Spielszenarion ohne Hindernisse.
+
+
+Das erwartete Verhalte:
+
+Das Auswahlverfahren (iCNP) für Order1 wird vermutlich so ablaufen, dass wenn alle Worker ein proposal machen, der Broker 
+die 2 obersten Worker auf jeden Fall rejected. Ziemlich sicher wird er einen der Worker nehmen die auf Zeile 9 spawnen.
+Außer er braucht mehr als 2 Runden für sein iCNP und es tritt der Fall ein, dass sich die untern Worker in diesen 2 Runden 
+durch die zufälligen Bewgungen von der Order entfernen, also im worst-case ihren Weg zur Order von 4 auf 6 erhöhen 
+und der mittler Worker der auf Zeile 2 spawned in diesen 2 Runden sich zur Order bewegt, also im best-case seinen Weg 
+von 7 auf 5 reduziert. 
+Dann wäre es optimal wenn der Broker den Worker von Zeile 2 die Order zuteilt.
+
+
+Für die weitern Orders gilt das selbe Dilemma. Während das Auswahlverfahren (iCNP) läuft können sich die Worker von der Order 
+entfernen oder nähern. Damit kann sich der Weg zur Order im neuen Proposel vom gleichen Worker verbessern oder verschlechtern.
+Auf diese Änderungen sollte der Broker reagieren und seine Entscheidungen anpassen.
+
+
+Die Erkenntnis sollte sein, dass der Broker die zufälligen Bewegungen der Worker in jeder Iteration des iCNP wahrnimmt und zu 
+seinem Vorteil die Auswahl des besten Workers dynamisch anpasst.

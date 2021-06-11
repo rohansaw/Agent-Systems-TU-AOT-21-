@@ -1,0 +1,23 @@
+5 5 50 2 1 2
+ww...
+.#...
+.#..o
+.####
+....o
+o1 4 2 5 50 10 0
+o2 4 4 5 50 100 0
+w1 0 0 999
+w2 1 0 999
+
+
+In diesem Beispiel geht es um die unterschiedliche Funktionsweise von Broker und Worker:
+Es werden zwei Orders im ersten Turn gestartet und vom Broker angenommen. Der Broker startet
+zwei CallForProposals gleichzeitig, für jede Order einen.
+
+Obwohl o2 dem Broker einen besseren Reward einbringen würde, bevorzugen beide Worker o2,
+da der Weg kürzer ist und so eine größere Chance besteht, möglichst viele Orders abzuarbeiten.
+Beide Worker werden also ein Proposal für o1 schicken und ein Refusal für o2.
+
+Spätestens nach der nächsten Iteration sollte der Broker dann den CallForProposals soweit
+einschränken, dass nur noch einer der Worker mithalten kann und letzten Endes doch jedem
+Worker eine Order zugeteilt wird.

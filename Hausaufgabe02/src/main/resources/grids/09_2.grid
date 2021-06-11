@@ -1,0 +1,54 @@
+5 5 100 3 1 2
+....o
+.###o
+w###w
+.###.
+o....
+o1 0 4 1 10 100 0
+o2 4 0 1 20 100 0
+o3 4 1 2 4 100 0
+w1 0 2 999
+w2 4 2 999
+
+Beschreibung:
+w1 erhält Order1 und w2 erhält Order2 und Order3.
+Hier zeigen wir wie Worker durch das Überschätzen der Deadline,
+neue Orders auf bestehenden Pfaden aufnehmen können.
+
+Beispielhaft, der Nachrichtenaustausch:
+
+1. Server Zyklus
+Order(o1, 1, 10), Order(o2, 1, 20)
+
+-> cfp(o1, 1, 10)
+<- prop(w1, o1,  6)
+<- prop(w2, o1, 8)
+
+-> cfp(o2, 1, 20)
+<- prop(w1, o2, 16)
+<- prop(w2, o2, 18)
+
+-> cfp(o1, 1, 5)
+<- prop(w1, o1, 5)
+-> accept(w1, o1, 5)
+-> reject(w2, o1)
+
+-> cfp(o2, 1, 15)
+<- prop(w1, o2, 13)
+<- prop(w2, o2, 9)
+
+-> cfp(o2, 1, 8)
+<- prop(w2, o2, 5)
+
+2. Server Zyklus
+Order(o3, 2, 4)
+
+-> cfp(o3, 2, 4)
+<- prop(w2, o3, 3)
+-> accept(w2, o3)
+
+
+
+
+
+

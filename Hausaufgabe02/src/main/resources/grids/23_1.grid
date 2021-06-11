@@ -1,0 +1,74 @@
+5 3 15 2 1 2
+...o.
+.#w.o
+w#...
+o1 4 1 5 15 15 3
+o2 3 2 5 15 10 1
+w1 2 1 999
+w2 0 0 999
+
+Kommentar
+Wir benutzen dieses einfache Grid zur Illustration unserer ICNP-Implementierung
+sowie zur Beschreibung eines exemplarischen Verhaltens von Broker und Workern.
+Ferner ist hier für den Reward des Brokers die Auktionierungsreihenfolge der Order
+wichtig. 
+Der Maximalwert der Nutzenfunktion für den Broker beträgt max_reward(o1) +
+max_reward(o2) = 7  +  6 = 8, diese kann auf diesem Grid allerdings nicht erreicht
+werden. Falls w1 zuerst o2 und danach o1 abarbeiten will, ist o1 bis dahin fast
+vollständig decayed und der Broker würde sogar einen negativen Reward erfahren.
+Umgekehrt ist die andere sequentielle Reihenfolge, dass w1 zuerst o1 und dann o2
+abarbeitet optimal. Hier würde der Broker den maximalen Reward für o1 erhalten
+und einen besseren Reward für o2 als wenn der entfernte worker w2 diesen
+bearbeitete.
+Aus der Perspektive von jeweils w2 und w1 wäre die maximale Punktzahl 
+jeweils 2. Allerdings impliziert dies dass einer der beiden Worker leer
+ausginge, wenn der jeweils andere sein persönliches Ziel erreichte.
+
+Ablauf einer konkreten iCNP-Auktion
+
+Angenommen, o1 wird zuerst ausgeschrieben. Dann initialisiert
+der Broker mit rfp(o1, w1, 3), rfp(o1, w2, 3) die iCNP-Instanz.
+Die Deadline von 3 ergibt sich hier aus größtmöglichen Schrittzahl, die
+für einen gegebenen Order noch einen positiven Reward liefert. Es
+ergibt aus Broker-Perspektive keinen Sinn direkt die minimale Deadline zuerst
+auszuschreiben, da der Broker dann Gefahr läuft, dass kein Worker diesen Order
+annimmt. Wie bei einer regulären Auktion schreibt der Broker also dasjenige
+Angebot aus, dass ihm noch einen Gewinn für einen jeweiligen Order liefert.
+Die Worker antworten nun auf das rfp. Es liegt im Interesse der Worker,
+die Anzahl an bearbeiteten Order zu maximieren. Deswegen versehen wir die
+Angebotsfunktion der Worker mit einem Parameter, der in Abhängigkeit 
+von laufender Runden in einer iCNP-Instanz sowie der globalen erfahreren Rejects
+die Kompetitivität der Worker erhöhrt bzw. vermindert. So bieten die Worker
+am Anfang eine größere Zeit als die minimale Bearbeitungszeit. Hiermit "spekulieren" die Worker
+u.a. darauf, dass eventuell unterwegs erscheinende Order noch bearbeitet werden
+können, da sie mehr Zeit zur Bearbeitung zu Verfügung haben. 
+Wie bei einer herkömmlichen Auktion versuchen die Worker also, einen für sich
+möglichst günstigen Preis zu bekommen. 
+Kommt ein Worker in die nächste
+Runde, verbessert der Worker ein Angebot inkrementell. Dies bedeutet auch,
+dass Worker, die mehrere Rejects erfahren haben, anschliessend deutlich bessere
+Angebote machen, die sich schrittweise dem bestmöglichen Angebot annähern.
+w1 antwortet mit proposal(o1, 3), w2 mit proposal(o1, 7). Der Broker verfeinert
+nun sein Angebot mit rfp(o1, w1, 2). w1 verändert seinen Parameter, da eine
+Iteration stattfindet, und antwortet mit proposal(o1, 2). Der Broker verfeinert
+sein Angebot mit rfp(o1, w1, 1) und w1 antwortet mit proposal(o1, 2). Dieses 
+proposal ist nicht gültig und w1 erhält den Zuschlag aus der vorherigen Runde.
+Auch w2 wird rejected und verändert seinen Parameter.
+Nun wird o2 ausgeschrieben. Der Broker schickt rfp(o2, w1, 4) und rfp(o2, w2,
+4). Die Worker antworten (unter Berücksichtigung der Bearbeitungzeit für bereits
+angenommene Order) für w1 mit proposal(o2, 4) und für w2 mit (o2, 5), was in
+diesem Fall durch den veränderten Parameter bereits dem bestmöglichen Angebot
+für w2 für o2 entspricht. Erneut erhält w1 den Zuschlag. Der Broker und einer
+der Worker erreichen ihr optimales Ergebnis.
+Angenommen nun, o2 wird zuerst ausgeschrieben. Es folgt rfp(o2, w1, 4), rfp(o2,
+w2, 4) und w1 proposal(o2, 4) und w2 proposal (o2, 6). w1 erhält den Zuschlag.
+Nun folgt rfp(o1, w1, 3) und rfp(o1, w2, 3) sowie die antworten proposal(o1, 5)
+und (o1, 7). Keiner der Worker erhält den Zuschlag da beide die Deadline nicht
+unterbieten können und ferner eine Erfüllung unter
+diesen Bedingungen keinen Reward für den Broker bedeutete. Der Score ist in
+diesem Fall für alle Parteien niedriger als im ersten Szenario.
+
+
+
+
+

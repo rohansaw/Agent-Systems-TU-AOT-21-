@@ -1,0 +1,40 @@
+10 10 30 4 1 2
+.........o
+..........
+..........
+w.........
+...o#.w...
+..........
+..o.......
+.####.....
+...o......
+..........
+o1 9 0 0 14 10 0
+o2 3 4 0 5 12 2
+o3 2 6 0 8 11 2
+o4 3 8 0 13 9 0
+w1 0 3 30
+w2 6 4 30
+
+#Hinweis: Bei der Berechnung der Angebote werden die Hindernisse miteinbezogen
+
+#Priorisierung nach Reward und Verlust: also nach der Reihenfolge o1-o4-o2-o3
+
+#Der Broker startet aine Auktion in der Reihenfolge o2-o3-o4-o1, also nach nur dem Reward.
+#Dann ehält der Broker für o2 die als bestes Angebot Distanz von 5, d.h. Der Broker könnte maximal einen Reward von 2 errreichen(12 - 2*5)
+#Für o3 entsprechend einen negativen Reward, aber für o1 und o4 gebe es keine Verluste und damit hätten o1 und o4 die höhste Priorität
+#Dann startet der Broker die Zuteilung nach der Reihenfolge: o1-o4-o2-o3
+
+#Alle Orders sind vom Anfang an verfügbar
+#Bei der ersten Iteration:
+#        w1: prop[(o1, 12), (o4, 27), (o2, 35), (o3, 38)]
+#        w2: prop[(o1, 7), (o4, 22), (o2, 30), (o3, 33)]
+#w2 bekommt den o1, weil 7<12
+#Broker startet einen cfp() nochmal und w1 weiß, dass o1 vergeben wurde
+#Bei der zweiten Iteration:
+#        w1: prop[(o4, 8), (o2, 16), (o3, 19)]
+#        w2: prop[(o4, 22), (o2, 30), (o3, 33)]
+#Ab hier weiß der Briker, dass es sich nicht mehr lohnt, o2 und o3 zuzuteilen, weil sie sowieso keinen positiven Reward mehr haben
+
+
+#Im Vergleich zu Grid1 zeigt sich, dass mit Hinzufügen von Werteverlusten auch die Priorisierung der Orders geändert wird

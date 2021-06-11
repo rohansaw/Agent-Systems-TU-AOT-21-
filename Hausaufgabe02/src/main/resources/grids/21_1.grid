@@ -1,0 +1,24 @@
+5 5 10 3 1 2
+....o
+.w...
+.o...
+.o...
+.w...
+o1  4 0 0 6 10 1
+o2  1 2 0 6 10 0
+o3  1 3 0 6 10 0
+w1  1 1 999
+w2  1 4 999
+
+//In an optimal world w1 would walk towards o1 and w2 takes o2 and o3
+//by the time w1 reaches o1, w2 has already reached o2 and o3.
+//The problem is that the agents dont work together,
+//so w1 will take o2 then o1 and w2 will take o3.
+//Because of that, the broker will not get the maximum amount of points
+
+//for your viewing pleasure:
+.   .   .   .   o1
+.   w1  .   .   .
+.   o2  .   .   .
+.   o3  .   .   .
+.   w2  .   .   .

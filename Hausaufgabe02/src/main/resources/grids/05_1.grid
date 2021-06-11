@@ -1,0 +1,59 @@
+9 11 20 5 1 2
+..o.....o
+.........
+....w....
+....o....
+.........
+..o..o...
+.........
+.........
+....w....
+.........
+.........
+o1 2 0 0 12 10 0
+o2 8 0 0 2 10 0
+o3 4 3 1 15 10 1
+o4 2 5 3 16 10 10
+o5 5 5 4 6 30 0
+w1 4 2 999
+w2 4 8 999
+
+================================================================
+
+Motivation zur Erstellung des Grids:
+
+Dieses Grid zeigt auf, unter welchen Bedingungen der Broker eine Order vom Server nicht annimmt.
+Außerdem wird hierbei die Workerstrategie in ihren Vorteilen beleuchtet.
+
+================================================================
+
+Brokerverhalten:
+
+In seinen iCNP-Instanzen dekrementiert der Broker nach erhalt der Proposals die Deadline der ausgeschriebenen Order, bis nur noch ein Bewerber ein entsprechendes Angebot schicken kann.
+
+In Runde 0 erhält der Broker die OrderMessages o1 und o2.
+o1 nimmt er an und startet er eine iCNP-Instanz. w1 bekommt das Assignment o1 mit einer Deadline von 10.
+Für o2 stellt er fest, dass diese Order von keinem Worker innerhalb der Deadline erreichbar ist, und lehnt diese ab (d.h. er schickt keine TakeOrderMessage an den Server).
+
+In Runde 1 erhält der Broker OrderMessage o3.
+Er nimmt die Order an startet eine iCNP-Instanz, für die w1 das Assignment erhält, da er ein besseres Angebot als w2 schicken kann (mehr dazu im Abschnitt Workerverhalten).
+
+In Runde 3 erhält der Broker OrderMessage o4.
+Diese lehnt er ab, da die TurnPenalty sehr hoch im Verhältnis zum Reward ist.
+
+In Runde 5 erhält der Broker OrderMessage o5.
+Er nimmt die Order an und startet eine iCNP-Instanz. Für diese erhält w2 das Assignment, da er das bessere Proposal schicken kann.
+
+================================================================
+
+Workerverhalten:
+
+Bei erhalt des CallForProposals schicken beide Worker, sofern sie die Order innerhalb der Deadline erreichen können, stets max(shortestPath,Deadline-1) als Proposal an den Broker.
+Solange die Worker keine Orders verfolgen, laufen sie in Richtung der Spielfeldmitte.
+
+Da in Runde 0 w2 mindestens 11 Schritte benötigt, um o1 zu erreichen, kann nur w1 ein Proposal mit cost = 10 schicken.
+
+In Runde 1 befindet sich w1 nah genug an o2, um seinen Pfad so zu planen, dass er erst o2 und danach o1 innerhalb der ausgeschriebenen Deadline erreichen kann.
+Da er sich näher an o2 befindet als w2, kann er ein besseres Proposal schicken und bekommt er o2 zugewiesen.
+
+In Runde 5 befindet sich w2 dank der Strategie, zur Spielfeldmitte zu laufen, näher an der nun ausgeschriebenen Order o5 als w1. Dadurch bekommt er das assignment.

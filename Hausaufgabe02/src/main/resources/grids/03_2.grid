@@ -1,0 +1,35 @@
+10 10 25 2 1 2
+#........o
+....#.....
+..........
+..........
+o.....#...
+.....#....
+....#...#.
+#.........
+......#...
+w...#....w
+o1 9 0 0 12 15 1
+o2 4 0 5 20 20 1
+w1 9 9 100
+w2 0 9 100
+
+Warum wird dieses Grid gewählt haben?
+Unser Meinung nach kann man hier gut erkennen, ob die unterschiedlichen Interessen der Agenten umgesetzt werden. Die Order o1 ist für einen Worker umsetzbar,
+und da die Worker nur versuchen die Anzahl ihrer abgearbeiteten Orders zu maximieren, will er diese damit auch bearbeiten. Der Broker allerdings muss hier umsetzen,
+dass er versucht den Score zu maximieren, also muss er hier erkennen, dass o1 nicht abzuarbeiten ist, wenn man einen positiven Reward erhalten will.
+Order o2 testet dann nochmal einen Ablauf des Prokotolls, bei dem sich ein Abarbeiten der Order auch für den Broker lohnt, und wo demnach am Ende des Protokolls eine 
+Zuweisung der Aufgabe erfolgt. 
+
+Verhalten unserer Agenten:
+ für o1: Diese Order wäre mit Wissen über die Worker nicht rentabel abarbeitbar. Der Broker berechnet eine neue Deadline für o1, bis wann diese 
+         fertig sein müsste, um einen positiven Reward zu liefern(Value - Aufwand - Aufwand * Turnpenalty). Diese Deadline wird kleiner sein, als die minimale
+         Distanz eines des beiden Worker zu dieser Deadline, also kann keiner der Worker ein positives Proposal abgeben. Der Broker sollte die Order vom Server
+         nicht annehmen.
+ für o2: Diese Order wäre mit Wissen über die Positionen der Worker rentabel abarbeitbar. Der Broker berechnet eine neue Deadline für 02, bis wann diese 
+         fertig sein müsste, um einen positiven Reward zu liefern(Value - Aufwand - Aufwand * Turnpenalty). Diese Deadline wird in einem Call For Proposal an 
+         alle Worker geschickt. Worker w1 kann diese Deadline nicht erfüllen, also antwortet er negativ. Worker w2 kann die Order allerdings mit der gegebenen
+         Deadline abarbeiten, schickt also ein Proposal. Der Broker führt dann weitere Iterationen von iCNP durch, mit einer in jeder Iteration verringerten Deadline,
+         final sollte er aber immer w2 wählen, da dieser als einziger ein gültiges Proposal geschickt hat.
+
+

@@ -5,7 +5,6 @@ import de.dailab.jiactng.aot.gridworld.model.Order;
 import de.dailab.jiactng.aot.gridworld.model.Position;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class CFPGraph {
     class PathPosInsertionCost{
@@ -15,11 +14,13 @@ public class CFPGraph {
             this.index = index;
             this.cost = cost;
         }
+        public int getCost(){
+            return cost;
+        }
     }
 
     private final List<Node> nodes = new LinkedList<>();
     private final List<Node> acceptedNodes = new LinkedList<>();
-    private final HashMap<Node, List<Node>> edges = new HashMap<>();
     private final GridGraph gridGraph;
     private int turn;
     private List<Node> path = new ArrayList<>();
@@ -32,29 +33,17 @@ public class CFPGraph {
     }
 
     public int getBid(Order order, boolean accepted){
-        gridGraph.dijkstra(order.position);
-        Node node = new Node(order, accepted);
-        for(List<Node> l : edges.values()){
-            l.add(node);
-        }
-        edges.put(node, new LinkedList<>(nodes));
+        Node node = new Node(order);
         nodes.add(node);
         if(accepted) acceptedNodes.add(node);
         if(path.isEmpty()){
             path.add(node);
             return gridGraph.getPathLength(node.order.position, currentPos) + 1;
-        }else if(path.size() <= 5){
-            insertNode(node);
-            optimize();
-        }else{
+        }else {
             insertNode(node);
             optimize();
         }
         return pathTotalDist(node.order.position, path);
-    }
-
-    public void optimalSolution(Node node){
-
     }
 
     public void optimize(){ //local search with 2-opt
@@ -96,14 +85,15 @@ public class CFPGraph {
 
     private void insertNode(Node node){
         // insert new node between nodes with min edge weight
-        PriorityQueue<PathPosInsertionCost> pathPos = new PriorityQueue<PathPosInsertionCost>(Comparator.comparing(o -> o.cost));
+        Comparator<PathPosInsertionCost> comp = Comparator.comparing(PathPosInsertionCost::getCost);
+        PriorityQueue<PathPosInsertionCost> pathPos = new PriorityQueue<PathPosInsertionCost>(comp);
         for(int i = 0; i <= path.size(); i++){
             PathPosInsertionCost ppic = new PathPosInsertionCost(i, 0);
             if(i == 0){
                 ppic.cost = gridGraph.getPathLength(node.order.position, currentPos)
                         + gridGraph.getPathLength(path.get(i).order.position, node.order.position)
                         - gridGraph.getPathLength(path.get(i).order.position, currentPos);
-            }else if(i == path.size()){
+            }else if(i == path.size() && i != 0){
                 ppic.cost = gridGraph.getPathLength(node.order.position, path.get(path.size() - 1).order.position);
             }else{
                 ppic.cost = gridGraph.getPathLength(node.order.position, path.get(i - 1).order.position)
@@ -114,12 +104,13 @@ public class CFPGraph {
         }
         PathPosInsertionCost ppic = pathPos.poll();
         path.add(ppic.index, node);
-        //pathPos is never empty, because at index = path.size()
-        //the new Order doesn't interfere with accepted orders
+        //try as long as new Order doesn't interfere with accepted orders
         while (!testAcceptedOrderDeadlines(path)){
             path.remove(ppic.index);
-            if(pathPos.isEmpty())
+            if(pathPos.isEmpty()){
+                path.add(node);
                 break;
+            }
             ppic = pathPos.poll();
             path.add(ppic.index, node);
         }
@@ -137,8 +128,12 @@ public class CFPGraph {
 
     private boolean testAcceptedOrderDeadlines(List<Node> nodes){
         //return true if all orders are reachable within deadline
-        for(Node n : acceptedNodes){
-            if(pathTotalDist(n.order.position, nodes) > n.order.deadline - turn)
+        int dist = 0;
+        Position pos = currentPos;
+        for(Node n : nodes){
+            dist += gridGraph.getPathLength(n.order.position, pos) + 1;
+            pos = n.order.position;
+            if(dist > n.order.deadline - turn && acceptedNodes.contains(n))
                 return false;
         }
         return true;
@@ -147,23 +142,12 @@ public class CFPGraph {
     public void removeNode(Order order){
         Optional<Node> node = nodes.stream().filter(n -> n.order.id.equals(order.id)).findFirst();
         if(node.isPresent()){
-            edges.remove(node.get());
-            for(List<Node> l : edges.values()){
-                l.removeIf(n -> n.order.id.equals(node.get().order.id));
-            }
             nodes.remove(node.get());
             acceptedNodes.remove(node.get());
             path.remove(node.get());
         }
     }
 
-    public void setNodeToAccepted(Order order){
-        Optional<Node> node = nodes.stream().filter(n -> n.order.id.equals(order.id)).findFirst();
-        if(node.isPresent()){
-            node.get().accepted = true;
-            acceptedNodes.add(node.get());
-        }
-    }
 
     public Order getOrder(){
         if(path.isEmpty())

@@ -1,0 +1,29 @@
+10 10 30 5 1 3
+.o........
+.........o
+..####.##.
+.....w..#.
+.o......#o
+.......o.w
+..w.......
+..........
+..........
+..........
+o1 1 0 5 25 1 25
+o2 9 1 5 25 3 45
+o3 1 4 7 10 3 60 
+o4 7 4 9 18 2 24
+o5 9 3 13 13 1 6
+w1 5 3 999
+w2 9 5 999
+w3 2 6 999
+
+
+Das Grid soll dazu dienen das Verhalten des Brokers und der Agenten zu analysieren wenn zwei Orders gleichzeitig in
+einer Runde eintreten. O1 und O2 werden gleichzeitig gestellt, haben gleiche Deadlines haben und verschiedene Werte und Penalty.
+
+Danach trift die Order O3 in Runde 7 ein. Anhand dieser können wir das Verhalten des Brokers und Agenten sehen, wenn
+es sich für den Agent lohnt sein Route erneut zu plannen, da es einen freien Worker gibt, der die gleiche Distanz hat.
+
+Danach trift die Order O4 im Runde 9 und O5 im Runde 13 ein. Hier kann man das Szenario sehen, indem es sich für den
+Broker lohnt, wenn ein Agent seine Route erneut plannt.

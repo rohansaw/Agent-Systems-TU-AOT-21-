@@ -1,0 +1,59 @@
+10 10 35 5 1 5
+w........w
+....o.....
+....w..#..
+..........
+.o#...#...
+......o...
+.........#
+...o#.....
+..........
+w.#.o....w
+o1 4 9 0 10 10 0
+o2 4 1 5 20 30 2
+o3 6 5 10 25 40 2
+o4 3 7 20 33 15 1
+o5 1 4 25 35 50 3
+w1 0 0 999
+w2 0 9 999
+w3 9 0 999
+w4 9 9 999
+w5 4 2 999
+
+
+Unsere Implementierungsidee:
+-   Die Worker senden im Proposel die zugehörige Order und ihre benötigte Anzahl an Schritten zum Ziel.
+-   Unsere Worker bewegen sich in eine Zufällige Richtung wenn sie keine Order haben.
+-   Der Worker erkennt das Hindernis erst, wenn er daran stößt und betrachtet es somit nicht von 
+    Anfang an in seiner Berechnung des Weges zur Order.
+
+
+Das Grid ist sehr ähnlich zum Szenario01 wobei hier noch einzelne Hindernisse hinzugefügt worden sind.
+Damit wollen wir untersuchen wie sich Hindernisse auf das Verhalten des iCNP auswirkt.
+
+In diesem Szenario treten Hindernisse nur einzeln auf.
+
+
+Das erwartete Verhalte:
+
+Wenn die erste Order erscheint, sind alle Worker noch zu haben und würden höchst Wahrscheinlich ein propose an 
+den Broker senden. Dieser Wertet die proposals aus und führt über mehrere Runden ein iteratives Auswahlverfahren
+(iCNP) für den aus seiner Sicht besten Worker aus. Er wählt diese anhand der Informationen die er von den Workern bekommt aus.
+Da sich die Worker ohne Order in unserer Implementierung in eine zufällige Richtung bewegen, kann der Broker in der ersten Runde 
+noch nicht sagen wer der beste Broker dafür ist, denn die Worker können sich im Worst-case auch von der Order weg bewegen, 
+oder sie erkennen durch ihrer Bewegung, dass ein Hinderniss vor ihnen ist, und somit erhöht sich deren Weg zur Order. 
+
+
+Die Schwierigkeit in diesem Grid liegt darin, dass wenn der Broker die Order einem Worker zuteilt von dem er glaubt, dass er 
+den kürzesten Weg zur Order hat, es jedoch sein kann, dass ein Hindernis auf dem Weg ist und der Worker es noch nicht erkennt
+und somit der eigentliche Weg zur Order höher ist als der berechnete.
+Im worst case sorgt dieses Hindernis dafür dass die Order nicht vor Deadline abgeschlossen wird. 
+Somit erhält der Broker nicht den erwarteten Reward.
+Da in diesem Grid die Hindernisse nur einzeln auftreten, kann der Broker die Deadline jeweils um 2 verschärfen um sicherzugehen,
+dass der Worker die Order erhält diese auch abschließt trotz Hindernis.
+
+
+Das Verhalten in diesem Szenario kann mit dem Szenario01 verglichen werden um die Auswirkung einzelner Hindernisse auf das iCNP des 
+Brokers zu untersuchen. 
+Wurde ein Hindernis in der Implementierung überhaupt berücksichtigt?
+Führt das iCNP noch zum erwarteten optimalen Ergebnis?

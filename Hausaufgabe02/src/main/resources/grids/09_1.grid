@@ -1,0 +1,20 @@
+10 10 100 1 1 1
+....#...#.
+.##.#.#...
+.##.#.####
+..........
+.###.####.
+.....#o.#.
+#.##.##.#.
+...#....#.
+##.####.#.
+.....w#...
+o1 6 5 1 21 100 0
+w1 5 9 999
+
+Dieses Beispiel prüft den Pfadalgorithmus, da o1 nur angenommen werden kann,
+wenn der kürzeste Weg genommen wird. Der kürzeste Weg von w1 zu o1 ist 20 Züge ( 19 Schritte + 1 Zyklus zum annehmen )
+
+-> cfp(o1, 1, 21)
+<- prop(w1, o1, 21)
+-> accept(w1, o1)

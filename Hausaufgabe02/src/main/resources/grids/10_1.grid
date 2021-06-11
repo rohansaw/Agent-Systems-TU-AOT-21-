@@ -1,0 +1,49 @@
+10 10 30 4 1 2
+.........o
+..........
+..........
+w.........
+...o#.w...
+..........
+..o.......
+.####.....
+...o......
+..........
+o1 9 0 0 14 6 0
+o2 3 4 0 5 12 0
+o3 2 6 0 8 11 0
+o4 3 8 0 13 7 0
+w1 0 3 30
+w2 6 4 30
+
+
+#Hinweis: Bei der Berechnung der Angebote werden die Hindernisse miteinbezogen
+
+#Priorisierung nach Reward: also nach der Reihenfolge o2-o3-o4-o1
+
+#Der Grid ist so konstruiert, dass jeder Worker maximal zwei Orders übernehmen kann,
+#Ohne, dass Orders verloren gehen.
+#Alle Orders sind vom Anfang an verfügbar
+#Bei der ersten Iteration:
+#        w1: prop[(o2, 4), (o3, 7), (o4, 14), (o1, 28)]
+#        w2: prop[(o2, 5), (o3, 8), (o4, 15), (o1, 29)]
+#w1 bekommt den o2, weil 4<5
+#Broker startet einen cfp() nochmal und w2 weiß, dass o2 vergeben wurde
+#Bei der zweiten Iteration:
+#        w1: prop[(o3, 7), (o4, 14), (o1, 28)]
+#        w2: prop[(o3, 6), (o4, 13), (o1, 27)]
+#w2 bekommt den o3, weil 6<7
+#Broker startet einen cfp() nochmal mit dem neuen Zustand, dass w1 o1 hat und w2 o3 hat.
+#Bei der dritten Iteration:
+#        w1: prop[(o4, 12), (o1, 28)]
+#        w2: prop[(o4, 13), (o1, 27)]
+#Hier soll der Broker o4 w1 geben, da 12<13, aber dann wird o1 nicht mehr in der vorgegebenen Deadline erreicht.
+#Das kann nur erreicht werden, wenn w1 direkt zu o1 geht. Deshalb gibt der Broker den o4 w2, da er in der nächsten
+#Iteration sich besseres Ergebnis wünscht.
+# Also bekommt w2 auch o4.
+#Broker startet einen cfp() zum vierten Mal:
+#        w1: prop[(o1, 14)]
+#        w2: prop[(o1, 27)]
+#Broker gibt o1 w1 und somit in der vorgegebenen Zeit alle Orders erreicht. Das wäre der Maximale Rekord für Broker
+
+#Andererseits bekommt bei der dritten Iteration w1 den o4, und wird somit o1 nicht mehr erreicht.

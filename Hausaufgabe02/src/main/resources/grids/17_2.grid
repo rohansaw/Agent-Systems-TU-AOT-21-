@@ -1,0 +1,36 @@
+20 10 100 6 1 4
+..................#o
+w...o.............##
+...................o
+....o...............
+....................
+....................
+....................
+.........###########
+....w....#........o.
+....w....#.o......w.
+o1 18 8 42 80 10 1
+o2 11 9 40 80 10 0
+o3 4 1 0 40 30 1
+o4 4 3 0 50 20 0
+o5 19 2 5 50 10 0
+o6 19 0 0 50 60 0
+w1 18 9 999
+w2 4 8 999
+w3 4 9 999
+w4 0 1 1
+
+Mit diesem Grid wollen wir sowohl das Verhalten des Brokers, als auch der Worker testen. Zum einen sieht man,
+dass unser Broker die Order o6 vom Server nicht anehmen wird, da sie aufgrund der Hindernisse von keinem der Worker
+erfüllt werden kann. Somit verhindert er das scheitern der Order und die damit verbundene Verringerung seines Scores.
+
+Zum anderen ist das Verhalten der Worker w2 und w3 interessant. Das Bieten um die Order o3 gewinnt w2. Während w2 nun
+aber auf dem Weg zu o3 ist, will der Broker die nächste Order o4 verteilen, für die nun auch Worker w2 am besten
+geeignet wäre. Hier sehen wir, dass unser Worker auch beim Erfüllen eines Auftrags noch mitbieten kann, in diesem
+Fall die Order erhält und noch vor o3 erfüllt.
+
+Unten rechts erscheinen in Periode 40 und 42 zwei Orders. Während o2 zuerst verteilt wird, ist o1 aufgrund der
+penalty_per_turn für den Broker und seinen Score wichtiger. Dem Worker ist das egal. Deshalb liefert unser Programm
+hier nicht die optimale Lösung.
+
+Worker w4 wird nicht an den Auktionen beteiligt, weil sein Tank fast leer ist.

@@ -1,0 +1,36 @@
+210611-233446
+GAME No. 853378210
+TURN 21/20
+Brokers
+B(Some_Id, workers=[W(w1, Pos(1, 1), 0), W(w2, Pos(6, 7), 0)], taken=[], completed=[], failed=[])
+Orders
+O(o1, Pos(4, 1), cr=0, dl=10, cp=-1, val=10, tp=1)
+O(o2, Pos(1, 3), cr=0, dl=10, cp=-1, val=25, tp=1)
+O(o4, Pos(8, 3), cr=0, dl=7, cp=-1, val=20, tp=0)
+O(o3, Pos(0, 5), cr=5, dl=15, cp=-1, val=10, tp=1)
+O(o5, Pos(8, 1), cr=5, dl=13, cp=-1, val=20, tp=0)
+O(o6, Pos(9, 1), cr=5, dl=11, cp=-1, val=20, tp=0)
+O(o7, Pos(4, 7), cr=5, dl=10, cp=-1, val=100, tp=3)
+	.	.	.	.	.	#	.	.	.	.
+	.	w1	.	.	.	#	.	.	.	.
+	.	.	.	.	.	#	.	.	.	.
+	.	.	.	.	.	#	#	.	.	.
+	.	.	.	.	#	.	.	#	.	.
+	.	.	.	.	.	.	.	#	.	.
+	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	w2	.	.	.
+	.	.	.	.	.	.	.	.	.	.
+	.	.	.	.	.	.	.	.	.	.
+
+210611-233425: Sending StartGameResponse(game=853378210, size=Pos(10, 10), workers=[W(w1, Pos(1, 1), 0), W(w2, Pos(6, 7), 0)], obstacles: 8)
+210611-233425: Sending OrderMessage(game=853378210, order=O(o1, Pos(4, 1), cr=0, dl=10, cp=-1, val=10, tp=1))
+210611-233425: Sending OrderMessage(game=853378210, order=O(o2, Pos(1, 3), cr=0, dl=10, cp=-1, val=25, tp=1))
+210611-233425: Sending OrderMessage(game=853378210, order=O(o4, Pos(8, 3), cr=0, dl=7, cp=-1, val=20, tp=0))
+210611-233430: Sending OrderMessage(game=853378210, order=O(o3, Pos(0, 5), cr=5, dl=15, cp=-1, val=10, tp=1))
+210611-233430: Sending OrderMessage(game=853378210, order=O(o5, Pos(8, 1), cr=5, dl=13, cp=-1, val=20, tp=0))
+210611-233430: Sending OrderMessage(game=853378210, order=O(o6, Pos(9, 1), cr=5, dl=11, cp=-1, val=20, tp=0))
+210611-233430: Sending OrderMessage(game=853378210, order=O(o7, Pos(4, 7), cr=5, dl=10, cp=-1, val=100, tp=3))
+210611-233446: Sending WorkerScoreMessage(game=853378210, worker=w1, winner?=true, orders completed=0)
+210611-233446: Sending WorkerScoreMessage(game=853378210, worker=w2, winner?=false, orders completed=0)
+210611-233446: Sending EndGameMessage(game=853378210, broker=Some_Id, winner?=true, reward=0,00)
+
