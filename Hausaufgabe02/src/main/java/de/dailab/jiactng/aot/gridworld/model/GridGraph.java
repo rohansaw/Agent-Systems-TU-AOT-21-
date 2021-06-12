@@ -103,7 +103,7 @@ public class GridGraph {
     public void dijkstra(Position from){
         int[][] dist = new int[height][width];
         Position[][] parent = new Position[height][width];
-        PriorityQueue<Position> Q = new PriorityQueue<>(Comparator.comparing(p -> dist[p.y][p.x]));
+
         for(int i = 0; i < height; i++){
             for(int j = 0; j < width; j++){
                 dist[i][j] = Integer.MAX_VALUE;
@@ -111,6 +111,7 @@ public class GridGraph {
             }
         }
         dist[from.y][from.x] = 0;
+        PriorityQueue<Position> Q = new PriorityQueue<>(Comparator.comparing(p -> dist[p.y][p.x]));
         Q.add(from);
 
         while (!Q.isEmpty()){

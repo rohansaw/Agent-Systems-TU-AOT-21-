@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 public class BrokerBean extends AbstractAgentBean {
 
 	public static String BROKER_ID = "Some_Id";
-	public static String GRID_FILE = "/grids/27_2.grid";
+	public static String GRID_FILE = "/grids/34_2.grid";
 
 	private BrokerState state = BrokerState.AWAIT_GAME_START;
 	private int turn;
@@ -133,8 +133,14 @@ public class BrokerBean extends AbstractAgentBean {
 
 	private void handleProposal(Proposal msg){
 		HashMap<String, Integer> table = bids.get(msg.order.id);
-		if(table == null) //
+		
+		if(table == null){ // other worker got order or takeOrder deadline reached
+			ProposalReject rej = new ProposalReject();
+			rej.order = msg.order;
+			rej.gameId = gameId;
+			sendMessage(workerAddresses.get(msg.worker.id), rej);
 			return;
+		}
 		if(msg.refuse)
 			table.put(msg.worker.id, Integer.MAX_VALUE);
 		else
@@ -269,29 +275,6 @@ public class BrokerBean extends AbstractAgentBean {
 		return null;
 	}
 
-	private void resendCFP(){
-		//resend cfp to all workes, that not responded
-		CallForProposal cfp = new CallForProposal();
-		for(List<Order>l : receivedOrders){
-			for(Order o : l){
-				if(bids.get(o.id) != null && bids.get(o.id).size() != workers.size()){
-					HashMap<String, Integer> table = bids.get(o.id);
-					if(table != null) {
-						int bestBid = Collections.min(table.values());
-						for (Worker w : workers) {
-							if (!table.containsKey(w.id)) {
-								cfp.order = o;
-								cfp.bestBid = bestBid;
-								cfp.gameId = gameId;
-								sendMessage(workerAddresses.get(w.id), cfp);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
 	private void updateOrders() {
 		//reject all proposals for orders that are out of time limit
 		for(Order o : receivedOrders.get(2)) {
@@ -308,7 +291,6 @@ public class BrokerBean extends AbstractAgentBean {
 		receivedOrders.get(1).clear();
 		receivedOrders.get(1).addAll(receivedOrders.get(0));
 		receivedOrders.get(0).clear();
-		//resendCFP();
 	}
 
 
@@ -388,11 +370,11 @@ public class BrokerBean extends AbstractAgentBean {
 
 	/** Send messages to other agents */
 	private void sendMessage(ICommunicationAddress receiver, IFact payload) {
+		log.info("BROKER SENDING:");
+		log.info(payload);
 		Action sendAction = retrieveAction(ICommunicationBean.ACTION_SEND);
 		JiacMessage message = new JiacMessage(payload);
 		invoke(sendAction, new Serializable[] {message, receiver});
-		log.info("BROKER SENDING:");
-		log.info(payload);
 	}
 
 	/** This is an example of using the SpaceObeserver for message processing. */

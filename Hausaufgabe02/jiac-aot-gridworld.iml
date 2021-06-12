@@ -9,6 +9,12 @@
         <fileset id="fileset2" name="Server" removed="false">
           <file>file://$MODULE_DIR$/src/main/resources/config/server.xml</file>
         </fileset>
+        <fileset id="fileset3" name="Gateway" removed="false">
+          <file>file://$MODULE_DIR$/src/main/resources/config/gateway.xml</file>
+        </fileset>
+        <fileset id="fileset4" name="Observer" removed="false">
+          <file>file://$MODULE_DIR$/src/main/resources/config/observer.xml</file>
+        </fileset>
       </configuration>
     </facet>
   </component>

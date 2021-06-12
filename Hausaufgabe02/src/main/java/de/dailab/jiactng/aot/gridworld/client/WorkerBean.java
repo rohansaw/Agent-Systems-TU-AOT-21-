@@ -213,12 +213,12 @@ public class WorkerBean extends AbstractAgentBean {
 	 * Send messages to other agents
 	 */
 	private void sendMessage(ICommunicationAddress receiver, IFact payload) {
-		Action sendAction = retrieveAction(ICommunicationBean.ACTION_SEND);
-		JiacMessage message = new JiacMessage(payload);
-		invoke(sendAction, new Serializable[]{message, receiver});
 		if(worker != null)
 			log.info("WORKER " + worker.id + " SENDING:");
 		log.info(payload);
+		Action sendAction = retrieveAction(ICommunicationBean.ACTION_SEND);
+		JiacMessage message = new JiacMessage(payload);
+		invoke(sendAction, new Serializable[]{message, receiver});
 	}
 
 
