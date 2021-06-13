@@ -43,6 +43,7 @@ public class CFPGraph {
             insertNode(node);
             optimize();
         }
+        //return gridGraph.getPathLength(node.order.position, currentPos) + 1;
         return pathTotalDist(node.order.position, path);
     }
 
@@ -122,6 +123,8 @@ public class CFPGraph {
         for (Node n : nodes){
             dist += gridGraph.getPathLength(n.order.position, pos) + 1;
             pos = n.order.position;
+            if(n.order.position.equals(to))
+                return dist;
         }
         return dist;
     }
