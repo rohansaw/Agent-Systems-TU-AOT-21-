@@ -41,22 +41,29 @@ public class GridGraph {
                     Position pos = new Position(x, y + 1);
                     if(!obstacles.contains(pos)) adj[y][x].add(pos);
                 }
-                obstacleOnPath[y][x] = false;
+                obstacleOnPath[y][x] = true;
             }
         }
         this.obstacles.addAll(obstacles);
-
     }
 
     public void addObstacle(Position pos){
-        if(pos.x - 1 >= 0)
+        if(pos.x - 1 >= 0) {
             adj[pos.y][pos.x - 1].remove(pos);
-        if(pos.x + 1 < width)
+            adj[pos.y][pos.x].removeIf(p -> p.y == pos.y && p.x == pos.x - 1);
+        }
+        if(pos.x + 1 < width) {
             adj[pos.y][pos.x + 1].remove(pos);
-        if(pos.y - 1 >= 0)
+            adj[pos.y][pos.x].removeIf(p -> p.y == pos.y && p.x == pos.x + 1);
+        }
+        if(pos.y - 1 >= 0) {
             adj[pos.y - 1][pos.x].remove(pos);
-        if(pos.x + 1 < height)
+            adj[pos.y][pos.x].removeIf(p -> p.y == pos.y - 1 && p.x == pos.x);
+        }
+        if(pos.x + 1 < height) {
             adj[pos.y + 1][pos.x].remove(pos);
+            adj[pos.y][pos.x].removeIf(p -> p.y == pos.y + 1 && p.x == pos.x);
+        }
 
         obstacles.add(pos);
         for(int y = 0; y < height; y++){

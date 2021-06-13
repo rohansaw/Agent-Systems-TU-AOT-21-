@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 public class BrokerBean extends AbstractAgentBean {
 
 	public static String BROKER_ID = "Some_Id";
-	public static String GRID_FILE = "/grids/34_2.grid";
+	public static String GRID_FILE = "/grids/17_1.grid";
 
 	private BrokerState state = BrokerState.AWAIT_GAME_START;
 	private int turn;
@@ -133,7 +133,7 @@ public class BrokerBean extends AbstractAgentBean {
 
 	private void handleProposal(Proposal msg){
 		HashMap<String, Integer> table = bids.get(msg.order.id);
-		
+
 		if(table == null){ // other worker got order or takeOrder deadline reached
 			ProposalReject rej = new ProposalReject();
 			rej.order = msg.order;

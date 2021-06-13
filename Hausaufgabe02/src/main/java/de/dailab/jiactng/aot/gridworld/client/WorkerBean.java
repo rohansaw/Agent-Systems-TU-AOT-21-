@@ -37,6 +37,8 @@ public class WorkerBean extends AbstractAgentBean {
 	private GridGraph graph = null;
 	private CFPGraph cfpGraph = null;
 	private Set<Position> obstacles = new HashSet<Position>();
+	private boolean spawnOnObstacle = false;
+	private Position startPos;
 
 	private Integer turn;
 
@@ -120,6 +122,9 @@ public class WorkerBean extends AbstractAgentBean {
 		gameId = msg.gameId;
 		turn = msg.turn;
 		gameSize = msg.gridSize;
+		spawnOnObstacle = obstacles.remove(worker.position);
+		if(spawnOnObstacle)
+			startPos = new Position(worker.position.x, worker.position.y);
 		graph = new GridGraph(msg.gridSize.x, msg.gridSize.y, obstacles);
 		cfpGraph = new CFPGraph(graph, turn, worker.position);
 	}
@@ -131,6 +136,9 @@ public class WorkerBean extends AbstractAgentBean {
 			worker.steps++;
 			if (message.action == WorkerAction.ORDER) {
 				handleOrderTerminated();
+			}else if(spawnOnObstacle){
+				spawnOnObstacle = false;
+				graph.addObstacle(startPos);
 			}
 			cfpGraph.setCurrentPos(worker.position);
 		} else if (message.state == Result.FAIL && message.action != WorkerAction.ORDER) {
