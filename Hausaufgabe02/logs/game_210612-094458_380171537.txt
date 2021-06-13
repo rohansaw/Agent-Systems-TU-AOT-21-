@@ -1,0 +1,45 @@
+210612-094458
+GAME No. 380171537
+TURN 11/10
+Brokers
+B(Some_Id, workers=[W(w1, Pos(4, 0), 1), W(w2, Pos(0, 2), 1)], taken=[], completed=[o1, o2], failed=[])
+Orders
+O(o1, Pos(4, 0), cr=0, dl=7, cp=2, val=50, tp=1)
+O(o2, Pos(0, 2), cr=1, dl=7, cp=6, val=50, tp=1)
+	.	.	.	.	w1
+	.	.	.	.	.
+	w2	.	.	.	.
+	.	.	.	.	.
+	.	.	.	.	.
+
+210612-094446: Sending StartGameResponse(game=380171537, size=Pos(5, 5), workers=[W(w1, Pos(2, 0), 0), W(w2, Pos(3, 4), 0)], obstacles: 0)
+210612-094447: Sending OrderMessage(game=380171537, order=O(o1, Pos(4, 0), cr=0, dl=7, cp=-1, val=50, tp=1))
+210612-094447: Received TakeOrderMessage(game=380171537, order=o1, broker=Some_Id)
+210612-094447: Sending TakeOrderConfirm(game=380171537, order=o1, broker=Some_Id, SUCCESS)
+210612-094448: Received WorkerMessage(game=380171537, worker=w1, action=EAST)
+210612-094448: Sending WorkerConfirm(game=380171537, worker=w1, action=EAST, SUCCESS)
+210612-094448: Sending OrderMessage(game=380171537, order=O(o2, Pos(0, 2), cr=1, dl=7, cp=-1, val=50, tp=1))
+210612-094448: Received TakeOrderMessage(game=380171537, order=o2, broker=Some_Id)
+210612-094448: Sending TakeOrderConfirm(game=380171537, order=o2, broker=Some_Id, SUCCESS)
+210612-094449: Received WorkerMessage(game=380171537, worker=w1, action=EAST)
+210612-094449: Sending WorkerConfirm(game=380171537, worker=w1, action=EAST, SUCCESS)
+210612-094449: Received WorkerMessage(game=380171537, worker=w2, action=WEST)
+210612-094449: Sending WorkerConfirm(game=380171537, worker=w2, action=WEST, SUCCESS)
+210612-094450: Received WorkerMessage(game=380171537, worker=w1, action=ORDER)
+210612-094450: Sending WorkerConfirm(game=380171537, worker=w1, action=ORDER, SUCCESS)
+210612-094450: Sending OrderCompleted(game=380171537, order=o1, SUCCESS, reward=48)
+210612-094450: Received WorkerMessage(game=380171537, worker=w2, action=WEST)
+210612-094450: Sending WorkerConfirm(game=380171537, worker=w2, action=WEST, SUCCESS)
+210612-094451: Received WorkerMessage(game=380171537, worker=w2, action=WEST)
+210612-094451: Sending WorkerConfirm(game=380171537, worker=w2, action=WEST, SUCCESS)
+210612-094452: Received WorkerMessage(game=380171537, worker=w2, action=NORTH)
+210612-094452: Sending WorkerConfirm(game=380171537, worker=w2, action=NORTH, SUCCESS)
+210612-094453: Received WorkerMessage(game=380171537, worker=w2, action=NORTH)
+210612-094453: Sending WorkerConfirm(game=380171537, worker=w2, action=NORTH, SUCCESS)
+210612-094454: Received WorkerMessage(game=380171537, worker=w2, action=ORDER)
+210612-094454: Sending WorkerConfirm(game=380171537, worker=w2, action=ORDER, SUCCESS)
+210612-094454: Sending OrderCompleted(game=380171537, order=o2, SUCCESS, reward=45)
+210612-094458: Sending WorkerScoreMessage(game=380171537, worker=w1, winner?=true, orders completed=1)
+210612-094458: Sending WorkerScoreMessage(game=380171537, worker=w2, winner?=false, orders completed=1)
+210612-094458: Sending EndGameMessage(game=380171537, broker=Some_Id, winner?=true, reward=86.00)
+

@@ -43,7 +43,8 @@ public class CFPGraph {
             insertNode(node);
             optimize();
         }
-        return pathTotalDist(node.order.position, path);
+        System.out.println(path);
+        return pathTotalDist(node.order.position, path, order);
     }
 
     public void optimize(){ //local search with 2-opt
@@ -116,12 +117,15 @@ public class CFPGraph {
         }
     }
 
-    private int pathTotalDist(Position to, List<Node> nodes){
+    private int pathTotalDist(Position to, List<Node> nodes, Order order){
         int dist = 0;
         Position pos = currentPos;
         for (Node n : nodes){
             dist += gridGraph.getPathLength(n.order.position, pos) + 1;
             pos = n.order.position;
+            if(n.order == order) {
+                return dist;
+            }
         }
         return dist;
     }
