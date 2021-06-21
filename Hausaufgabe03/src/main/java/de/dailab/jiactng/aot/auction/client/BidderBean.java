@@ -1,44 +1,130 @@
 package de.dailab.jiactng.aot.auction.client;
 
+import com.sun.org.apache.xml.internal.security.Init;
 import de.dailab.jiactng.agentcore.AbstractAgentBean;
+import de.dailab.jiactng.agentcore.action.Action;
+import de.dailab.jiactng.agentcore.comm.CommunicationAddressFactory;
+import de.dailab.jiactng.agentcore.comm.ICommunicationAddress;
+import de.dailab.jiactng.agentcore.comm.ICommunicationBean;
+import de.dailab.jiactng.agentcore.comm.IGroupAddress;
+import de.dailab.jiactng.agentcore.comm.message.JiacMessage;
+import de.dailab.jiactng.agentcore.knowledge.IFact;
+import de.dailab.jiactng.aot.auction.onto.*;
+import org.sercho.masp.space.event.SpaceEvent;
+import org.sercho.masp.space.event.SpaceObserver;
+import org.sercho.masp.space.event.WriteCallEvent;
 
-/**
- * TODO Implement this class.
- * 
- * You might also decide to split the logic of your bidder up onto several
- * agent beans, e.g. one for each type of auction. In this case, remember
- * to keep the agent's `Wallet` in synch between the different roles, e.g.
- * using the agent's memory, as seen for the auctioneer beans.
- */
+import java.io.Serializable;
+import java.util.HashMap;
+
 public class BidderBean extends AbstractAgentBean {
 
-	/*
-	 * TODO
-	 * add properties for e.g. the multicast message group, or the bidderID
-	 * add getter methods for those properties so they can be set in the
-	 * Spring configuration file
-	 */
-	
-	/*
-	 * TODO
-	 * when the agent starts, use the action ICommunicationBean.ACTION_JOIN_GROUP
-	 * to join the multicast message group "de.dailab.jiactng.aot.auction"
-	 * for the final competition, or a group of your choosing for testing
-	 * make sure to use the same message group as the auctioneer!
-	 */
+	int turn = 0;
+	String bidderId;
+	String groupToken;
+	String groupName = "someGroupName";
+	IGroupAddress groupAddress;
+	HashMap<Integer, StartAuction.Mode> auctioneerModes = new HashMap<>();
+	HashMap<StartAuction.Mode, Integer> auctioneerIds = new HashMap<>();
+	HashMap<StartAuction.Mode, ICommunicationAddress> auctioneerAddresses = new HashMap<>();
 
-	/*
-	 * TODO
-	 * when the agent starts, create a message observer and attach it to the
-	 * agent's memory. that message observer should then handle the different
-	 * messages and send a suitable Bid in reply. see the readme and the
-	 * sequence diagram for the expected order of messages.
-	 */
-	
-	/*
-	 * TODO You will receive your initial "Wallet" from the auctioneer, but
-	 * afterwards you will have to keep track of your spendings and acquisitions
-	 * yourself. The Auctioneer will do so, as well.
-	 */
+	Wallet wallet;
+
+	public void doStart() throws Exception {
+		memory.attach(new MessageObserver(), new JiacMessage());
+
+		groupAddress = CommunicationAddressFactory.createGroupAddress(groupName);
+		Action joinAction = retrieveAction(ICommunicationBean.ACTION_JOIN_GROUP);
+		invoke(joinAction, new Serializable[]{groupAddress});
+	}
+
+	@Override
+	public void execute() {
+		turn++;
+		if(wallet == null) return;
+	}
+
+	private void handleMessage(JiacMessage message) {
+		Object payload = message.getPayload();
+		if(payload instanceof StartAuctions) {
+			register(message.getSender());
+		}
+		if(payload instanceof InitializeBidder) {
+			initialize((InitializeBidder) payload);
+		}
+		if(payload instanceof StartAuction) {
+			handleStartAuction((StartAuction) payload, message.getSender());
+		}
+		if(payload instanceof CallForBids) {
+			handleCFB((CallForBids) payload);
+		}
+
+	}
+
+	private void handleStartAuction(StartAuction message, ICommunicationAddress sender) {
+		auctioneerModes.put(message.getAuctioneerId(), message.getMode());
+		auctioneerIds.put(message.getMode(), message.getAuctioneerId());
+		auctioneerAddresses.put(message.getMode(), sender);
+		// ToDo: Maybe also save num items etc from message
+	}
+
+	private void handleCFB(CallForBids cfb) {
+		if(auctioneerModes.get(cfb.getAuctioneerId()) == StartAuction.Mode.A) {
+			Double bid = calculateBid(cfb);
+			if(bid != null) {
+				sendBid(bid, cfb.getCallId());
+			}
+		}
+	}
+
+	private Double calculateBid(CallForBids cfb) {
+		return null;
+	}
+
+	private void sendBid(Double offer, Integer callId) {
+		Bid message = new Bid(
+				auctioneerIds.get(StartAuction.Mode.A),
+				bidderId,
+				callId,
+				offer
+		);
+		sendMessage(auctioneerAddresses.get(StartAuction.Mode.A), message);
+	}
+
+	private void initialize(InitializeBidder message) {
+		if(message.getBidderId().equals(this.bidderId)) {
+			wallet = message.getWallet();
+		}
+	}
+
+	private void register(ICommunicationAddress auctioneer) {
+		Register message = new Register(bidderId, groupToken);
+		sendMessage(auctioneer, message);
+	}
+
+	private void sendMessage(ICommunicationAddress receiver, IFact payload) {
+		Action sendAction = retrieveAction(ICommunicationBean.ACTION_SEND);
+		JiacMessage message = new JiacMessage(payload);
+		invoke(sendAction, new Serializable[] {message, receiver});
+		System.out.println("Bidder SENDING " + payload);
+	}
+
+	private class MessageObserver implements SpaceObserver<IFact> {
+		private static final long serialVersionUID = 3252158684429257439L;
+
+		@SuppressWarnings("rawtypes")
+		@Override
+		public void notify(SpaceEvent<? extends IFact> event) {
+			if (event instanceof WriteCallEvent) {
+				WriteCallEvent writeEvent = (WriteCallEvent) event;
+				if (writeEvent.getObject() instanceof JiacMessage) {
+					JiacMessage message = (JiacMessage) writeEvent.getObject();
+					handleMessage(message);
+					memory.remove(message);
+				}
+			}
+		}
+	}
+
 
 }
