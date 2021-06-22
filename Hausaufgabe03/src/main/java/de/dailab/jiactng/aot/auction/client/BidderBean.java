@@ -15,7 +15,9 @@ import org.sercho.masp.space.event.SpaceObserver;
 import org.sercho.masp.space.event.WriteCallEvent;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class BidderBean extends AbstractAgentBean {
 
@@ -29,6 +31,19 @@ public class BidderBean extends AbstractAgentBean {
 	HashMap<StartAuction.Mode, ICommunicationAddress> auctioneerAddresses = new HashMap<>();
 
 	Wallet wallet;
+	private ArrayList<Resource> resourceNames = new ArrayList<>(
+			Resource.A,
+			Resource.B,
+			Resource.C,
+			Resource.D,
+			Resource.E,
+			Resource.F,
+			Resource.G,
+			Resource.J,
+			Resource.K
+		);
+	private HashMap<Resource, Double> resourceValues;
+	private HashMap<ArrayList<Resource>, Double> purchasePrices;
 
 	public void doStart() throws Exception {
 		memory.attach(new MessageObserver(), new JiacMessage());
@@ -71,14 +86,36 @@ public class BidderBean extends AbstractAgentBean {
 	private void handleCFB(CallForBids cfb) {
 		if(auctioneerModes.get(cfb.getAuctioneerId()) == StartAuction.Mode.A) {
 			Double bid = calculateBid(cfb);
-			if(bid != null) {
+			if(bid >= 0) {
 				sendBid(bid, cfb.getCallId());
+			}
+		}
+	}
+	private void calculateResourceValues() {
+		for(Resource resource : resourceNames) {
+			if (resource.equals(Resource.G)) {
+				resourceValues.put(resource, -20.0);
+			} else {
+				double value = 0;
+				double count = 0;
+				for (Map.Entry<ArrayList<Resource>, Double> entry : purchasePrices.entrySet()) {
+					if (entry.getKey().contains(resource)) {
+						double average = (1.0 / entry.getKey().size()) * entry.getValue();
+						value += average;
+						count++;
+					}
+				}
+				resourceValues.put(resource, value / count);
 			}
 		}
 	}
 
 	private Double calculateBid(CallForBids cfb) {
-		return null;
+		Double bid = 0.0;
+		for(Resource resource: cfb.getBundle()) {
+			bid += resourceValues.get(resource);
+		}
+		return bid;
 	}
 
 	private void sendBid(Double offer, Integer callId) {
