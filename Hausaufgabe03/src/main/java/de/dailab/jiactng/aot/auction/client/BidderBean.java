@@ -23,6 +23,7 @@ public class BidderBean extends AbstractAgentBean {
 	String bidderId;
 	String groupToken;
 	String groupName = "someGroupName";
+	String messageGroup;
 	IGroupAddress groupAddress;
 	HashMap<Integer, StartAuction.Mode> auctioneerModes = new HashMap<>();
 	HashMap<StartAuction.Mode, Integer> auctioneerIds = new HashMap<>();
@@ -30,6 +31,7 @@ public class BidderBean extends AbstractAgentBean {
 
 	Wallet wallet;
 
+	@Override
 	public void doStart() throws Exception {
 		memory.attach(new MessageObserver(), new JiacMessage());
 
@@ -109,7 +111,21 @@ public class BidderBean extends AbstractAgentBean {
 		System.out.println("Bidder SENDING " + payload);
 	}
 
-	private class MessageObserver implements SpaceObserver<IFact> {
+	//setters for bidder.xml
+
+	public void setBidderId(String bidderId) {
+		this.bidderId = bidderId;
+	}
+
+	public void setMessageGroup(String messageGroup) {
+		this.messageGroup = messageGroup;
+	}
+
+	public void setGroupToken(String groupToken) {
+		this.groupToken = groupToken;
+	}
+
+	public class MessageObserver implements SpaceObserver<IFact> {
 		private static final long serialVersionUID = 3252158684429257439L;
 
 		@SuppressWarnings("rawtypes")

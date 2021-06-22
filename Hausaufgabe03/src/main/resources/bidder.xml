@@ -30,6 +30,26 @@
 					<property name="messageGroup" value="de.dailab.jiactng.aot.auction" />
 					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
 				</bean>
+
+				<bean name="BidderBeanC" class="de.dailab.jiactng.aot.auction.client.BidderBeanC" scope="prototype">
+					<property name="logLevel" value="INFO" />
+					<property name="executionInterval" value="2000" />
+
+					<property name="bidderId" value="DummyBidder_1" />
+					<property name="groupToken" value="DummyUniqueGroupToken1" />
+					<property name="messageGroup" value="de.dailab.jiactng.aot.auction" />
+					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
+				</bean>
+
+				<bean name="ProxyBean" class="de.dailab.jiactng.aot.auction.client.ProxyBean" scope="prototype">
+					<property name="logLevel" value="INFO" />
+					<property name="executionInterval" value="2000" />
+
+					<property name="bidderId" value="DummyBidder_1" />
+					<property name="groupToken" value="DummyUniqueGroupToken1" />
+					<property name="messageGroup" value="de.dailab.jiactng.aot.auction" />
+					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
+				</bean>
 			</list>
 		</property>
 	</bean>
