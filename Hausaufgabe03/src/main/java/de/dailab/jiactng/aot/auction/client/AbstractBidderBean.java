@@ -11,23 +11,21 @@ import de.dailab.jiactng.agentcore.comm.IGroupAddress;
 import de.dailab.jiactng.agentcore.comm.message.JiacMessage;
 import de.dailab.jiactng.agentcore.knowledge.IFact;
 import de.dailab.jiactng.aot.auction.onto.*;
+import org.graalvm.compiler.phases.graph.ReentrantBlockIterator;
 import org.sercho.masp.space.event.SpaceEvent;
 import org.sercho.masp.space.event.SpaceObserver;
 import org.sercho.masp.space.event.WriteCallEvent;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class AbstractBidderBean extends AbstractMethodExposingBean {
 
     String groupToken;
     String messageGroup;
     String bidderId;
-
-
-    protected void addAuctioneer(Auctioneer auctioneer) {
-        memory.write(auctioneer);
-    }
+    ReentrantReadWriteLock memoryLock = new ReentrantReadWriteLock();
 
     protected Auctioneer getAuctioneer(Integer id) {
         return id == null ? null : memory.read(new Auctioneer(id, null, null));
