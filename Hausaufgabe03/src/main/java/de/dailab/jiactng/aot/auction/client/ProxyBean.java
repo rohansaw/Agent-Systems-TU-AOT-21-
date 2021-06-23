@@ -37,9 +37,11 @@ public class ProxyBean extends AbstractBidderBean {
         if(payload instanceof StartAuctions) {
             register(message.getSender());
         }
+
         if(payload instanceof InitializeBidder) {
             initialize((InitializeBidder) payload);
         }
+
         if(payload instanceof StartAuction) {
             handleStartAuction((StartAuction) payload, message.getSender());
         }
@@ -60,6 +62,7 @@ public class ProxyBean extends AbstractBidderBean {
         memory.write(new Auctioneer(msg.getAuctioneerId(), sender, msg.getMode()));
         switch (msg.getMode()){
             case A:
+                invokeSimple(BidderBeanA.ACTION_START_AUCTION, msg, sender);
             case B:
             case C:
                 invokeSimple(BidderBeanC.ACTION_START_AUCTION, msg, sender);

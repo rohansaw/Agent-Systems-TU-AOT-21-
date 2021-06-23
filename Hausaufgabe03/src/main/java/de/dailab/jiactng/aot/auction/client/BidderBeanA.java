@@ -3,6 +3,8 @@ package de.dailab.jiactng.aot.auction.client;
 import com.sun.org.apache.xml.internal.security.Init;
 import de.dailab.jiactng.agentcore.AbstractAgentBean;
 import de.dailab.jiactng.agentcore.action.Action;
+import de.dailab.jiactng.agentcore.action.IMethodExposingBean;
+import de.dailab.jiactng.agentcore.action.scope.ActionScope;
 import de.dailab.jiactng.agentcore.comm.CommunicationAddressFactory;
 import de.dailab.jiactng.agentcore.comm.ICommunicationAddress;
 import de.dailab.jiactng.agentcore.comm.ICommunicationBean;
@@ -27,9 +29,8 @@ public class BidderBeanA extends AbstractAgentBean {
 	String groupName = "someGroupName";
 	String messageGroup;
 	IGroupAddress groupAddress;
-	HashMap<Integer, StartAuction.Mode> auctioneerModes = new HashMap<>();
-	HashMap<StartAuction.Mode, Integer> auctioneerIds = new HashMap<>();
-	HashMap<StartAuction.Mode, ICommunicationAddress> auctioneerAddresses = new HashMap<>();
+
+	Auctioneer auctioneer;
 
 	Wallet wallet;
 	private ArrayList<Resource> resourceNames = new ArrayList<>(
@@ -49,7 +50,6 @@ public class BidderBeanA extends AbstractAgentBean {
 	@Override
 	public void doStart() throws Exception {
 		memory.attach(new MessageObserver(), new JiacMessage());
-
 		groupAddress = CommunicationAddressFactory.createGroupAddress(groupName);
 		Action joinAction = retrieveAction(ICommunicationBean.ACTION_JOIN_GROUP);
 		invoke(joinAction, new Serializable[]{groupAddress});
@@ -63,36 +63,20 @@ public class BidderBeanA extends AbstractAgentBean {
 
 	private void handleMessage(JiacMessage message) {
 		Object payload = message.getPayload();
-		if(payload instanceof StartAuctions) {
-			register(message.getSender());
-		}
-		if(payload instanceof InitializeBidder) {
-			initialize((InitializeBidder) payload);
-		}
-		if(payload instanceof StartAuction) {
-			handleStartAuction((StartAuction) payload, message.getSender());
-		}
 		if(payload instanceof CallForBids) {
 			handleCFB((CallForBids) payload);
 		}
-
-	}
-
-	private void handleStartAuction(StartAuction message, ICommunicationAddress sender) {
-		auctioneerModes.put(message.getAuctioneerId(), message.getMode());
-		auctioneerIds.put(message.getMode(), message.getAuctioneerId());
-		auctioneerAddresses.put(message.getMode(), sender);
-		// ToDo: Maybe also save num items etc from message
 	}
 
 	private void handleCFB(CallForBids cfb) {
-		if(auctioneerModes.get(cfb.getAuctioneerId()) == StartAuction.Mode.A) {
+		if(cfb.getMode() == CallForBids.CfBMode.BUY) {
 			Double bid = calculateBid(cfb);
 			if(bid >= 0) {
 				sendBid(bid, cfb.getCallId());
 			}
 		}
 	}
+
 	private void calculateResourceValues() {
 		for(Resource resource : resourceNames) {
 			if (resource.equals(Resource.G)) {
@@ -114,6 +98,7 @@ public class BidderBeanA extends AbstractAgentBean {
 
 	private Double calculateBid(CallForBids cfb) {
 		Double bid = 0.0;
+		calculateResourceValues();
 		for(Resource resource: cfb.getBundle()) {
 			bid += resourceValues.get(resource);
 		}
@@ -122,23 +107,12 @@ public class BidderBeanA extends AbstractAgentBean {
 
 	private void sendBid(Double offer, Integer callId) {
 		Bid message = new Bid(
-				auctioneerIds.get(StartAuction.Mode.A),
+				auctioneer.getAuctioneerId(),
 				bidderId,
 				callId,
 				offer
 		);
-		sendMessage(auctioneerAddresses.get(StartAuction.Mode.A), message);
-	}
-
-	private void initialize(InitializeBidder message) {
-		if(message.getBidderId().equals(this.bidderId)) {
-			wallet = message.getWallet();
-		}
-	}
-
-	private void register(ICommunicationAddress auctioneer) {
-		Register message = new Register(bidderId, groupToken);
-		sendMessage(auctioneer, message);
+		sendMessage(auctioneer.getAddress(), message);
 	}
 
 	private void sendMessage(ICommunicationAddress receiver, IFact payload) {
@@ -160,6 +134,14 @@ public class BidderBeanA extends AbstractAgentBean {
 
 	public void setGroupToken(String groupToken) {
 		this.groupToken = groupToken;
+	}
+
+	public static final String ACTION_START_AUCTION = "BidderC#startAuction";
+
+	@IMethodExposingBean.Expose(name = ACTION_START_AUCTION, scope = ActionScope.AGENT)
+	public synchronized void startAuction(StartAuction msg, ICommunicationAddress address) {
+		wallet = memory.read(new Wallet(bidderId, null));
+		auctioneer = memory.read(new Auctioneer(msg.getAuctioneerId(), address, msg.getMode()));
 	}
 
 	public class MessageObserver implements SpaceObserver<IFact> {
