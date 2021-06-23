@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BidderBean extends AbstractAgentBean {
+public class BidderBeanA extends AbstractAgentBean {
 
 	int turn = 0;
 	String bidderId;
