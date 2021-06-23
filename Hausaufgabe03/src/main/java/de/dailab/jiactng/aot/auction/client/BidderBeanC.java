@@ -44,15 +44,9 @@ public class BidderBeanC extends AbstractBidderBean {
 
     @Expose(name = ACTION_START_AUCTION, scope = ActionScope.AGENT)
     public void startAuction(StartAuction msg, ICommunicationAddress address) {
-        memoryLock.writeLock().lock();
-        try {
             auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
-            memory.write(auctioneer);
             wallet = memory.read(new Wallet(bidderId, null));
             turn = 0;
-        }finally {
-            memoryLock.writeLock().unlock();
-        }
     }
 
     @Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)

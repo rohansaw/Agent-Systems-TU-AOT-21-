@@ -76,7 +76,8 @@ public class BidderBeanA extends AbstractAgentBean {
 	@IMethodExposingBean.Expose(name = ACTION_START_AUCTION, scope = ActionScope.AGENT)
 	public synchronized void startAuction(StartAuction msg, ICommunicationAddress address) {
 		wallet = memory.read(new Wallet(bidderId, null));
-		auctioneer = memory.read(new Auctioneer(msg.getAuctioneerId(), address, msg.getMode()));
+		auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
+		turn = 0;
 	}
 
 	private void calculateResourceValues() {
