@@ -2,7 +2,20 @@
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="Spring" name="Spring">
-      <configuration />
+      <configuration>
+        <fileset id="fileset" name="Auctioneer" removed="false">
+          <file>file://$MODULE_DIR$/src/main/resources/auctioneer.xml</file>
+        </fileset>
+        <fileset id="fileset2" name="Bidder" removed="false">
+          <file>file://$MODULE_DIR$/src/main/resources/bidder.xml</file>
+        </fileset>
+        <fileset id="fileset3" name="GatewayNode" removed="false">
+          <file>file://$MODULE_DIR$/src/main/resources/GatewayNode.xml</file>
+        </fileset>
+        <fileset id="fileset4" name="Observer" removed="false">
+          <file>file://$MODULE_DIR$/src/main/resources/observer.xml</file>
+        </fileset>
+      </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">

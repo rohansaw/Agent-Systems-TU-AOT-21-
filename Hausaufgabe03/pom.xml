@@ -80,7 +80,7 @@
 		<repository>
 			<id>dai-open</id>
 			<name>DAI Open Repository</name>
-			<url>http://repositories.dai-labor.de/extern/content/repositories/dai-open/</url>
+			<url>https://repositories.dai-labor.de/extern/content/repositories/dai-open/</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
