@@ -5,7 +5,7 @@ import de.dailab.jiactng.agentcore.knowledge.IFact;
 
 public class Auctioneer implements IFact {
 
-    private static final long serialVersionUID = 2813812910820582594L;
+    private static final long serialVersionUID = -2272277026805904128L;
 
     private final StartAuction.Mode mode;
 

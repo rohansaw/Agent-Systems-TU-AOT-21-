@@ -24,9 +24,6 @@ import java.util.Random;
 public class BidderBeanC extends AbstractBidderBean {
 
     int turn = 0;
-    HashMap<Integer, StartAuction.Mode> auctioneerModes = new HashMap<>();
-    HashMap<StartAuction.Mode, Integer> auctioneerIds = new HashMap<>();
-    HashMap<StartAuction.Mode, ICommunicationAddress> auctioneerAddresses = new HashMap<>();
 
     Wallet wallet;
     Auctioneer auctioneer;
@@ -39,14 +36,28 @@ public class BidderBeanC extends AbstractBidderBean {
     public void execute() {
         turn++;
         if(wallet == null) return;
+        //decide on offering single Res
     }
 
     public static final String ACTION_START_AUCTION = "BidderC#startAuction";
+    public static final String CALL_FOR_BIDS = "BidderC#callForBids";
 
     @Expose(name = ACTION_START_AUCTION, scope = ActionScope.AGENT)
-    public synchronized void startAuction(StartAuction msg, ICommunicationAddress address) {
-        wallet = memory.read(new Wallet(bidderId, null));
-        auctioneer = memory.read(new Auctioneer(msg.getAuctioneerId(), address, msg.getMode()));
+    public void startAuction(StartAuction msg, ICommunicationAddress address) {
+        memoryLock.writeLock().lock();
+        try {
+            auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
+            memory.write(auctioneer);
+            wallet = memory.read(new Wallet(bidderId, null));
+            turn = 0;
+        }finally {
+            memoryLock.writeLock().unlock();
+        }
+    }
+
+    @Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
+    public void callForBids(CallForBids msg) {
+
     }
 
 }

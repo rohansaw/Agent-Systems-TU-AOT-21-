@@ -29,10 +29,12 @@ public class BidderBeanA extends AbstractAgentBean {
 	String groupName = "someGroupName";
 	String messageGroup;
 	IGroupAddress groupAddress;
-
 	Auctioneer auctioneer;
 
-	Wallet wallet;
+
+	public static final String ACTION_START_AUCTION = "BidderA#startAuction";
+	public static final String CALL_FOR_BIDS = "BidderA#callForBids";
+
 	private ArrayList<Resource> resourceNames = new ArrayList<>(
 			Resource.A,
 			Resource.B,
@@ -45,11 +47,11 @@ public class BidderBeanA extends AbstractAgentBean {
 			Resource.K
 		);
 	private HashMap<Resource, Double> resourceValues;
-	private HashMap<ArrayList<Resource>, Double> purchasePrices;
+	Wallet wallet;
+
 
 	@Override
 	public void doStart() throws Exception {
-		memory.attach(new MessageObserver(), new JiacMessage());
 		groupAddress = CommunicationAddressFactory.createGroupAddress(groupName);
 		Action joinAction = retrieveAction(ICommunicationBean.ACTION_JOIN_GROUP);
 		invoke(joinAction, new Serializable[]{groupAddress});
@@ -61,20 +63,20 @@ public class BidderBeanA extends AbstractAgentBean {
 		if(wallet == null) return;
 	}
 
-	private void handleMessage(JiacMessage message) {
-		Object payload = message.getPayload();
-		if(payload instanceof CallForBids) {
-			handleCFB((CallForBids) payload);
-		}
-	}
-
-	private void handleCFB(CallForBids cfb) {
+	@IMethodExposingBean.Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
+	public void callForBids(CallForBids cfb) {
 		if(cfb.getMode() == CallForBids.CfBMode.BUY) {
 			Double bid = calculateBid(cfb);
-			if(bid >= 0) {
+			if(bid > 0) {
 				sendBid(bid, cfb.getCallId());
 			}
 		}
+	}
+
+	@IMethodExposingBean.Expose(name = ACTION_START_AUCTION, scope = ActionScope.AGENT)
+	public synchronized void startAuction(StartAuction msg, ICommunicationAddress address) {
+		wallet = memory.read(new Wallet(bidderId, null));
+		auctioneer = memory.read(new Auctioneer(msg.getAuctioneerId(), address, msg.getMode()));
 	}
 
 	private void calculateResourceValues() {
@@ -84,7 +86,8 @@ public class BidderBeanA extends AbstractAgentBean {
 			} else {
 				double value = 0;
 				double count = 0;
-				for (Map.Entry<ArrayList<Resource>, Double> entry : purchasePrices.entrySet()) {
+				PriceList priceList = memory.read(new PriceList());
+				for (Map.Entry<ArrayList<Resource>, Double> entry : priceList.getPrices().entrySet()) {
 					if (entry.getKey().contains(resource)) {
 						double average = (1.0 / entry.getKey().size()) * entry.getValue();
 						value += average;
@@ -123,7 +126,6 @@ public class BidderBeanA extends AbstractAgentBean {
 	}
 
 	//setters for bidder.xml
-
 	public void setBidderId(String bidderId) {
 		this.bidderId = bidderId;
 	}
@@ -135,31 +137,4 @@ public class BidderBeanA extends AbstractAgentBean {
 	public void setGroupToken(String groupToken) {
 		this.groupToken = groupToken;
 	}
-
-	public static final String ACTION_START_AUCTION = "BidderC#startAuction";
-
-	@IMethodExposingBean.Expose(name = ACTION_START_AUCTION, scope = ActionScope.AGENT)
-	public synchronized void startAuction(StartAuction msg, ICommunicationAddress address) {
-		wallet = memory.read(new Wallet(bidderId, null));
-		auctioneer = memory.read(new Auctioneer(msg.getAuctioneerId(), address, msg.getMode()));
-	}
-
-	public class MessageObserver implements SpaceObserver<IFact> {
-		private static final long serialVersionUID = 3252158684429257439L;
-
-		@SuppressWarnings("rawtypes")
-		@Override
-		public void notify(SpaceEvent<? extends IFact> event) {
-			if (event instanceof WriteCallEvent) {
-				WriteCallEvent writeEvent = (WriteCallEvent) event;
-				if (writeEvent.getObject() instanceof JiacMessage) {
-					JiacMessage message = (JiacMessage) writeEvent.getObject();
-					handleMessage(message);
-					memory.remove(message);
-				}
-			}
-		}
-	}
-
-
 }
