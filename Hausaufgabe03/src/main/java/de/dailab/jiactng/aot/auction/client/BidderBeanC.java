@@ -44,14 +44,13 @@ public class BidderBeanC extends AbstractBidderBean {
 
     @Expose(name = ACTION_START_AUCTION, scope = ActionScope.AGENT)
     public void startAuction(StartAuction msg, ICommunicationAddress address) {
-        memoryLock.writeLock().lock();
+        memoryLock.readLock().lock();
         try {
             auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
-            memory.write(auctioneer);
             wallet = memory.read(new Wallet(bidderId, null));
             turn = 0;
-        }finally {
-            memoryLock.writeLock().unlock();
+        } finally {
+            memoryLock.readLock().unlock();
         }
     }
 

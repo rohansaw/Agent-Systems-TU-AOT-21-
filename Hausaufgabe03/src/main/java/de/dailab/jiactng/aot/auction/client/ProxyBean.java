@@ -13,11 +13,13 @@ import org.sercho.masp.space.event.SpaceObserver;
 import org.sercho.masp.space.event.WriteCallEvent;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 public class ProxyBean extends AbstractBidderBean {
 
     IGroupAddress groupAddress;
     String messageGroup;
+    HashMap<Integer, Auctioneer> auctioneers;
 
     @Override
     public void doStart() throws Exception {
@@ -55,7 +57,7 @@ public class ProxyBean extends AbstractBidderBean {
 
     private void handleCallForBids(CallForBids msg){
         //no lock needed, because auctioneer never changes
-        Auctioneer auctioneer = memory.read(new Auctioneer(msg.getAuctioneerId(), null, null));
+        Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
         switch (auctioneer.getMode()){
             case A:
                 break;
@@ -67,11 +69,12 @@ public class ProxyBean extends AbstractBidderBean {
     }
 
     private synchronized void register(ICommunicationAddress auctioneer) {
+        auctioneers = new HashMap<>();
         memoryLock.writeLock().lock();
         try {
             memory.removeAll(new Wallet(null, null));
             memory.removeAll(new Auctioneer(null, null, null));
-        }finally {
+        } finally {
             memoryLock.writeLock().unlock();
         }
         Register message = new Register(bidderId, groupToken);
@@ -89,6 +92,7 @@ public class ProxyBean extends AbstractBidderBean {
     }
 
     private void handleStartAuction(StartAuction msg, ICommunicationAddress sender) {
+        auctioneers.put(msg.getAuctioneerId(), new Auctioneer(msg.getAuctioneerId(), sender, msg.getMode()));
         switch (msg.getMode()){
             case A:
                 break;
