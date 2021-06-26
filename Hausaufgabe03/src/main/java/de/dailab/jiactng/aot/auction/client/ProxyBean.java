@@ -38,9 +38,11 @@ public class ProxyBean extends AbstractBidderBean {
         if(payload instanceof StartAuctions) {
             register(message.getSender());
         }
+
         if(payload instanceof InitializeBidder) {
             initialize((InitializeBidder) payload);
         }
+
         if(payload instanceof StartAuction) {
             handleStartAuction((StartAuction) payload, message.getSender());
         }
@@ -55,20 +57,7 @@ public class ProxyBean extends AbstractBidderBean {
         }
     }
 
-    private void handleCallForBids(CallForBids msg){
-        //no lock needed, because auctioneer never changes
-        Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
-        switch (auctioneer.getMode()){
-            case A:
-                break;
-            case B:
-                break;
-            case C:
-                invokeSimple(BidderBeanC.CALL_FOR_BIDS, msg);
-        }
-    }
-
-    private synchronized void register(ICommunicationAddress auctioneer) {
+    private void register(ICommunicationAddress auctioneer) {
         auctioneers = new HashMap<>();
         memoryLock.writeLock().lock();
         try {
@@ -95,6 +84,7 @@ public class ProxyBean extends AbstractBidderBean {
         auctioneers.put(msg.getAuctioneerId(), new Auctioneer(msg.getAuctioneerId(), sender, msg.getMode()));
         switch (msg.getMode()){
             case A:
+                invokeSimple(BidderBeanA.ACTION_START_AUCTION, msg, sender);
                 break;
             case B:
                 break;
@@ -103,14 +93,35 @@ public class ProxyBean extends AbstractBidderBean {
         }
     }
 
+    private void handleCallForBids(CallForBids msg){
+        Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
+        switch (auctioneer.getMode()){
+            case A:
+                invokeSimple(BidderBeanA.CALL_FOR_BIDS, msg);
+                break;
+            case B:
+                memoryLock.writeLock().lock();
+                try{//update priceList
+                    PriceList pl = memory.read(new PriceList(null));
+                    pl.setPrice(msg.getBundle(), msg.getMinOffer());
+                }finally {
+                    memoryLock.writeLock().unlock();
+                }
+                break;
+            case C:
+                invokeSimple(BidderBeanC.CALL_FOR_BIDS, msg);
+        }
+    }
+
     private void handleInformBuy(InformBuy msg){
         if(msg.getBundle() != null) {
             memoryLock.writeLock().lock();
             try {
                 Wallet wallet = memory.read(new Wallet(bidderId, null));
-                Account account = memory.read(new Account(null));
+                Account account = memory.read(new Account((Wallet) null));
                 wallet.add(msg.getBundle());
-                account.addItem(msg);
+                wallet.updateCredits(-msg.getPrice());
+                account.addItem(msg.getBundle(), msg.getPrice());
             }finally {
                 memoryLock.writeLock().unlock();
             }
@@ -122,9 +133,10 @@ public class ProxyBean extends AbstractBidderBean {
             memoryLock.writeLock().lock();
             try {
                 Wallet wallet = memory.read(new Wallet(bidderId, null));
-                Account account = memory.read(new Account(null));
+                Account account = memory.read(new Account((Wallet) null));
                 wallet.remove(msg.getBundle());
-                account.removeItem(msg);
+                wallet.updateCredits(msg.getPrice());
+                account.removeItem(msg.getBundle(), msg.getPrice());
             }finally {
                 memoryLock.writeLock().unlock();
             }

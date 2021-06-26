@@ -21,7 +21,7 @@
 	<bean name="BidderAgent" parent="SimpleAgent" scope="prototype">
 		<property name="agentBeans">
 			<list>
-				<bean name="BidderBean" class="de.dailab.jiactng.aot.auction.client.BidderBean" scope="prototype">
+				<bean name="BidderBean" class="de.dailab.jiactng.aot.auction.client.BidderBeanA" scope="prototype">
 					<property name="logLevel" value="INFO" />
 					<property name="executionInterval" value="2000" />
 					

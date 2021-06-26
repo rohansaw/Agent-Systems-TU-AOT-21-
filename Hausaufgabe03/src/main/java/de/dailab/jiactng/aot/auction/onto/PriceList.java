@@ -2,8 +2,37 @@ package de.dailab.jiactng.aot.auction.onto;
 
 import de.dailab.jiactng.agentcore.knowledge.IFact;
 
-public class PriceList implements IFact {
-    private static final long serialVersionUID = 6349483199350325596L;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
-    private
+public class PriceList implements IFact {
+    private static final long serialVersionUID = -8577370212807242409L;
+
+    private HashMap<List<Resource>, Double> purchasePrices;
+
+    public PriceList(HashMap<List<Resource>, Double> prices) {
+        purchasePrices = new HashMap<>(prices);
+    }
+
+
+    // This List contains the current Price for every resource bundle that can be achieved when
+    // selling it in Auction B
+    public HashMap<List<Resource>, Double> getPrices() {
+        return purchasePrices;
+    }
+
+    public double getPrice(List<Resource> res){
+        if(purchasePrices.containsKey(res))
+            return purchasePrices.get(res);
+        return 0.0;
+    }
+
+    public void setPrices(HashMap<List<Resource>, Double> prices) {
+        purchasePrices = prices;
+    }
+
+    public void setPrice(List<Resource> res, double price) {
+        purchasePrices.put(res, price);
+    }
 }

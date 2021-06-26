@@ -19,8 +19,30 @@ public class Account implements IFact {
         resourcesCount = new HashMap<>();
         costAverage = new HashMap<>();
         for(Resource r : Resource.values()){
-            resourcesCount.put(r, wallet.get(r));
+            if(wallet != null) {
+                resourcesCount.put(r, wallet.get(r));
+            }else{
+                resourcesCount.put(r, 0);
+            }
             costAverage.put(r, 0.0);
+        }
+    }
+
+    public Map<Resource, Integer> getResourcesCount(){
+        return resourcesCount;
+    }
+
+    public Map<Resource, Double> getCostAverage(){
+        return costAverage;
+    }
+
+    public Account(Account account){
+        if(account != null) {
+            resourcesCount = new HashMap<>(account.getResourcesCount());
+            costAverage = new HashMap<>(account.getCostAverage());
+        }else{
+            resourcesCount = new HashMap<>();
+            costAverage = new HashMap<>();
         }
     }
 
@@ -33,10 +55,11 @@ public class Account implements IFact {
         costAverage.replace(res, ((count - 1) * cost + price) / count);
     }
 
-    public void addItem(InformBuy ib){
-        double averagePrice = ib.getPrice() / ib.getBundle().size();
-        for(Resource res : ib.getBundle()){
-            addResource(res, averagePrice);
+    public void addItem(List<Resource> res, double prize){
+        double averagePrice = prize / res.size();
+
+        for(Resource r : res){
+            addResource(r, averagePrice);
         }
     }
 
@@ -47,10 +70,10 @@ public class Account implements IFact {
         costAverage.replace(res, ((count + 1) * cost - price) / count);
     }
 
-    public void removeItem(InformSell is){
-        double averagePrice = is.getPrice() / is.getBundle().size();
-        for(Resource res : is.getBundle()){
-            removeResource(res, averagePrice);
+    public void removeItem(List<Resource> res, double prize){
+        double averagePrice = prize / res.size();
+        for(Resource r : res){
+            removeResource(r, averagePrice);
         }
     }
 
