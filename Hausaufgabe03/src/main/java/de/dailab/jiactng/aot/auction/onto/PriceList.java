@@ -44,3 +44,4 @@ public class PriceList implements IFact {
         purchasePrices.put(res, price);
     }
 }
+
