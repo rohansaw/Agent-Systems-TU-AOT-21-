@@ -55,7 +55,7 @@ public class BidderBeanC extends AbstractBidderBean {
 
     private void sellItem(){
         updateData();
-        
+
     }
 
     public static final String ACTION_START_AUCTION = "BidderC#startAuction";

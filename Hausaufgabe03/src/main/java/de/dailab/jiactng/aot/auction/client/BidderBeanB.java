@@ -51,7 +51,12 @@ public class BidderBeanB extends AbstractBidderBean{
     public synchronized void startAuction(StartAuction msg, ICommunicationAddress address) {
         auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
         turn = 0;
-        updateWallet();
+        memoryLock.readLock().lock();
+        try{
+            wallet = memory.read(new Wallet(bidderId, null));
+        }finally {
+            memoryLock.readLock().unlock();
+        }
         updatePriceList();
         updateAccount();
     }
@@ -59,6 +64,9 @@ public class BidderBeanB extends AbstractBidderBean{
     public static final String CALL_FOR_BIDS = "BidderB#callForBids";
     @Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
     public synchronized void callForBids(CallForBids msg) {
+        updateAccount();
+        updateWallet();
+        updatePriceList();
 
         Set<List<Resource>> list = new HashSet<>();
         HashMap<List<Resource>, Double> profit = new HashMap<>();
