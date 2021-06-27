@@ -1,23 +1,10 @@
 package de.dailab.jiactng.aot.auction.client;
 
-import com.sun.org.apache.xml.internal.security.Init;
-import de.dailab.jiactng.agentcore.AbstractAgentBean;
-import de.dailab.jiactng.agentcore.action.Action;
 import de.dailab.jiactng.agentcore.action.IMethodExposingBean;
 import de.dailab.jiactng.agentcore.action.scope.ActionScope;
-import de.dailab.jiactng.agentcore.comm.CommunicationAddressFactory;
 import de.dailab.jiactng.agentcore.comm.ICommunicationAddress;
-import de.dailab.jiactng.agentcore.comm.ICommunicationBean;
-import de.dailab.jiactng.agentcore.comm.IGroupAddress;
-import de.dailab.jiactng.agentcore.comm.message.JiacMessage;
-import de.dailab.jiactng.agentcore.knowledge.IFact;
 import de.dailab.jiactng.aot.auction.onto.*;
-import org.sercho.masp.space.event.SpaceEvent;
-import org.sercho.masp.space.event.SpaceObserver;
-import org.sercho.masp.space.event.WriteCallEvent;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +12,6 @@ import java.util.Map;
 public class BidderBeanA extends AbstractBidderBean {
 
 	int turn = 0;
-	String bidderId;
 	Auctioneer auctioneer;
 
 

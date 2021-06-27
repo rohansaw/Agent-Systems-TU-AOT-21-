@@ -12,9 +12,17 @@ public class PriceList implements IFact {
     private HashMap<List<Resource>, Double> purchasePrices;
 
     public PriceList(HashMap<List<Resource>, Double> prices) {
-        purchasePrices = new HashMap<>(prices);
+        if(prices != null)
+            purchasePrices = new HashMap<>(prices);
+        else
+            purchasePrices = new HashMap<>();
     }
 
+    public PriceList(List<Resource> res, double price){
+        purchasePrices = new HashMap<>();
+        if(res != null)
+            purchasePrices.put(res, price);
+    }
 
     // This List contains the current Price for every resource bundle that can be achieved when
     // selling it in Auction B

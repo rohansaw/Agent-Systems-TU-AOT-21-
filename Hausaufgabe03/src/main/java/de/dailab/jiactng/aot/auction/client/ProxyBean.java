@@ -18,8 +18,11 @@ import java.util.HashMap;
 public class ProxyBean extends AbstractBidderBean {
 
     IGroupAddress groupAddress;
-    String messageGroup;
     HashMap<Integer, Auctioneer> auctioneers;
+    Wallet wallet;
+    PriceList priceList;
+    Account account;
+
 
     @Override
     public void doStart() throws Exception {
@@ -28,6 +31,8 @@ public class ProxyBean extends AbstractBidderBean {
         groupAddress = CommunicationAddressFactory.createGroupAddress(messageGroup);
         Action joinAction = retrieveAction(ICommunicationBean.ACTION_JOIN_GROUP);
         invoke(joinAction, new Serializable[]{groupAddress});
+
+        memory.write(new PriceList(null));
     }
 
     private void handleMessage(JiacMessage message){
@@ -71,10 +76,12 @@ public class ProxyBean extends AbstractBidderBean {
     }
 
     private void initialize(InitializeBidder msg) {
+        wallet = msg.getWallet();
+        account = new Account(wallet);
         memoryLock.writeLock().lock();
         try {
-            memory.write(msg.getWallet());
-            memory.write(new Account(msg.getWallet()));
+            memory.write(wallet);
+            memory.write(account);
         }finally {
             memoryLock.writeLock().unlock();
         }
@@ -93,6 +100,18 @@ public class ProxyBean extends AbstractBidderBean {
         }
     }
 
+    private void updatePriceList(CallForBids msg){
+        if(msg.getBundle() == null)
+            return;
+        memoryLock.writeLock().lock();
+        try{//update priceList
+            PriceList pl = memory.read(new PriceList(null));
+            pl.setPrice(msg.getBundle(), msg.getMinOffer());
+        }finally {
+            memoryLock.writeLock().unlock();
+        }
+    }
+
     private void handleCallForBids(CallForBids msg){
         Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
         switch (auctioneer.getMode()){
@@ -100,13 +119,8 @@ public class ProxyBean extends AbstractBidderBean {
                 invokeSimple(BidderBeanA.CALL_FOR_BIDS, msg);
                 break;
             case B:
-                memoryLock.writeLock().lock();
-                try{//update priceList
-                    PriceList pl = memory.read(new PriceList(null));
-                    pl.setPrice(msg.getBundle(), msg.getMinOffer());
-                }finally {
-                    memoryLock.writeLock().unlock();
-                }
+                updatePriceList(msg);
+
                 break;
             case C:
                 invokeSimple(BidderBeanC.CALL_FOR_BIDS, msg);

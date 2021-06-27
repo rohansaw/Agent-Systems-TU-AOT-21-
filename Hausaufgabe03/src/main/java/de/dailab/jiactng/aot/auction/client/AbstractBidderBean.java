@@ -1,31 +1,22 @@
 package de.dailab.jiactng.aot.auction.client;
 
-import com.sun.org.apache.xml.internal.security.Init;
-import de.dailab.jiactng.agentcore.AbstractAgentBean;
 import de.dailab.jiactng.agentcore.action.AbstractMethodExposingBean;
 import de.dailab.jiactng.agentcore.action.Action;
-import de.dailab.jiactng.agentcore.comm.CommunicationAddressFactory;
 import de.dailab.jiactng.agentcore.comm.ICommunicationAddress;
 import de.dailab.jiactng.agentcore.comm.ICommunicationBean;
-import de.dailab.jiactng.agentcore.comm.IGroupAddress;
 import de.dailab.jiactng.agentcore.comm.message.JiacMessage;
 import de.dailab.jiactng.agentcore.knowledge.IFact;
 import de.dailab.jiactng.aot.auction.onto.*;
-import org.graalvm.compiler.phases.graph.ReentrantBlockIterator;
-import org.sercho.masp.space.event.SpaceEvent;
-import org.sercho.masp.space.event.SpaceObserver;
-import org.sercho.masp.space.event.WriteCallEvent;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class AbstractBidderBean extends AbstractMethodExposingBean {
 
-    String groupToken;
-    String messageGroup;
-    String bidderId;
-    ReentrantReadWriteLock memoryLock = new ReentrantReadWriteLock();
+    protected String groupToken;
+    protected String messageGroup;
+    protected String bidderId;
+    protected ReentrantReadWriteLock memoryLock = new ReentrantReadWriteLock();
 
     protected Auctioneer getAuctioneer(Integer id) {
         return id == null ? null : memory.read(new Auctioneer(id, null, null));
