@@ -24,7 +24,7 @@ public class BidderBeanB extends AbstractBidderBean{
         if(wallet == null) return;
     }
 
-    private void updateWallet(){
+    private synchronized void updateWallet(){
         Wallet w = new Wallet(wallet.getBidderId(), wallet.getCredits());
 
         wallet = memory.read(new Wallet(bidderId, null));
@@ -33,22 +33,22 @@ public class BidderBeanB extends AbstractBidderBean{
         }
         wallet = w;
     }
-    private void updatePriceList(){
+    private synchronized void updatePriceList(){
 
         priceList = memory.read(new PriceList(null));
         priceList = new PriceList(priceList.getPrices());
 
     }
 
-    private void updateAccount(){
+    private synchronized void updateAccount(){
         account = memory.read(new Account((Wallet) null));
         account = new Account(account);
 
     }
 
-    public static final String ACTION_START_AUCTION = "BidderC#startAuction";
+    public static final String ACTION_START_AUCTION = "BidderB#startAuction";
     @Expose(name = ACTION_START_AUCTION, scope = ActionScope.AGENT)
-    public void startAuction(StartAuction msg, ICommunicationAddress address) {
+    public synchronized void startAuction(StartAuction msg, ICommunicationAddress address) {
         auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
         turn = 0;
         updateWallet();
@@ -56,7 +56,7 @@ public class BidderBeanB extends AbstractBidderBean{
         updateAccount();
     }
 
-    public static final String CALL_FOR_BIDS = "BidderC#callForBids";
+    public static final String CALL_FOR_BIDS = "BidderB#callForBids";
     @Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
     public synchronized void callForBids(CallForBids msg) {
 

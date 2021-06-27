@@ -94,6 +94,7 @@ public class ProxyBean extends AbstractBidderBean {
                 invokeSimple(BidderBeanA.ACTION_START_AUCTION, msg, sender);
                 break;
             case B:
+                invokeSimple(BidderBeanB.ACTION_START_AUCTION, msg, sender);
                 break;
             case C:
                 invokeSimple(BidderBeanC.ACTION_START_AUCTION, msg, sender);
@@ -120,7 +121,7 @@ public class ProxyBean extends AbstractBidderBean {
                 break;
             case B:
                 updatePriceList(msg);
-
+                invokeSimple(BidderBeanB.CALL_FOR_BIDS, msg);
                 break;
             case C:
                 invokeSimple(BidderBeanC.CALL_FOR_BIDS, msg);

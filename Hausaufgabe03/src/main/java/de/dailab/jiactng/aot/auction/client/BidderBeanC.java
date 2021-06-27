@@ -28,21 +28,13 @@ public class BidderBeanC extends AbstractBidderBean {
     public void execute() {
         turn++;
         if(wallet == null) return;
+
+        sellItem();
         //only one offer per bidder per round
         //decide on offering single Res
     }
 
-    private void updatePriceList(){
-        memoryLock.readLock().lock();
-        try{
-            priceList = memory.read(new PriceList(null));
-            priceList = new PriceList(priceList.getPrices());
-        }finally {
-            memoryLock.readLock().unlock();
-        }
-    }
-
-    private void updateWallet(){
+    private synchronized void updateData(){
         Wallet w = new Wallet(wallet.getBidderId(), wallet.getCredits());
         memoryLock.readLock().lock();
         try{
@@ -50,20 +42,20 @@ public class BidderBeanC extends AbstractBidderBean {
             for(Resource r : Resource.values()){
                 w.add(r, wallet.get(r));
             }
-        }finally {
-            memoryLock.readLock().unlock();
-        }
-        wallet = w;
-    }
 
-    private void updateAccount(){
-        memoryLock.readLock().lock();
-        try{
+            priceList = memory.read(new PriceList(null));
+            priceList = new PriceList(priceList.getPrices());
+
             account = memory.read(new Account((Wallet) null));
             account = new Account(account);
         }finally {
             memoryLock.readLock().unlock();
         }
+    }
+
+    private void sellItem(){
+        updateData();
+        
     }
 
     public static final String ACTION_START_AUCTION = "BidderC#startAuction";
@@ -81,12 +73,10 @@ public class BidderBeanC extends AbstractBidderBean {
 
     public static final String CALL_FOR_BIDS = "BidderC#callForBids";
     @Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
-    public synchronized void callForBids(CallForBids msg) {
-        updatePriceList();
-        updateWallet();
-        updateAccount();
+    public void callForBids(CallForBids msg) {
+        updateData();
 
-        if(wallet.getCredits() >= msg.getMinOffer()){
+        if(!msg.getOfferingBidder().equals(bidderId) && wallet.getCredits() >= msg.getMinOffer()){
             Set<List<Resource>> sellWithoutBuy = new HashSet<>();
             Set<List<Resource>> sellWithBuy = new HashSet<>();
             HashMap<List<Resource>, Double> profit = new HashMap<>();
