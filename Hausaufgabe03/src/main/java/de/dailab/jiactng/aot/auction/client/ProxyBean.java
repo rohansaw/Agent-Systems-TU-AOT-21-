@@ -20,7 +20,6 @@ public class ProxyBean extends AbstractBidderBean {
     IGroupAddress groupAddress;
     HashMap<Integer, Auctioneer> auctioneers;
     Wallet wallet;
-    PriceList priceList;
     Account account;
 
 
@@ -62,29 +61,19 @@ public class ProxyBean extends AbstractBidderBean {
         }
     }
 
-    private void register(ICommunicationAddress auctioneer) {
+    private synchronized void register(ICommunicationAddress auctioneer) {
         auctioneers = new HashMap<>();
-        memoryLock.writeLock().lock();
-        try {
-            memory.removeAll(new Wallet(null, null));
-            memory.removeAll(new Auctioneer(null, null, null));
-        } finally {
-            memoryLock.writeLock().unlock();
-        }
+        memory.removeAll(new Wallet(null, null));
+        memory.removeAll(new Auctioneer(null, null, null));
         Register message = new Register(bidderId, groupToken);
         sendMessage(auctioneer, message);
     }
 
-    private void initialize(InitializeBidder msg) {
+    private synchronized void initialize(InitializeBidder msg) {
         wallet = msg.getWallet();
         account = new Account(wallet);
-        memoryLock.writeLock().lock();
-        try {
-            memory.write(wallet);
-            memory.write(account);
-        }finally {
-            memoryLock.writeLock().unlock();
-        }
+        memory.write(wallet);
+        memory.write(account);
     }
 
     private void handleStartAuction(StartAuction msg, ICommunicationAddress sender) {
@@ -101,16 +90,11 @@ public class ProxyBean extends AbstractBidderBean {
         }
     }
 
-    private void updatePriceList(CallForBids msg){
-        if(msg.getBundle() == null)
+    private synchronized void updatePriceList(CallForBids msg) {
+        if (msg.getBundle() == null)
             return;
-        memoryLock.writeLock().lock();
-        try{//update priceList
-            PriceList pl = memory.read(new PriceList(null));
-            pl.setPrice(msg.getBundle(), msg.getMinOffer());
-        }finally {
-            memoryLock.writeLock().unlock();
-        }
+        PriceList pl = memory.read(new PriceList(null));
+        pl.setPrice(msg.getBundle(), msg.getMinOffer());
     }
 
     private void handleCallForBids(CallForBids msg){
@@ -128,33 +112,23 @@ public class ProxyBean extends AbstractBidderBean {
         }
     }
 
-    private void handleInformBuy(InformBuy msg){
-        if(msg.getBundle() != null) {
-            memoryLock.writeLock().lock();
-            try {
-                Wallet wallet = memory.read(new Wallet(bidderId, null));
-                Account account = memory.read(new Account((Wallet) null));
-                wallet.add(msg.getBundle());
-                wallet.updateCredits(-msg.getPrice());
-                account.addItem(msg.getBundle(), msg.getPrice());
-            }finally {
-                memoryLock.writeLock().unlock();
-            }
+    private synchronized void handleInformBuy(InformBuy msg) {
+        if (msg.getBundle() != null) {
+            Wallet wallet = memory.read(new Wallet(bidderId, null));
+            Account account = memory.read(new Account((Wallet) null));
+            wallet.add(msg.getBundle());
+            wallet.updateCredits(-msg.getPrice());
+            account.addItem(msg.getBundle(), msg.getPrice());
         }
     }
 
-    private void handleInformSell(InformSell msg){
-        if(msg.getBundle() != null) {
-            memoryLock.writeLock().lock();
-            try {
-                Wallet wallet = memory.read(new Wallet(bidderId, null));
-                Account account = memory.read(new Account((Wallet) null));
-                wallet.remove(msg.getBundle());
-                wallet.updateCredits(msg.getPrice());
-                account.removeItem(msg.getBundle(), msg.getPrice());
-            }finally {
-                memoryLock.writeLock().unlock();
-            }
+    private synchronized void handleInformSell(InformSell msg) {
+        if (msg.getBundle() != null) {
+            Wallet wallet = memory.read(new Wallet(bidderId, null));
+            Account account = memory.read(new Account((Wallet) null));
+            wallet.remove(msg.getBundle());
+            wallet.updateCredits(msg.getPrice());
+            account.removeItem(msg.getBundle(), msg.getPrice());
         }
     }
 

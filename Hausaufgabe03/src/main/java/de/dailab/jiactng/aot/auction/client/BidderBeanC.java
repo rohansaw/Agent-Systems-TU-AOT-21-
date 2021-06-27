@@ -34,23 +34,18 @@ public class BidderBeanC extends AbstractBidderBean {
         //decide on offering single Res
     }
 
-    private synchronized void updateData(){
+    private synchronized void updateData() {
         Wallet w = new Wallet(wallet.getBidderId(), wallet.getCredits());
-        memoryLock.readLock().lock();
-        try{
-            wallet = memory.read(new Wallet(bidderId, null));
-            for(Resource r : Resource.values()){
-                w.add(r, wallet.get(r));
-            }
-
-            priceList = memory.read(new PriceList(null));
-            priceList = new PriceList(priceList.getPrices());
-
-            account = memory.read(new Account((Wallet) null));
-            account = new Account(account);
-        }finally {
-            memoryLock.readLock().unlock();
+        wallet = memory.read(new Wallet(bidderId, null));
+        for (Resource r : Resource.values()) {
+            w.add(r, wallet.get(r));
         }
+
+        priceList = memory.read(new PriceList(null));
+        priceList = new PriceList(priceList.getPrices());
+
+        account = memory.read(new Account((Wallet) null));
+        account = new Account(account);
     }
 
     private void sellItem(){
@@ -63,17 +58,12 @@ public class BidderBeanC extends AbstractBidderBean {
     public synchronized void startAuction(StartAuction msg, ICommunicationAddress address) {
         auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
         turn = 0;
-        memoryLock.readLock().lock();
-        try{
-            wallet = memory.read(new Wallet(bidderId, null));
-        }finally {
-                memoryLock.readLock().unlock();
-        }
+        wallet = memory.read(new Wallet(bidderId, null));
     }
 
     public static final String CALL_FOR_BIDS = "BidderC#callForBids";
     @Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
-    public void callForBids(CallForBids msg) {
+    public synchronized void callForBids(CallForBids msg) {
         updateData();
 
         if(!msg.getOfferingBidder().equals(bidderId) && wallet.getCredits() >= msg.getMinOffer()){

@@ -51,14 +51,7 @@ public class BidderBeanB extends AbstractBidderBean{
     public synchronized void startAuction(StartAuction msg, ICommunicationAddress address) {
         auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
         turn = 0;
-        memoryLock.readLock().lock();
-        try{
-            wallet = memory.read(new Wallet(bidderId, null));
-        }finally {
-            memoryLock.readLock().unlock();
-        }
-        updatePriceList();
-        updateAccount();
+        wallet = memory.read(new Wallet(bidderId, null));
     }
 
     public static final String CALL_FOR_BIDS = "BidderB#callForBids";

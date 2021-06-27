@@ -16,11 +16,6 @@ public class AbstractBidderBean extends AbstractMethodExposingBean {
     protected String groupToken;
     protected String messageGroup;
     protected String bidderId;
-    protected ReentrantReadWriteLock memoryLock = new ReentrantReadWriteLock();
-
-    protected Auctioneer getAuctioneer(Integer id) {
-        return id == null ? null : memory.read(new Auctioneer(id, null, null));
-    }
 
     protected void sendMessage(ICommunicationAddress receiver, IFact payload) {
         Action sendAction = retrieveAction(ICommunicationBean.ACTION_SEND);

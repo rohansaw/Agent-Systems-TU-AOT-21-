@@ -51,12 +51,7 @@ public class BidderBeanA extends AbstractBidderBean {
 
 	@IMethodExposingBean.Expose(name = ACTION_START_AUCTION, scope = ActionScope.AGENT)
 	public synchronized void startAuction(StartAuction msg, ICommunicationAddress address) {
-		memoryLock.readLock().lock();
-		try {
-			wallet = memory.read(new Wallet(bidderId, null));
-		}finally {
-			memoryLock.readLock().unlock();
-		}
+		wallet = memory.read(new Wallet(bidderId, null));
 		auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
 		turn = 0;
 	}
