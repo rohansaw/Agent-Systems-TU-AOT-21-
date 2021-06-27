@@ -74,18 +74,19 @@ public class BidderBeanB extends AbstractBidderBean{
             }
             if(priceList.getPrice(msg.getBundle())> account.getCostOfBundle(msg.getBundle())){
                 Double bid= r.nextInt((int) priceList.getPrice(msg.getBundle()) - (int) account.getCostOfBundle(msg.getBundle()))+account.getCostOfBundle(msg.getBundle());
-                sendBid(bid, msg.getCallId());
+                if(bid> msg.getMinOffer())
+                    sendBid(bid, msg.getCallId());
+                else return;
             }
             else{
                 Double bid = account.getCostOfBundle(msg.getBundle());
-                sendBid(bid, msg.getCallId());
+                if(bid> msg.getMinOffer())
+                    sendBid(bid, msg.getCallId());
+                else return;
             }
 
 
         }
-
-
-
 
     }
     private void sendBid(Double bid, Integer callId) {
