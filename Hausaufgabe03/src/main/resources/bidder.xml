@@ -21,12 +21,22 @@
 	<bean name="BidderAgent" parent="SimpleAgent" scope="prototype">
 		<property name="agentBeans">
 			<list>
-				<bean name="BidderBean" class="de.dailab.jiactng.aot.auction.client.BidderBeanA" scope="prototype">
+				<bean name="BidderBeanA" class="de.dailab.jiactng.aot.auction.client.BidderBeanA" scope="prototype">
 					<property name="logLevel" value="INFO" />
 					<property name="executionInterval" value="2000" />
 					
-					<property name="bidderId" value="DummyBidder_1" />
-					<property name="groupToken" value="DummyUniqueGroupToken1" />
+					<property name="bidderId" value="Bidder_18" />
+					<property name="groupToken" value="UniqueGroupToken18" />
+					<property name="messageGroup" value="de.dailab.jiactng.aot.auction" />
+					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
+				</bean>
+
+				<bean name="BidderBeanB" class="de.dailab.jiactng.aot.auction.client.BidderBeanB" scope="prototype">
+					<property name="logLevel" value="INFO" />
+					<property name="executionInterval" value="2000" />
+
+					<property name="bidderId" value="Bidder_18" />
+					<property name="groupToken" value="UniqueGroupToken18" />
 					<property name="messageGroup" value="de.dailab.jiactng.aot.auction" />
 					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
 				</bean>
@@ -35,8 +45,8 @@
 					<property name="logLevel" value="INFO" />
 					<property name="executionInterval" value="2000" />
 
-					<property name="bidderId" value="DummyBidder_1" />
-					<property name="groupToken" value="DummyUniqueGroupToken1" />
+					<property name="bidderId" value="Bidder_18" />
+					<property name="groupToken" value="UniqueGroupToken18" />
 					<property name="messageGroup" value="de.dailab.jiactng.aot.auction" />
 					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
 				</bean>
@@ -45,8 +55,8 @@
 					<property name="logLevel" value="INFO" />
 					<property name="executionInterval" value="2000" />
 
-					<property name="bidderId" value="DummyBidder_1" />
-					<property name="groupToken" value="DummyUniqueGroupToken1" />
+					<property name="bidderId" value="Bidder_18" />
+					<property name="groupToken" value="UniqueGroupToken18" />
 					<property name="messageGroup" value="de.dailab.jiactng.aot.auction" />
 					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
 				</bean>

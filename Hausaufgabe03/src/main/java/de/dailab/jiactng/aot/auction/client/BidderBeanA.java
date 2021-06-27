@@ -40,7 +40,7 @@ public class BidderBeanA extends AbstractBidderBean {
 	}
 
 	@IMethodExposingBean.Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
-	public void callForBids(CallForBids cfb) {
+	public synchronized void callForBids(CallForBids cfb) {
 		if(cfb.getMode() == CallForBids.CfBMode.BUY) {
 			Double bid = calculateBid(cfb);
 			if(bid > 0) {
@@ -61,7 +61,7 @@ public class BidderBeanA extends AbstractBidderBean {
 		turn = 0;
 	}
 
-	private void calculateResourceValues() {
+	private synchronized void calculateResourceValues() {
 		for(Resource resource : Resource.values()) {
 			if (resource.equals(Resource.G)) {
 				resourceValues.put(resource, -20.0);

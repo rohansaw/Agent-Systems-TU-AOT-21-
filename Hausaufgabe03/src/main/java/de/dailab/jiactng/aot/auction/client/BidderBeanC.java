@@ -68,7 +68,7 @@ public class BidderBeanC extends AbstractBidderBean {
 
     public static final String ACTION_START_AUCTION = "BidderC#startAuction";
     @Expose(name = ACTION_START_AUCTION, scope = ActionScope.AGENT)
-    public void startAuction(StartAuction msg, ICommunicationAddress address) {
+    public synchronized void startAuction(StartAuction msg, ICommunicationAddress address) {
         auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
         turn = 0;
         memoryLock.readLock().lock();
@@ -81,7 +81,7 @@ public class BidderBeanC extends AbstractBidderBean {
 
     public static final String CALL_FOR_BIDS = "BidderC#callForBids";
     @Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
-    public void callForBids(CallForBids msg) {
+    public synchronized void callForBids(CallForBids msg) {
         updatePriceList();
         updateWallet();
         updateAccount();

@@ -58,7 +58,7 @@ public class BidderBeanB extends AbstractBidderBean{
 
     public static final String CALL_FOR_BIDS = "BidderC#callForBids";
     @Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
-    public void callForBids(CallForBids msg) {
+    public synchronized void callForBids(CallForBids msg) {
 
         Set<List<Resource>> list = new HashSet<>();
         HashMap<List<Resource>, Double> profit = new HashMap<>();
