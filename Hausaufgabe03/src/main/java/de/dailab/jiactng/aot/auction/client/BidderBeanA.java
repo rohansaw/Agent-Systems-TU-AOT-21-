@@ -25,11 +25,6 @@ public class BidderBeanA extends AbstractBidderBean {
 	@Override
 	public void doStart() throws Exception {
 		resourceValues = new HashMap<>();
-		/* only once in proxyBean
-		groupAddress = CommunicationAddressFactory.createGroupAddress(groupName);
-		Action joinAction = retrieveAction(ICommunicationBean.ACTION_JOIN_GROUP);
-		invoke(joinAction, new Serializable[]{groupAddress});
-		 */
 	}
 
 
@@ -92,6 +87,7 @@ public class BidderBeanA extends AbstractBidderBean {
 				callId,
 				offer
 		);
+		log.info("A sending BID: "+ message);
 		sendMessage(auctioneer.getAddress(), message);
 	}
 }

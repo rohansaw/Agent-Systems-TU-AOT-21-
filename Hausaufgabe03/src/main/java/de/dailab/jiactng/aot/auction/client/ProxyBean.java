@@ -36,6 +36,12 @@ public class ProxyBean extends AbstractBidderBean {
 
     private void handleMessage(JiacMessage message){
         Object payload = message.getPayload();
+        log.info("--------------");
+        Wallet w = memory.read(new Wallet(bidderId, null));
+        if(w != null){
+            log.info(w.getCredits());
+            log.info(w.toString());
+        }
         log.info("Bidder RECEIVED:");
         log.info(payload);
 
@@ -113,7 +119,7 @@ public class ProxyBean extends AbstractBidderBean {
     }
 
     private synchronized void handleInformBuy(InformBuy msg) {
-        if (msg.getBundle() != null) {
+        if (msg.getBundle() != null && msg.getType() == InformBuy.BuyType.WON) {
             Wallet wallet = memory.read(new Wallet(bidderId, null));
             Account account = memory.read(new Account((Wallet) null));
             wallet.add(msg.getBundle());
@@ -123,7 +129,7 @@ public class ProxyBean extends AbstractBidderBean {
     }
 
     private synchronized void handleInformSell(InformSell msg) {
-        if (msg.getBundle() != null) {
+        if (msg.getBundle() != null && msg.getType() == InformSell.SellType.SOLD) {
             Wallet wallet = memory.read(new Wallet(bidderId, null));
             Account account = memory.read(new Account((Wallet) null));
             wallet.remove(msg.getBundle());

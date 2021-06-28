@@ -26,7 +26,7 @@
 					<property name="executionInterval" value="2000" />
 					
 					<property name="bidderId" value="Bidder_18" />
-					<property name="groupToken" value="UniqueGroupToken18" />
+					<property name="groupToken" value="Group18_91679" />
 					<property name="messageGroup" value="de.dailab.jiactng.aot.auction" />
 					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
 				</bean>
@@ -36,7 +36,7 @@
 					<property name="executionInterval" value="2000" />
 
 					<property name="bidderId" value="Bidder_18" />
-					<property name="groupToken" value="UniqueGroupToken18" />
+					<property name="groupToken" value="Group18_91679" />
 					<property name="messageGroup" value="de.dailab.jiactng.aot.auction" />
 					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
 				</bean>
@@ -46,7 +46,7 @@
 					<property name="executionInterval" value="2000" />
 
 					<property name="bidderId" value="Bidder_18" />
-					<property name="groupToken" value="UniqueGroupToken18" />
+					<property name="groupToken" value="Group18_91679" />
 					<property name="messageGroup" value="de.dailab.jiactng.aot.auction" />
 					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
 				</bean>
@@ -56,7 +56,7 @@
 					<property name="executionInterval" value="2000" />
 
 					<property name="bidderId" value="Bidder_18" />
-					<property name="groupToken" value="UniqueGroupToken18" />
+					<property name="groupToken" value="Group18_91679" />
 					<property name="messageGroup" value="de.dailab.jiactng.aot.auction" />
 					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
 				</bean>
