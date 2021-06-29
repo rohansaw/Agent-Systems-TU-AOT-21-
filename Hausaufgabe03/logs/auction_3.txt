@@ -1,0 +1,12 @@
+2021-06-29T14:14:01.576506155Z
+Auction in this session: 2
+
+{state={phase=IDLE, mode=RANDOM, randomSeed=12345, last_started=16:13:01.586605514, participants=[]}, config={owner=rohan, startMessage=aot-test-auction, initialJKcount=5, initialBalance=10000.0, messageGroup=de.dailab.jiactng.aot.auction}}
+
+21-06-29 16:13:02 INFO [n-25710855623b.a-2571088168e9.AuctioneerMetaBean] Current Phase: STARTING
+21-06-29 16:13:02 INFO [n-25710855623b.a-2571088168e9.AuctioneerMetaBean] Messages in Memory: 0
+21-06-29 16:13:02 INFO [n-25710855623b.a-2571088168e9.AuctioneerMetaBean] Sending StartAuctions(2, aot-test-auction) to group
+21-06-29 16:13:04 INFO [n-25710855623b.a-2571088168e9.AuctioneerMetaBean] Current Phase: REGISTRATION
+21-06-29 16:13:04 INFO [n-25710855623b.a-2571088168e9.AuctioneerMetaBean] Messages in Memory: 0
+21-06-29 16:13:04 INFO [n-25710855623b.a-2571088168e9.AuctioneerMetaBean] No one showed up for the auction. :-(
+

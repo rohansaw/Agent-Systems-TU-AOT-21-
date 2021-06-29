@@ -31,7 +31,6 @@ public class BidderBeanA extends AbstractBidderBean {
 	@Override
 	public void execute() {
 		turn++;
-		if(wallet == null) return;
 	}
 
 	@IMethodExposingBean.Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
@@ -52,13 +51,13 @@ public class BidderBeanA extends AbstractBidderBean {
 	}
 
 	private synchronized void calculateResourceValues() {
+		PriceList priceList = memory.read(new PriceList(null));
 		for(Resource resource : Resource.values()) {
 			if (resource.equals(Resource.G)) {
 				resourceValues.put(resource, -20.0);
 			} else {
 				double value = 0;
 				double count = 0;
-				PriceList priceList = memory.read(new PriceList(null));
 				for (Map.Entry<List<Resource>, Double> entry : priceList.getPrices().entrySet()) {
 					if (entry.getKey().contains(resource)) {
 						double average = (1.0 / entry.getKey().size()) * entry.getValue();

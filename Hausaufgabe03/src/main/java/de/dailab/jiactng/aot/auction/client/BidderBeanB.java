@@ -34,10 +34,8 @@ public class BidderBeanB extends AbstractBidderBean{
         wallet = w;
     }
     private synchronized void updatePriceList(){
-
         priceList = memory.read(new PriceList(null));
         priceList = new PriceList(priceList.getPrices());
-
     }
 
     private synchronized void updateAccount(){
@@ -92,6 +90,7 @@ public class BidderBeanB extends AbstractBidderBean{
     }
     private void sendBid(Double bid, Integer callId) {
         Bid message = new Bid(auctioneer.getAuctioneerId(), bidderId, callId, bid);
+        log.info("B sending Bid: "+ message);
         sendMessage(auctioneer.getAddress(), message);
     }
 
