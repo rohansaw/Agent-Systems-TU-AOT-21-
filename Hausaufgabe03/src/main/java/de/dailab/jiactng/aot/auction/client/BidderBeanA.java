@@ -32,7 +32,6 @@ public class BidderBeanA extends AbstractBidderBean {
 	@Override
 	public void execute() {
 		turn++;
-		if(wallet == null) return;
 	}
 
 	private synchronized void updateData() {
@@ -68,13 +67,13 @@ public class BidderBeanA extends AbstractBidderBean {
 	}
 
 	private synchronized void calculateResourceValues() {
+		PriceList priceList = memory.read(new PriceList(null));
 		for(Resource resource : Resource.values()) {
 			if (resource.equals(Resource.G)) {
 				resourceValues.put(resource, -20.0);
 			} else {
 				double value = 0;
 				double count = 0;
-				PriceList priceList = memory.read(new PriceList(null));
 				for (Map.Entry<List<Resource>, Double> entry : priceList.getPrices().entrySet()) {
 					if (entry.getKey().contains(resource)) {
 						double average = (1.0 / entry.getKey().size()) * entry.getValue();
@@ -92,46 +91,6 @@ public class BidderBeanA extends AbstractBidderBean {
 		calculateResourceValues();
 		for(Resource resource: cfb.getBundle()) {
 			bid += resourceValues.get(resource);
-		}
-		return bid;
-	}
-
-
-	public synchronized double getBid(CallForBids msg) {
-		Set<List<Resource>> sellWithoutBuy = new HashSet<>();
-		HashMap<List<Resource>, Double> profit = new HashMap<>();
-		double bid = 0;
-
-		for (List<Resource> l : priceList.getPrices().keySet()) {
-			if (wallet.contains(l)) {
-				sellWithoutBuy.add(l);
-			}
-		}
-
-		wallet.add(msg.getBundle());
-		account.addItem(msg.getBundle(), msg.getMinOffer());
-
-		while (true) {
-			for (List<Resource> l : priceList.getPrices().keySet()) {
-				if (wallet.contains(l) && !sellWithoutBuy.contains(l)) {
-					//no subtraction of msg.price -> it's already calculated in account.addItem
-					double prof = priceList.getPrice(l) - account.getCostOfBundle(l);
-					if (prof > 0)
-						profit.put(l, prof);
-				}
-			}
-
-			if (profit.size() == 0) break;
-
-			Map.Entry<List<Resource>, Double> maxProfit = profit.entrySet().stream()
-					.max(Map.Entry.comparingByValue()).orElse(null);
-
-			if (maxProfit != null) {
-				bid += maxProfit.getValue();
-				wallet.remove(maxProfit.getKey());
-				account.removeItem(maxProfit.getKey(), maxProfit.getValue());
-				profit.remove(maxProfit.getKey());
-			}
 		}
 		return bid;
 	}

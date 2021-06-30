@@ -47,7 +47,6 @@ public class ProxyBean extends AbstractBidderBean {
         log.info("--------------");
         Wallet w = memory.read(new Wallet(bidderId, null));
         if(w != null){
-            log.info(w.getCredits());
             log.info(w.toString());
         }
         log.info("Bidder RECEIVED:");
@@ -79,15 +78,20 @@ public class ProxyBean extends AbstractBidderBean {
         auctioneers = new HashMap<>();
         memory.removeAll(new Wallet(null, null));
         memory.removeAll(new Auctioneer(null, null, null));
+        // memory.removeAll(new PriceList(null));
         Register message = new Register(bidderId, groupToken);
         sendMessage(auctioneer, message);
     }
 
     private synchronized void initialize(InitializeBidder msg) {
         wallet = msg.getWallet();
-        account = new Account(wallet);
-        memory.write(wallet);
-        memory.write(account);
+        if(wallet != null) {
+            account = new Account(wallet);
+            memory.write(wallet);
+            memory.write(account);
+        } else {
+            log.warn("Wallet was null ?!");
+        }
     }
 
     private void handleStartAuction(StartAuction msg, ICommunicationAddress sender) {

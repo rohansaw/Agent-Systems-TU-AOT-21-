@@ -34,7 +34,7 @@ public class BidderBeanB extends AbstractBidderBean {
         wallet = w;
     }
 
-    private synchronized void updatePriceList() {
+    private synchronized void updatePriceList(){
         priceList = memory.read(new PriceList(null));
         priceList = new PriceList(priceList.getPrices());
     }
@@ -73,16 +73,13 @@ public class BidderBeanB extends AbstractBidderBean {
                 .max(Map.Entry.comparingByValue()).orElse(null);
         if (maxProfit != null) {
             sendBid(maxProfit.getValue(), priceList.getCallId(maxProfit.getKey()));
-            account.removeItem(maxProfit.getKey(), priceList.getPrice(maxProfit.getKey()));
-            wallet.remove(maxProfit.getKey());
-            wallet.updateCredits(priceList.getPrice(maxProfit.getKey()));
-            priceList.setPrice(maxProfit.getKey(), 0.0, 0);
         }
     }
 
 
     private void sendBid(Double bid, Integer callId) {
         Bid message = new Bid(auctioneer.getAuctioneerId(), bidderId, callId, bid);
+        log.info("B sending Bid: "+ message);
         sendMessage(auctioneer.getAddress(), message);
     }
 
