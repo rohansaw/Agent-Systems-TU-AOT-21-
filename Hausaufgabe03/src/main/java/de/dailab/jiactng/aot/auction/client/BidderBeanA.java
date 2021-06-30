@@ -8,6 +8,7 @@ import de.dailab.jiactng.aot.auction.onto.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class BidderBeanA extends AbstractBidderBean {
 
@@ -71,12 +72,41 @@ public class BidderBeanA extends AbstractBidderBean {
 	}
 
 	private Double calculateBid(CallForBids cfb) {
-		Double bid = 0.0;
+		Double standard_bid = 0.0;
 		calculateResourceValues();
 		for(Resource resource: cfb.getBundle()) {
-			bid += resourceValues.get(resource);
+			standard_bid += resourceValues.get(resource);
 		}
-		return bid;
+		// Currently experimental activate, if we want to bid higher
+		// return Math.max(standard_bid, calculateGreedyBid(cfb.getBundle()));
+		return standard_bid;
+	}
+
+	private Double calculateGreedyBid(List<Resource> resources){
+		PriceList priceList = memory.read(new PriceList(null));
+		Wallet wallet = memory.read(new Wallet(null, null));
+		Account account = memory.read(new Account((Account) null));
+		Double bestValue = 0.0;
+		for(Map.Entry<List<Resource>, Double> bundle : priceList.getPrices().entrySet()) {
+			// check which resources need to be present in wallet in order to sell the new bundle directly
+			List<Resource> requiredResources = bundle.getKey()
+					.stream()
+					.filter(element -> !resources.contains(element))
+					.collect(Collectors.toList());
+			if(wallet.contains(requiredResources)){
+				Double payedSoFar = requiredResources.stream()
+						.map(r -> {
+							if(account.getAverageCost(r) > 0.0) {
+								return account.getAverageCost(r);
+							} else{
+								return Double.MAX_VALUE;
+							}
+						})
+						.reduce(0.0, (a, b) -> a+b);
+				bestValue = Math.max(bundle.getValue() - payedSoFar, bestValue);
+			}
+		}
+		return bestValue;
 	}
 
 	private void sendBid(Double offer, Integer callId) {
