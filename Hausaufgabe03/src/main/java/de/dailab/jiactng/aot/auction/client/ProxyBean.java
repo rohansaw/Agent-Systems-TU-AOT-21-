@@ -14,6 +14,8 @@ import org.sercho.masp.space.event.WriteCallEvent;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ProxyBean extends AbstractBidderBean {
 
@@ -21,7 +23,9 @@ public class ProxyBean extends AbstractBidderBean {
     HashMap<Integer, Auctioneer> auctioneers;
     Wallet wallet;
     Account account;
-
+    int countCFBfromB = 0;
+    int plSize = 0;
+    List<Bid> offeredItems = new LinkedList<>();
 
     @Override
     public void doStart() throws Exception {
@@ -32,6 +36,10 @@ public class ProxyBean extends AbstractBidderBean {
         invoke(joinAction, new Serializable[]{groupAddress});
 
         memory.write(new PriceList(null));
+    }
+
+    @Override
+    public void execute(){
     }
 
     private void handleMessage(JiacMessage message){
@@ -100,11 +108,11 @@ public class ProxyBean extends AbstractBidderBean {
         }
     }
 
-    private synchronized void updatePriceList(CallForBids msg) {
+    private synchronized int updatePriceList(CallForBids msg) {
         if (msg.getBundle() == null)
-            return;
+            return Integer.MAX_VALUE;
         PriceList pl = memory.read(new PriceList(null));
-        pl.setPrice(msg.getBundle(), msg.getMinOffer());
+        return pl.setPrice(msg.getBundle(), msg.getMinOffer(), msg.getCallId());
     }
 
     private void handleCallForBids(CallForBids msg){
@@ -114,8 +122,13 @@ public class ProxyBean extends AbstractBidderBean {
                 invokeSimple(BidderBeanA.CALL_FOR_BIDS, msg);
                 break;
             case B:
-                updatePriceList(msg);
-                invokeSimple(BidderBeanB.CALL_FOR_BIDS, msg);
+                countCFBfromB++;
+                int oldPlSize = plSize;
+                int plSize = updatePriceList(msg);
+                if(countCFBfromB >= plSize && plSize == oldPlSize) {
+                    invokeSimple(BidderBeanB.CALL_FOR_BIDS, msg);
+                    countCFBfromB = 0;
+                }
                 break;
             case C:
                 invokeSimple(BidderBeanC.CALL_FOR_BIDS, msg);
@@ -140,6 +153,12 @@ public class ProxyBean extends AbstractBidderBean {
             wallet.updateCredits(msg.getPrice());
             account.removeItem(msg.getBundle(), msg.getPrice());
         }
+    }
+
+    private synchronized void setPriceListZero(){
+        PriceList pl = memory.read(new PriceList(null));
+        if(pl != null)
+            pl.setToZero();
     }
 
     private void invokeSimple(String actionName, Serializable... params) {

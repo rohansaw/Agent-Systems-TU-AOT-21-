@@ -17,7 +17,7 @@ public class BidderBeanC extends AbstractBidderBean {
     Account account = null;
 
     //tune parameter \in (0,1) -> optimum depends on #bidders
-    double valueFraction = 0.5;
+    double valueFraction = 0.75;
 
 
     @Override
@@ -66,49 +66,50 @@ public class BidderBeanC extends AbstractBidderBean {
     public synchronized void callForBids(CallForBids msg) {
         updateData();
 
-        if(!msg.getOfferingBidder().equals(bidderId) && wallet.getCredits() >= msg.getMinOffer()){
-            Set<List<Resource>> sellWithoutBuy = new HashSet<>();
-            Set<List<Resource>> sellWithBuy = new HashSet<>();
-            HashMap<List<Resource>, Double> profit = new HashMap<>();
+        if(!msg.getOfferingBidder().equals(bidderId) && wallet.getCredits() >= msg.getMinOffer()) {
+            double bid = getBid(msg) * valueFraction;
+            if(bid > 0)
+                sendMessage(auctioneer.getAddress(), new Bid(msg.getAuctioneerId(), bidderId, msg.getCallId(), bid));
+        }
+    }
 
-            for(List<Resource> l : priceList.getPrices().keySet()){
-                if(wallet.contains(l)) {
-                    sellWithoutBuy.add(l);
-                    double prof = priceList.getPrice(l) - account.getCostOfBundle(l);
-                    profit.put(l, prof);
-                }
+    public synchronized double getBid(CallForBids msg) {
+        Set<List<Resource>> sellWithoutBuy = new HashSet<>();
+        HashMap<List<Resource>, Double> profit = new HashMap<>();
+        double bid = 0;
+
+        for (List<Resource> l : priceList.getPrices().keySet()) {
+            if (wallet.contains(l)) {
+                sellWithoutBuy.add(l);
             }
+        }
 
-            Map.Entry<List<Resource>, Double> maxProfitWithoutBuy = profit.entrySet().stream()
-                    .max(Map.Entry.comparingByValue()).orElse(null);
+        wallet.add(msg.getBundle());
+        account.addItem(msg.getBundle(), msg.getMinOffer());
 
-            wallet.add(msg.getBundle());
-            account.addItem(msg.getBundle(), msg.getMinOffer());
-            for(List<Resource> l : priceList.getPrices().keySet()){
-                if(wallet.contains(l) && !sellWithoutBuy.contains(l)) {
-                    sellWithBuy.add(l);
+        while (true) {
+            for (List<Resource> l : priceList.getPrices().keySet()) {
+                if (wallet.contains(l) && !sellWithoutBuy.contains(l)) {
                     //no subtraction of msg.price -> it's already calculated in account.addItem
                     double prof = priceList.getPrice(l) - account.getCostOfBundle(l);
-                    profit.put(l, prof);
+                    if (prof > 0)
+                        profit.put(l, prof);
                 }
             }
 
-            if(sellWithBuy.size() == 0)
-                return;
+            if (profit.size() == 0) break;
 
             Map.Entry<List<Resource>, Double> maxProfit = profit.entrySet().stream()
                     .max(Map.Entry.comparingByValue()).orElse(null);
 
-            if(maxProfit != null && sellWithBuy.contains(maxProfit.getKey())){
+            if (maxProfit != null) {
                 //get MaxProfit after sell maxProfit
-                double value = maxProfit.getValue();
-                if(maxProfitWithoutBuy != null)
-                    value -= maxProfitWithoutBuy.getValue();
-                Bid bid = new Bid(msg.getAuctioneerId(), bidderId, msg.getCallId(), value * valueFraction);
-                sendMessage(auctioneer.getAddress(), bid);
+                bid += maxProfit.getValue();
+                wallet.remove(maxProfit.getKey());
+                account.removeItem(maxProfit.getKey(), maxProfit.getValue());
+                profit.remove(maxProfit.getKey());
             }
-            wallet.remove(msg.getBundle());
-            account.removeItem(msg.getBundle(), msg.getMinOffer());
         }
+        return bid;
     }
 }
