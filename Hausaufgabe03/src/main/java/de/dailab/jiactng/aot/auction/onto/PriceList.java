@@ -11,11 +11,15 @@ public class PriceList implements IFact {
 
     private HashMap<List<Resource>, Double> purchasePrices;
 
+    private HashMap<List<Resource>, Integer> callIds;
+
     public PriceList(HashMap<List<Resource>, Double> prices) {
-        if(prices != null)
+        if(prices != null) {
             purchasePrices = new HashMap<>(prices);
-        else
+        }else {
             purchasePrices = new HashMap<>();
+        }
+        callIds = new HashMap<>();
     }
 
     // This List contains the current Price for every resource bundle that can be achieved when
@@ -30,12 +34,24 @@ public class PriceList implements IFact {
         return 0.0;
     }
 
+    public void setToZero(){
+        for (List<Resource> res : purchasePrices.keySet()){
+            purchasePrices.put(res, 0.0);
+        }
+    }
+
     public void setPrices(HashMap<List<Resource>, Double> prices) {
         purchasePrices = prices;
     }
 
-    public void setPrice(List<Resource> res, double price) {
+    public Integer getCallId(List<Resource> res){
+        return callIds.get(res);
+    }
+
+    public int setPrice(List<Resource> res, double price, int callId) {
         purchasePrices.put(res, price);
+        callIds.put(res, callId);
+        return purchasePrices.size();
     }
 }
 

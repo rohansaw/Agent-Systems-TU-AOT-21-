@@ -5,14 +5,15 @@ import de.dailab.jiactng.agentcore.action.scope.ActionScope;
 import de.dailab.jiactng.agentcore.comm.ICommunicationAddress;
 import de.dailab.jiactng.aot.auction.onto.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BidderBeanA extends AbstractBidderBean {
 
 	int turn = 0;
 	Auctioneer auctioneer;
+
+	PriceList priceList = null;
+	Account account = null;
 
 
 	public static final String ACTION_START_AUCTION = "BidderA#startAuction";
@@ -34,9 +35,24 @@ public class BidderBeanA extends AbstractBidderBean {
 		if(wallet == null) return;
 	}
 
+	private synchronized void updateData() {
+		Wallet w = new Wallet(wallet.getBidderId(), wallet.getCredits());
+		wallet = memory.read(new Wallet(bidderId, null));
+		for (Resource r : Resource.values()) {
+			w.add(r, wallet.get(r));
+		}
+
+		priceList = memory.read(new PriceList(null));
+		priceList = new PriceList(priceList.getPrices());
+
+		account = memory.read(new Account((Wallet) null));
+		account = new Account(account);
+	}
+
 	@IMethodExposingBean.Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
 	public synchronized void callForBids(CallForBids cfb) {
 		if(cfb.getMode() == CallForBids.CfBMode.BUY) {
+			updateData();
 			Double bid = calculateBid(cfb);
 			if(bid > 0) {
 				sendBid(bid, cfb.getCallId());
@@ -71,7 +87,7 @@ public class BidderBeanA extends AbstractBidderBean {
 		}
 	}
 
-	private Double calculateBid(CallForBids cfb) {
+	private synchronized Double calculateBid(CallForBids cfb) {
 		Double bid = 0.0;
 		calculateResourceValues();
 		for(Resource resource: cfb.getBundle()) {
@@ -79,6 +95,47 @@ public class BidderBeanA extends AbstractBidderBean {
 		}
 		return bid;
 	}
+
+
+	public synchronized double getBid(CallForBids msg) {
+		Set<List<Resource>> sellWithoutBuy = new HashSet<>();
+		HashMap<List<Resource>, Double> profit = new HashMap<>();
+		double bid = 0;
+
+		for (List<Resource> l : priceList.getPrices().keySet()) {
+			if (wallet.contains(l)) {
+				sellWithoutBuy.add(l);
+			}
+		}
+
+		wallet.add(msg.getBundle());
+		account.addItem(msg.getBundle(), msg.getMinOffer());
+
+		while (true) {
+			for (List<Resource> l : priceList.getPrices().keySet()) {
+				if (wallet.contains(l) && !sellWithoutBuy.contains(l)) {
+					//no subtraction of msg.price -> it's already calculated in account.addItem
+					double prof = priceList.getPrice(l) - account.getCostOfBundle(l);
+					if (prof > 0)
+						profit.put(l, prof);
+				}
+			}
+
+			if (profit.size() == 0) break;
+
+			Map.Entry<List<Resource>, Double> maxProfit = profit.entrySet().stream()
+					.max(Map.Entry.comparingByValue()).orElse(null);
+
+			if (maxProfit != null) {
+				bid += maxProfit.getValue();
+				wallet.remove(maxProfit.getKey());
+				account.removeItem(maxProfit.getKey(), maxProfit.getValue());
+				profit.remove(maxProfit.getKey());
+			}
+		}
+		return bid;
+	}
+
 
 	private void sendBid(Double offer, Integer callId) {
 		Bid message = new Bid(
