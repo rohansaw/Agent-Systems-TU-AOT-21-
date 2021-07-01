@@ -30,9 +30,9 @@ public class ProxyBean extends AbstractBidderBean {
     private Wallet wallet;
     private Account account;
     private PriceList priceList;
-    private int countCFBfromB = 0;
+    private int countCFBforB = 0;
     private int plSize = 0;
-    private int countOnlyCFBB = 0;
+    private int countOnlyCFBforB = 0;
     private int countBidder = 0;
 
     //only register for one auction
@@ -49,7 +49,7 @@ public class ProxyBean extends AbstractBidderBean {
 
     @Override
     public synchronized void execute(){
-        countOnlyCFBB++;
+        countOnlyCFBforB++;
     }
 
     private void handleMessage(JiacMessage message){
@@ -116,7 +116,7 @@ public class ProxyBean extends AbstractBidderBean {
 
     private void handleStartAuction(StartAuction msg, ICommunicationAddress sender) {
         auctioneers.put(msg.getAuctioneerId(), new Auctioneer(msg.getAuctioneerId(), sender, msg.getMode()));
-        countOnlyCFBB = 0;
+        countOnlyCFBforB = 0;
         switch (msg.getMode()){
             case A:
                 account.setProbabilities(msg.getInitialItems());
@@ -138,16 +138,16 @@ public class ProxyBean extends AbstractBidderBean {
                 invokeSimple(BidderBeanA.CALL_FOR_BIDS, msg);
                 break;
             case B:
-                countCFBfromB++;
+                countCFBforB++;
                 priceList.setPrice(msg.getBundle(), msg.getMinOffer(), msg.getCallId());
-                if(countCFBfromB == plSize) {
-                    invokeSimple(BidderBeanB.CALL_FOR_BIDS, countOnlyCFBB >= 2);
-                    countCFBfromB = 0;
+                if(countCFBforB == plSize) {
+                    invokeSimple(BidderBeanB.CALL_FOR_BIDS, countOnlyCFBforB >= 2);
+                    countCFBforB = 0;
                 }
                 break;
             case C:
                 //after auction C closed only B is open for sell
-                countOnlyCFBB = 0;
+                countOnlyCFBforB = 0;
                 invokeSimple(BidderBeanC.CALL_FOR_BIDS, msg);
         }
     }
