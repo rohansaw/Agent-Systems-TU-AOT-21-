@@ -46,7 +46,7 @@ public class BidderBeanB extends AbstractBidderBean {
 
     public static final String CALL_FOR_BIDS = "BidderB#callForBids";
     @Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
-    public synchronized void callForBids(boolean sellAll) {
+    public void callForBids(boolean sellAll) {
         updateData();
         HashMap<Integer, Double> profit = new HashMap<>();
 
@@ -66,7 +66,7 @@ public class BidderBeanB extends AbstractBidderBean {
 
 
     private void sendBid(Double bid, Integer callId) {
-        Bid message = new Bid(auctioneer.getAuctioneerId(), bidderId, callId, bid);
+        Bid message = new Bid(auctioneer.getAuctioneerId(), bidderId, callId, null);
         log.info("B sending Bid: "+ message);
         sendMessage(auctioneer.getAddress(), message);
     }
