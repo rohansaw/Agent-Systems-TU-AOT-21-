@@ -73,6 +73,14 @@
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-util:8.1.17.v20150415" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-io:8.1.17.v20150415" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-http:8.1.17.v20150415" level="project" />
-    <orderEntry type="library" name="Maven: org.jblas:jblas:1.2.5" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/main/resources/ejml-simple-0.40.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>

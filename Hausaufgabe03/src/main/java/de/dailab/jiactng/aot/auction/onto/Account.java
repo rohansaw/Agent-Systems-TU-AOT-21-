@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.dailab.jiactng.agentcore.knowledge.IFact;
-import org.jblas.Solve;
-import org.jblas.DoubleMatrix;
+
 
 public class Account implements IFact {
     private static final long serialVersionUID = 184766311824118260L;
@@ -60,7 +59,7 @@ public class Account implements IFact {
     }
 
     public void addItem(List<Resource> res, double prize){
-        double[] weights = calcWeights(res, prize);
+        double[] weights = GaussianElimination.weightResources(res, probabilities, prize);
         for(Resource r : res){
             addResource(r, weights[r.ordinal()]);
         }
@@ -74,7 +73,7 @@ public class Account implements IFact {
     }
 
     public void removeItem(List<Resource> res, double prize){
-        double[] weights = calcWeights(res, prize);
+        double[] weights = GaussianElimination.weightResources(res, probabilities, prize);
         for(Resource r : res){
             removeResource(r, weights[r.ordinal()]);
         }
@@ -107,48 +106,6 @@ public class Account implements IFact {
         for(int i = 0; i < 9; i++){
             probabilities[i] /= counter;
         }
-    }
-
-    private double[] calcWeights(List<Resource> res, double prize){
-        HashMap<Integer, Integer> indexMap = new HashMap<>();
-        int[] count = new int[9];
-        int size = 0;
-        for(Resource r : res){
-            if(count[r.ordinal()] == 0) {
-                indexMap.put(size, r.ordinal());
-                size++;
-            }
-            count[r.ordinal()]++;
-        }
-
-        double[][] matrix = new double[size + 1][size + 1];
-        double[] b = new double[size + 1];
-
-        for (int row = 0; row < size; row++) {
-            int row_res = indexMap.get(row);
-            double coef = probabilities[row_res] / count[row_res];
-
-            for (int col = 0; col < size; col++) {
-                if (col == row) continue;
-                matrix[row][col] = coef * count[indexMap.get(col)];
-            }
-
-            matrix[row][size] = 1;
-            b[row] = coef * prize;
-        }
-        for (int i = 0; i < size; i++){
-            matrix[size][i] = count[indexMap.get(i)];
-        }
-        b[size] = prize;
-
-        DoubleMatrix matrixA = new DoubleMatrix(matrix);
-        DoubleMatrix matrixB = new DoubleMatrix(b);
-        DoubleMatrix solution = Solve.solve(matrixA, matrixB);
-        double[] ret = new double[9];
-        for(int i = 0; i < size; i++){
-            ret[indexMap.get(i)] = solution.get(i);
-        }
-        return ret;
     }
 
     public int getCountBidders(){ return countBidders;}

@@ -28,7 +28,7 @@ public class ProxyBeanFixed extends AbstractBidderBean {
     PriceList priceList = new PriceList(null);
     List<Bid> offeredItems = new LinkedList<>();
     HashMap<Resource, Integer> reservedResources = new HashMap<>();
-    Collection<Item> initialItems;
+    List<Item> initialItems = new LinkedList<>();
     boolean isFixed = false;
     HashMap<List<Resource>, Double> bundlesToBuy = new HashMap<>();
     ArrayList<Resource> resourcesToSell = new ArrayList<>();
@@ -39,6 +39,8 @@ public class ProxyBeanFixed extends AbstractBidderBean {
 
     //only register for one auction
     private boolean ready = true;
+
+    private int countCFBforA = -1;
 
     @Override
     public void doStart() throws Exception {
@@ -118,26 +120,98 @@ public class ProxyBeanFixed extends AbstractBidderBean {
     private void handleStartAuction(StartAuction msg, ICommunicationAddress sender) {
         auctioneers.put(msg.getAuctioneerId(), new Auctioneer(msg.getAuctioneerId(), sender, msg.getMode()));
         countOnlyCFBforB = 0;
+        if(msg.getMode() == StartAuction.Mode.A)
+            account.setProbabilities(initialItems);
         if(msg.getMode() == StartAuction.Mode.A && msg.getInitialItems() != null) {
             isFixed = true;
-            initialItems = msg.getInitialItems();
+            initialItems = new LinkedList<>(msg.getInitialItems());
             calculateBundlesToBuy();
         }
     }
 
-    private void calculateBundlesToBuy(){
+    private double calcMaxProfit(List<Resource> res){
+        //greedy -> sell bundle with most value first
+        //TODO take already bought res into account 
+        Wallet wallet = memory.read(new Wallet(bidderId, null));
+        Wallet w = new Wallet(wallet.getBidderId(), wallet.getCredits());
+        for (Resource r : Resource.values()) {
+            w.add(r, wallet.get(r));
+        }
+        w.add(res);
+
+        boolean sold;
+        double profit = 0;
+
+        do{
+            sold = false;
+            Map.Entry<List<Resource>, Double> max = priceList.getPrices().entrySet()
+                    .stream()
+                    .max(Comparator.comparing(Map.Entry::getValue))
+                    .orElse(null);
+            if(max != null){
+                sold = true;
+                profit += max.getValue();
+                wallet.remove(max.getKey());
+            }
+        }while (sold);
+        return profit;
+    }
+
+    private synchronized void calculateBundlesToBuy(){
+        /*
         Collection<Item> futureBundles = initialItems;
         for(Map.Entry<List<Resource>, Double> bundle: priceList.getPrices().entrySet()) {
             // identify which bundles we want to sell and which bundles we should buy in A therefore
             // this should be saved in bundlesToBuy (For A) and bundlesToSell (For B)
             // add items that come in bundles, but can not be used for bundles in B to resourcesToSell
         }
+        */
+        //windowSize = 5 -> 32 possibilities for buy, not buy
+        //maybe calculate for every CFB(C) too -> 64 possibilities
+        int windowSize = 5;
+        // excluded -> window = [countCFBforA, countCFBforA + windowSize[
+        if(countCFBforA + windowSize > initialItems.size())
+            windowSize = initialItems.size() - countCFBforA;
+        int possibilities = (int)Math.pow(2, windowSize);
+        ArrayList<Double> profit = new ArrayList(possibilities);
+        profit.add(0.0); // buy 0 bundles
+        //1. index bundle set bit-mask, 2. index value of bundle
+        ArrayList<ArrayList<Double>> bundleValue = new ArrayList<>(possibilities);
+        bundleValue.add(new ArrayList<>());
+
+        for(int pos = 1; pos < possibilities; pos++){
+            bundleValue.add(new ArrayList<>(windowSize));
+            List<Resource> buyList = new LinkedList<>();
+            int mask = 1;
+            for(int i = countCFBforA; i < countCFBforA + windowSize; i++){
+                if((pos & mask) > 0) {
+                    buyList.addAll(initialItems.get(i).getBundle());
+                }
+                mask *= 2;
+            }
+            profit.add(calcMaxProfit(buyList));
+            double[] weights = GaussianElimination.weightResources(buyList, account.getProbabilities(), profit.get(pos));
+            for(int i = countCFBforA; i < countCFBforA + windowSize; i++){
+                if((pos & mask) > 0) {
+                    double value = 0.0;
+                    for(Resource r : initialItems.get(i).getBundle()){
+                        value += weights[r.ordinal()];
+                    }
+                    bundleValue.get(pos).add(value);
+                }else{
+                    bundleValue.get(pos).add(0.0);
+                }
+                mask *= 2;
+            }
+        }
+        // TODO decide on bundle set
     }
 
     private void handleCallForBids(CallForBids msg){
         Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
         switch (auctioneer.getMode()){
             case A:
+                countCFBforA++;
                 handleCFB_A(msg);
                 break;
             case B:
@@ -175,6 +249,7 @@ public class ProxyBeanFixed extends AbstractBidderBean {
 
     private Double calculateBidFor(Resource resource) {
         // ToDo: Use soma average value maybe to calcualte this?
+
         return 100.0;
     }
 

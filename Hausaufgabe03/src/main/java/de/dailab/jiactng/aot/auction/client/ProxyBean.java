@@ -93,7 +93,6 @@ public class ProxyBean extends AbstractBidderBean {
             memory.removeAll(new Wallet(null, null));
             memory.removeAll(new Auctioneer(null, null, null));
             memory.removeAll(new PriceList(null));
-            // memory.removeAll(new PriceList(null));
             Register message = new Register(bidderId, groupToken);
             sendMessage(auctioneer, message);
         }
