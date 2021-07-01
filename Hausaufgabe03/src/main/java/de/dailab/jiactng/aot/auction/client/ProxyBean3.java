@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ProxyBean extends AbstractBidderBean {
+public class ProxyBean3 extends AbstractBidderBean {
 
     IGroupAddress groupAddress;
     HashMap<Integer, Auctioneer> auctioneers;
@@ -26,6 +26,7 @@ public class ProxyBean extends AbstractBidderBean {
     int countCFBfromB = 0;
     int plSize = 0;
     List<Bid> offeredItems = new LinkedList<>();
+    HashMap<Resource, Integer> reservedResources = new HashMap<>();
 
     @Override
     public void doStart() throws Exception {
@@ -78,7 +79,6 @@ public class ProxyBean extends AbstractBidderBean {
         auctioneers = new HashMap<>();
         memory.removeAll(new Wallet(null, null));
         memory.removeAll(new Auctioneer(null, null, null));
-        // memory.removeAll(new PriceList(null));
         Register message = new Register(bidderId, groupToken);
         sendMessage(auctioneer, message);
     }
