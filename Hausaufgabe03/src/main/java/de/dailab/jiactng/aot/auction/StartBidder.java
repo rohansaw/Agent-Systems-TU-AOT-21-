@@ -7,7 +7,6 @@ import de.dailab.jiactng.agentcore.SimpleAgentNode;
  * Start Bidders first, then Auctioneer.
  */
 public class StartBidder {
-
 	public static void main(String[] args) {
 		SimpleAgentNode.startAgentNode("bidder.xml", null);
 	}

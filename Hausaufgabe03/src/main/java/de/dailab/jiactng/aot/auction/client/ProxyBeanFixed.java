@@ -13,6 +13,7 @@ import org.sercho.masp.space.event.SpaceObserver;
 import org.sercho.masp.space.event.WriteCallEvent;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +29,8 @@ public class ProxyBeanFixed extends AbstractBidderBean {
     PriceList priceList = new PriceList(null);
     List<Bid> offeredItems = new LinkedList<>();
     HashMap<Resource, Integer> reservedResources = new HashMap<>();
+    Collection<Item> initialItems;
+    boolean isFixed = false;
 
     @Override
     public void doStart() throws Exception {
@@ -92,9 +95,13 @@ public class ProxyBeanFixed extends AbstractBidderBean {
 
     private void handleStartAuction(StartAuction msg, ICommunicationAddress sender) {
         auctioneers.put(msg.getAuctioneerId(), new Auctioneer(msg.getAuctioneerId(), sender, msg.getMode()));
+        if(msg.getMode() == StartAuction.Mode.A && msg.getInitialItems() != null) {
+            isFixed = true;
+            initialItems = msg.getInitialItems();
+        }
     }
 
-    private synchronized int updatePriceList(CallForBids msg) {
+    private int updatePriceList(CallForBids msg) {
         if (msg.getBundle() == null)
             return Integer.MAX_VALUE;
         return priceList.setPrice(msg.getBundle(), msg.getMinOffer(), msg.getCallId());
