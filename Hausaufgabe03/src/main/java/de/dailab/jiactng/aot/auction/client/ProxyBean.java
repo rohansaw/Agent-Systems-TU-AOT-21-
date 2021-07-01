@@ -98,7 +98,7 @@ public class ProxyBean extends AbstractBidderBean {
         auctioneers.put(msg.getAuctioneerId(), new Auctioneer(msg.getAuctioneerId(), sender, msg.getMode()));
         switch (msg.getMode()){
             case A:
-                invokeSimple(BidderBeanA.ACTION_START_AUCTION, msg, sender);
+                invokeSimple(BidderBeanA2.ACTION_START_AUCTION, msg, sender);
                 break;
             case B:
                 invokeSimple(BidderBeanB.ACTION_START_AUCTION, msg, sender);
@@ -119,7 +119,7 @@ public class ProxyBean extends AbstractBidderBean {
         Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
         switch (auctioneer.getMode()){
             case A:
-                invokeSimple(BidderBeanA.CALL_FOR_BIDS, msg);
+                invokeSimple(BidderBeanA2.CALL_FOR_BIDS, msg);
                 break;
             case B:
                 countCFBfromB++;
