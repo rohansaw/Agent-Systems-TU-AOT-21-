@@ -21,7 +21,7 @@ public class AbstractBidderBean extends AbstractMethodExposingBean {
         Action sendAction = retrieveAction(ICommunicationBean.ACTION_SEND);
         JiacMessage message = new JiacMessage(payload);
         invoke(sendAction, new Serializable[] {message, receiver});
-        System.out.println("Bidder SENDING " + payload);
+        log.info("Bidder SENDING " + payload);
     }
 
     //setters for bidder.xml

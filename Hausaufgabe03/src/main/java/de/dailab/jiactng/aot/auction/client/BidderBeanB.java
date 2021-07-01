@@ -20,32 +20,23 @@ public class BidderBeanB extends AbstractBidderBean {
 
     @Override
     public void execute() {
-        turn++;
-        if (wallet == null) return;
     }
 
-    private synchronized void updateWallet() {
-        Wallet w = new Wallet(wallet.getBidderId(), wallet.getCredits());
-
-        wallet = memory.read(new Wallet(bidderId, null));
+    private synchronized void updateData() {
+        Wallet w = memory.read(new Wallet(bidderId, null));
+        wallet = new Wallet(w.getBidderId(), w.getCredits());
         for (Resource r : Resource.values()) {
-            w.add(r, wallet.get(r));
+            wallet.add(r, w.get(r));
         }
-        wallet = w;
-    }
 
-    private synchronized void updatePriceList(){
         priceList = memory.read(new PriceList(null));
-        priceList = new PriceList(priceList.getPrices());
-    }
+        priceList = new PriceList(priceList);
 
-    private synchronized void updateAccount() {
-        account = memory.read(new Account((Wallet) null));
+        account = memory.read(new Account((Account) null));
         account = new Account(account);
     }
 
     public static final String ACTION_START_AUCTION = "BidderB#startAuction";
-
     @Expose(name = ACTION_START_AUCTION, scope = ActionScope.AGENT)
     public synchronized void startAuction(StartAuction msg, ICommunicationAddress address) {
         auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
@@ -54,25 +45,22 @@ public class BidderBeanB extends AbstractBidderBean {
     }
 
     public static final String CALL_FOR_BIDS = "BidderB#callForBids";
-
     @Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
-    public synchronized void callForBids(CallForBids msg) {
-        updateAccount();
-        updateWallet();
-        updatePriceList();
+    public synchronized void callForBids(boolean sellAll) {
+        updateData();
+        HashMap<Integer, Double> profit = new HashMap<>();
 
-        HashMap<List<Resource>, Double> profit = new HashMap<>();
-        for (List<Resource> l : priceList.getPrices().keySet()) {
-            if (wallet.contains(l)) {
-                double prof = priceList.getPrice(l) - account.getCostOfBundle(l);
-                if (prof > 0)
-                    profit.put(l, prof);
+        for (int cid : priceList.getCallIds().keySet()) {
+            if (wallet.contains(priceList.getResList(cid))) {
+                double prof = priceList.getPrice(cid) - account.getCostOfBundle(priceList.getResList(cid));
+                if (prof > 0 || sellAll)
+                    profit.put(cid, prof);
             }
         }
-        Map.Entry<List<Resource>, Double> maxProfit = profit.entrySet().stream()
+        Map.Entry<Integer, Double> maxProfit = profit.entrySet().stream()
                 .max(Map.Entry.comparingByValue()).orElse(null);
         if (maxProfit != null) {
-            sendBid(maxProfit.getValue(), priceList.getCallId(maxProfit.getKey()));
+            sendBid(maxProfit.getValue(), maxProfit.getKey());
         }
     }
 

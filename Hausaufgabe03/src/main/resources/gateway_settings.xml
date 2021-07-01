@@ -8,37 +8,37 @@
 
 	<!-- change this to either test locally or to connect to the gateway -->
 	<!-- for testing, use NodeWithJMX, for final competition, use AotGatewayNode -->
-    <bean name="AotNode" parent="AotGatewayNode" abstract="true" />
-<!--     <bean name="AotNode" parent="AotGatewayNode" abstract="true" /> -->
+     <bean name="AotNode" parent="AotGatewayNode" abstract="true" />
+    <!-- <bean name="AotNode" parent="NodeWithJMX" abstract="true" /> -->
 
-    <bean name="AotGatewayNode" parent="NodeWithJMX" abstract="true">
-        <property name="agentNodeBeans">
-            <list>
-                <ref bean="AotStaticGatewayBroker"/>
-                <ref bean="IDirectory"/>
-            </list>
-        </property>
-    </bean>
+        <bean name="AotGatewayNode" parent="NodeWithJMX" abstract="true">
+            <property name="agentNodeBeans">
+                <list>
+                    <ref bean="AotStaticGatewayBroker"/>
+                    <ref bean="IDirectory"/>
+                </list>
+            </property>
+        </bean>
 
-    <bean name="AotStaticGatewayBroker"
-          class="de.dailab.jiactng.agentcore.comm.broker.ActiveMQBroker"
-          scope="singleton" lazy-init="true">
-        <property name="persistent" value="false"/>
-        <property name="connectors">
-            <set>
-                <ref bean="AotStaticGatewayConnector"/>
-            </set>
-        </property>
-    </bean>
+        <bean name="AotStaticGatewayBroker"
+              class="de.dailab.jiactng.agentcore.comm.broker.ActiveMQBroker"
+              scope="singleton" lazy-init="true">
+            <property name="persistent" value="false"/>
+            <property name="connectors">
+                <set>
+                    <ref bean="AotStaticGatewayConnector"/>
+                </set>
+            </property>
+        </bean>
 
-    <bean name="AotStaticGatewayConnector"
-          class="de.dailab.jiactng.agentcore.comm.broker.ActiveMQTransportConnector"
-          scope="singleton" lazy-init="true">
+        <bean name="AotStaticGatewayConnector"
+              class="de.dailab.jiactng.agentcore.comm.broker.ActiveMQTransportConnector"
+              scope="singleton" lazy-init="true">
 
-        <property name="networkURI" value="static:(failover:(tcp://130.149.154.9:45678))"/>
-        <property name="duplex" value="true"/>
-        <property name="networkTTL" value="255"/>
-        <property name="transportURI" value="tcp://0.0.0.0:0"/>
-    </bean>
+            <property name="networkURI" value="static:(failover:(tcp://130.149.154.9:45678))"/>
+            <property name="duplex" value="true"/>
+            <property name="networkTTL" value="255"/>
+            <property name="transportURI" value="tcp://0.0.0.0:0"/>
+        </bean>
 
-</beans>
+    </beans>
