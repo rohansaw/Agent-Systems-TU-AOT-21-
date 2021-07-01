@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ProxyBean3 extends AbstractBidderBean {
+public class ProxyBeanFixed extends AbstractBidderBean {
 
     IGroupAddress groupAddress;
     HashMap<Integer, Auctioneer> auctioneers;
@@ -25,6 +25,7 @@ public class ProxyBean3 extends AbstractBidderBean {
     Account account;
     int countCFBfromB = 0;
     int plSize = 0;
+    PriceList priceList = new PriceList(null);
     List<Bid> offeredItems = new LinkedList<>();
     HashMap<Resource, Integer> reservedResources = new HashMap<>();
 
@@ -35,8 +36,7 @@ public class ProxyBean3 extends AbstractBidderBean {
         groupAddress = CommunicationAddressFactory.createGroupAddress(messageGroup);
         Action joinAction = retrieveAction(ICommunicationBean.ACTION_JOIN_GROUP);
         invoke(joinAction, new Serializable[]{groupAddress});
-
-        memory.write(new PriceList(null));
+        priceList = new PriceList(null);
     }
 
     @Override
@@ -46,9 +46,8 @@ public class ProxyBean3 extends AbstractBidderBean {
     private void handleMessage(JiacMessage message){
         Object payload = message.getPayload();
         log.info("--------------");
-        Wallet w = memory.read(new Wallet(bidderId, null));
-        if(w != null){
-            log.info(w.toString());
+        if(wallet != null){
+            log.info(wallet.toString());
         }
         log.info("Bidder RECEIVED:");
         log.info(payload);
@@ -77,8 +76,7 @@ public class ProxyBean3 extends AbstractBidderBean {
 
     private synchronized void register(ICommunicationAddress auctioneer) {
         auctioneers = new HashMap<>();
-        memory.removeAll(new Wallet(null, null));
-        memory.removeAll(new Auctioneer(null, null, null));
+        priceList = new PriceList(null);
         Register message = new Register(bidderId, groupToken);
         sendMessage(auctioneer, message);
     }
@@ -87,8 +85,6 @@ public class ProxyBean3 extends AbstractBidderBean {
         wallet = msg.getWallet();
         if(wallet != null) {
             account = new Account(wallet);
-            memory.write(wallet);
-            memory.write(account);
         } else {
             log.warn("Wallet was null ?!");
         }
@@ -96,49 +92,48 @@ public class ProxyBean3 extends AbstractBidderBean {
 
     private void handleStartAuction(StartAuction msg, ICommunicationAddress sender) {
         auctioneers.put(msg.getAuctioneerId(), new Auctioneer(msg.getAuctioneerId(), sender, msg.getMode()));
-        switch (msg.getMode()){
-            case A:
-                invokeSimple(BidderBeanA.ACTION_START_AUCTION, msg, sender);
-                break;
-            case B:
-                invokeSimple(BidderBeanB.ACTION_START_AUCTION, msg, sender);
-                break;
-            case C:
-                invokeSimple(BidderBeanC.ACTION_START_AUCTION, msg, sender);
-        }
     }
 
     private synchronized int updatePriceList(CallForBids msg) {
         if (msg.getBundle() == null)
             return Integer.MAX_VALUE;
-        PriceList pl = memory.read(new PriceList(null));
-        return pl.setPrice(msg.getBundle(), msg.getMinOffer(), msg.getCallId());
+        return priceList.setPrice(msg.getBundle(), msg.getMinOffer(), msg.getCallId());
     }
 
     private void handleCallForBids(CallForBids msg){
         Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
         switch (auctioneer.getMode()){
             case A:
-                invokeSimple(BidderBeanA.CALL_FOR_BIDS, msg);
+                handleCFB_A(msg);
                 break;
             case B:
                 countCFBfromB++;
                 int oldPlSize = plSize;
                 int plSize = updatePriceList(msg);
                 if(countCFBfromB >= plSize && plSize == oldPlSize) {
-                    invokeSimple(BidderBeanB.CALL_FOR_BIDS, msg);
+                    handleCFB_B(msg);
                     countCFBfromB = 0;
                 }
                 break;
             case C:
-                invokeSimple(BidderBeanC.CALL_FOR_BIDS, msg);
+                handleCFB_C(msg);
         }
+    }
+
+    private void handleCFB_A(CallForBids msg) {
+
+    }
+
+    private void handleCFB_B(CallForBids msg) {
+
+    }
+
+    private void handleCFB_C(CallForBids msg) {
+
     }
 
     private synchronized void handleInformBuy(InformBuy msg) {
         if (msg.getBundle() != null && msg.getType() == InformBuy.BuyType.WON) {
-            Wallet wallet = memory.read(new Wallet(bidderId, null));
-            Account account = memory.read(new Account((Wallet) null));
             wallet.add(msg.getBundle());
             wallet.updateCredits(-msg.getPrice());
             account.addItem(msg.getBundle(), msg.getPrice());
@@ -147,8 +142,6 @@ public class ProxyBean3 extends AbstractBidderBean {
 
     private synchronized void handleInformSell(InformSell msg) {
         if (msg.getBundle() != null && msg.getType() == InformSell.SellType.SOLD) {
-            Wallet wallet = memory.read(new Wallet(bidderId, null));
-            Account account = memory.read(new Account((Wallet) null));
             wallet.remove(msg.getBundle());
             wallet.updateCredits(msg.getPrice());
             account.removeItem(msg.getBundle(), msg.getPrice());
@@ -156,13 +149,8 @@ public class ProxyBean3 extends AbstractBidderBean {
     }
 
     private synchronized void setPriceListZero(){
-        PriceList pl = memory.read(new PriceList(null));
-        if(pl != null)
-            pl.setToZero();
-    }
-
-    private void invokeSimple(String actionName, Serializable... params) {
-        invoke(retrieveAction(actionName), params);
+        if(priceList != null)
+            priceList.setToZero();
     }
 
     public class MessageObserver implements SpaceObserver<IFact> {
