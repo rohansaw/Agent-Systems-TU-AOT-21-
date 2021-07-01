@@ -13,10 +13,7 @@ import org.sercho.masp.space.event.SpaceObserver;
 import org.sercho.masp.space.event.WriteCallEvent;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class ProxyBeanFixed extends AbstractBidderBean {
 
@@ -31,6 +28,9 @@ public class ProxyBeanFixed extends AbstractBidderBean {
     HashMap<Resource, Integer> reservedResources = new HashMap<>();
     Collection<Item> initialItems;
     boolean isFixed = false;
+    HashMap<List<Resource>, Double> bundlesToBuy = new HashMap<>();
+    ArrayList<Resource> resourcesToSell = new ArrayList<>();
+    ArrayList<List<Resource>> bundlesToSell = new ArrayList<>();
 
     @Override
     public void doStart() throws Exception {
@@ -98,7 +98,14 @@ public class ProxyBeanFixed extends AbstractBidderBean {
         if(msg.getMode() == StartAuction.Mode.A && msg.getInitialItems() != null) {
             isFixed = true;
             initialItems = msg.getInitialItems();
+            calculateBundlesToBuy();
         }
+    }
+
+    private void calculateBundlesToBuy(){
+        // calculate bundles to buy
+        // then save the orders we satisfy with this - the bundles we sell
+        // also save which resources we can not sell with this strategy and are required to be sold in C
     }
 
     private void handleCallForBids(CallForBids msg){
@@ -122,15 +129,41 @@ public class ProxyBeanFixed extends AbstractBidderBean {
     }
 
     private void handleCFB_A(CallForBids msg) {
-
+        if(bundlesToBuy.containsKey(msg.getBundle())) {
+            Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
+            Double bid = bundlesToBuy.get(msg.getBundle());
+            sendBid(bid, msg.getCallId(), auctioneer);
+            bundlesToBuy.remove(msg.getBundle());
+        }
     }
 
     private void handleCFB_B(CallForBids msg) {
-
+        if(wallet.contains(msg.getBundle()) && bundlesToSell.contains(msg.getBundle())) {
+            Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
+            sendBid(msg.getMinOffer(), msg.getCallId(), auctioneer);
+            // ToDo: maybe mark these resources as reserved, so that we dont use resources in mutliple sells and sell stuff we dont have
+        }
     }
 
-    private void handleCFB_C(CallForBids msg) {
+    private Double calculateBidFor(Resource resource) {
+        // ToDo: Use soma average value maybe to calcualte this?
+        return 100.0;
+    }
 
+
+    private void handleCFB_C(CallForBids msg) {
+        // ToDo: better would be to use a "bestResource" that should be sold. This would be the resource that
+        // we have the most in our wallet and that is also in the resourcesToSell list
+        for(Resource resource : resourcesToSell) {
+            List list = new ArrayList();
+            list.add(resource);
+            if(wallet.contains(list)) {
+                Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
+                Double bid = calculateBidFor(resource);
+                sendBid(bid, msg.getCallId(), auctioneer);
+                break;
+            }
+        }
     }
 
     private synchronized void handleInformBuy(InformBuy msg) {
@@ -147,6 +180,12 @@ public class ProxyBeanFixed extends AbstractBidderBean {
             wallet.updateCredits(msg.getPrice());
             account.removeItem(msg.getBundle(), msg.getPrice());
         }
+    }
+
+    private void sendBid(Double bid, Integer callId, Auctioneer auctioneer) {
+        Bid message = new Bid(auctioneer.getAuctioneerId(), bidderId, callId, bid);
+        log.info("B sending Bid: "+ message);
+        sendMessage(auctioneer.getAddress(), message);
     }
 
     public class MessageObserver implements SpaceObserver<IFact> {
