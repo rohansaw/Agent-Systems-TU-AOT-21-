@@ -9,7 +9,7 @@ import java.util.*;
 
 public class BidderBeanC extends AbstractBidderBean {
 
-    int turn = 0;
+    int turn = -1;
 
     Wallet wallet = null;
     Auctioneer auctioneer = null;
@@ -17,7 +17,7 @@ public class BidderBeanC extends AbstractBidderBean {
     Account account = null;
 
     //tune parameter \in (0,1) -> optimum depends on #bidders
-    double valueFraction = 0.75;
+    int countBidder = 2;
 
 
     @Override
@@ -26,39 +26,39 @@ public class BidderBeanC extends AbstractBidderBean {
 
     @Override
     public void execute() {
-        turn++;
-        if(wallet == null) return;
-
-        sellItem();
+        if(turn >= 0) {
+            sellItem();
+            turn++;
+        }
         //only one offer per bidder per round
         //decide on offering single Res
     }
 
     private synchronized void updateData() {
-        Wallet w = new Wallet(wallet.getBidderId(), wallet.getCredits());
-        wallet = memory.read(new Wallet(bidderId, null));
+        Wallet w = memory.read(new Wallet(bidderId, null));
+        wallet = new Wallet(w.getBidderId(), w.getCredits());
         for (Resource r : Resource.values()) {
-            w.add(r, wallet.get(r));
+            wallet.add(r, w.get(r));
         }
 
         priceList = memory.read(new PriceList(null));
-        priceList = new PriceList(priceList.getPrices());
+        priceList = new PriceList(priceList);
 
-        account = memory.read(new Account((Wallet) null));
+        account = memory.read(new Account((Account) null));
         account = new Account(account);
     }
 
-    private void sellItem(){
-        updateData();
+    private synchronized void sellItem(){
+        //updateData();
 
     }
 
     public static final String ACTION_START_AUCTION = "BidderC#startAuction";
     @Expose(name = ACTION_START_AUCTION, scope = ActionScope.AGENT)
-    public synchronized void startAuction(StartAuction msg, ICommunicationAddress address) {
+    public synchronized void startAuction(StartAuction msg, ICommunicationAddress address, int countBidders) {
         auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
         turn = 0;
-        wallet = memory.read(new Wallet(bidderId, null));
+        countBidder = countBidders;
     }
 
     public static final String CALL_FOR_BIDS = "BidderC#callForBids";
@@ -67,20 +67,20 @@ public class BidderBeanC extends AbstractBidderBean {
         updateData();
 
         if(!msg.getOfferingBidder().equals(bidderId) && wallet.getCredits() >= msg.getMinOffer()) {
-            double bid = getBid(msg) * valueFraction;
-            if(bid > 0)
+            double bid = getBid(msg) * ((countBidder - 1) / countBidder);
+            if(bid > msg.getMinOffer())
                 sendMessage(auctioneer.getAddress(), new Bid(msg.getAuctioneerId(), bidderId, msg.getCallId(), bid));
         }
     }
 
     public synchronized double getBid(CallForBids msg) {
-        Set<List<Resource>> sellWithoutBuy = new HashSet<>();
-        HashMap<List<Resource>, Double> profit = new HashMap<>();
+        Set<Integer> sellWithoutBuy = new HashSet<>();
+        HashMap<Integer, Double> profit = new HashMap<>();
         double bid = 0;
 
-        for (List<Resource> l : priceList.getPrices().keySet()) {
-            if (wallet.contains(l)) {
-                sellWithoutBuy.add(l);
+        for (int cid : priceList.getCallIds().keySet()) {
+            if (wallet.contains(priceList.getResList(cid))) {
+                sellWithoutBuy.add(cid);
             }
         }
 
@@ -88,25 +88,26 @@ public class BidderBeanC extends AbstractBidderBean {
         account.addItem(msg.getBundle(), msg.getMinOffer());
 
         while (true) {
-            for (List<Resource> l : priceList.getPrices().keySet()) {
-                if (wallet.contains(l) && !sellWithoutBuy.contains(l)) {
+            for (int cid : priceList.getCallIds().keySet()) {
+                if (wallet.contains(priceList.getResList(cid)) && !sellWithoutBuy.contains(cid)) {
                     //no subtraction of msg.price -> it's already calculated in account.addItem
-                    double prof = priceList.getPrice(l) - account.getCostOfBundle(l);
+                    double prof = priceList.getPrice(cid) - account.getCostOfBundle(priceList.getResList(cid));
                     if (prof > 0)
-                        profit.put(l, prof);
+                        profit.replace(cid, prof);
                 }
             }
 
             if (profit.size() == 0) break;
 
-            Map.Entry<List<Resource>, Double> maxProfit = profit.entrySet().stream()
+            Map.Entry<Integer, Double> maxProfit = profit.entrySet().stream()
                     .max(Map.Entry.comparingByValue()).orElse(null);
 
             if (maxProfit != null) {
                 //get MaxProfit after sell maxProfit
+                List<Resource> res = priceList.getResList(maxProfit.getKey());
                 bid += maxProfit.getValue();
-                wallet.remove(maxProfit.getKey());
-                account.removeItem(maxProfit.getKey(), maxProfit.getValue());
+                wallet.remove(res);
+                account.removeItem(res, maxProfit.getValue());
                 profit.remove(maxProfit.getKey());
             }
         }

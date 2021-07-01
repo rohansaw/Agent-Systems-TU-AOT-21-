@@ -82,7 +82,7 @@ public class BidderBeanA extends AbstractBidderBean {
 		return standard_bid;
 	}
 
-	private Double calculateGreedyBid(List<Resource> resources){
+	private synchronized Double calculateGreedyBid(List<Resource> resources){
 		PriceList priceList = memory.read(new PriceList(null));
 		Wallet wallet = memory.read(new Wallet(null, null));
 		Account account = memory.read(new Account((Account) null));
