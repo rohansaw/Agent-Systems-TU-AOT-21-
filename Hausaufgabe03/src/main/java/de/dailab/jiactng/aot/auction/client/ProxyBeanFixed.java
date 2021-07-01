@@ -7,6 +7,8 @@ import de.dailab.jiactng.agentcore.comm.ICommunicationBean;
 import de.dailab.jiactng.agentcore.comm.IGroupAddress;
 import de.dailab.jiactng.agentcore.comm.message.JiacMessage;
 import de.dailab.jiactng.agentcore.knowledge.IFact;
+import de.dailab.jiactng.agentcore.ontology.AgentDescription;
+import de.dailab.jiactng.agentcore.ontology.IAgentDescription;
 import de.dailab.jiactng.aot.auction.onto.*;
 import org.sercho.masp.space.event.SpaceEvent;
 import org.sercho.masp.space.event.SpaceObserver;
@@ -21,7 +23,7 @@ public class ProxyBeanFixed extends AbstractBidderBean {
     HashMap<Integer, Auctioneer> auctioneers;
     Wallet wallet;
     Account account;
-    int countCFBfromB = 0;
+    int countCFBforB = 0;
     int plSize = 0;
     PriceList priceList = new PriceList(null);
     List<Bid> offeredItems = new LinkedList<>();
@@ -32,6 +34,12 @@ public class ProxyBeanFixed extends AbstractBidderBean {
     ArrayList<Resource> resourcesToSell = new ArrayList<>();
     ArrayList<List<Resource>> bundlesToSell = new ArrayList<>();
 
+    private int countOnlyCFBforB = 0;
+    private int countBidder = 0;
+
+    //only register for one auction
+    private boolean ready = true;
+
     @Override
     public void doStart() throws Exception {
         memory.attach(new MessageObserver(), new JiacMessage());
@@ -39,11 +47,11 @@ public class ProxyBeanFixed extends AbstractBidderBean {
         groupAddress = CommunicationAddressFactory.createGroupAddress(messageGroup);
         Action joinAction = retrieveAction(ICommunicationBean.ACTION_JOIN_GROUP);
         invoke(joinAction, new Serializable[]{groupAddress});
-        priceList = new PriceList(null);
     }
 
     @Override
-    public void execute(){
+    public synchronized void execute(){
+        countOnlyCFBforB++;
     }
 
     private void handleMessage(JiacMessage message){
@@ -75,19 +83,33 @@ public class ProxyBeanFixed extends AbstractBidderBean {
         if(payload instanceof InformSell) {
             handleInformSell((InformSell) payload);
         }
+        if(payload instanceof EndAuction){
+            ready = true;
+        }
     }
 
     private synchronized void register(ICommunicationAddress auctioneer) {
-        auctioneers = new HashMap<>();
-        priceList = new PriceList(null);
-        Register message = new Register(bidderId, groupToken);
-        sendMessage(auctioneer, message);
+        if(ready) {
+            ready = false;
+            auctioneers = new HashMap<>();
+            memory.removeAll(new Wallet(null, null));
+            memory.removeAll(new Auctioneer(null, null, null));
+            memory.removeAll(new PriceList(null));
+            // memory.removeAll(new PriceList(null));
+            Register message = new Register(bidderId, groupToken);
+            sendMessage(auctioneer, message);
+        }
     }
 
     private synchronized void initialize(InitializeBidder msg) {
         wallet = msg.getWallet();
         if(wallet != null) {
-            account = new Account(wallet, 1);
+            countBidder = getBidderCount();
+            account = new Account(wallet, countBidder);
+            priceList = new PriceList(null);
+            memory.write(priceList);
+            memory.write(wallet);
+            memory.write(account);
         } else {
             log.warn("Wallet was null ?!");
         }
@@ -95,6 +117,7 @@ public class ProxyBeanFixed extends AbstractBidderBean {
 
     private void handleStartAuction(StartAuction msg, ICommunicationAddress sender) {
         auctioneers.put(msg.getAuctioneerId(), new Auctioneer(msg.getAuctioneerId(), sender, msg.getMode()));
+        countOnlyCFBforB = 0;
         if(msg.getMode() == StartAuction.Mode.A && msg.getInitialItems() != null) {
             isFixed = true;
             initialItems = msg.getInitialItems();
@@ -118,12 +141,11 @@ public class ProxyBeanFixed extends AbstractBidderBean {
                 handleCFB_A(msg);
                 break;
             case B:
-                countCFBfromB++;
-                int oldPlSize = plSize;
+                countCFBforB++;
                 priceList.setPrice(msg.getBundle(), msg.getMinOffer(), msg.getCallId());
-                if(countCFBfromB >= plSize && plSize == oldPlSize) {
-                    handleCFB_B(msg);
-                    countCFBfromB = 0;
+                if(countCFBforB == plSize) {
+                    invokeSimple(BidderBeanB.CALL_FOR_BIDS, countOnlyCFBforB >= 2);
+                    countCFBforB = 0;
                 }
                 break;
             case C:
@@ -195,6 +217,18 @@ public class ProxyBeanFixed extends AbstractBidderBean {
         Bid message = new Bid(auctioneer.getAuctioneerId(), bidderId, callId, bid);
         log.info("B sending Bid: "+ message);
         sendMessage(auctioneer.getAddress(), message);
+    }
+
+    private synchronized int getBidderCount() {
+        AgentDescription description = new AgentDescription(null, "BidderAgent", null, null, null, null);
+        List<IAgentDescription> list = thisAgent.searchAllAgents(description);
+        if(list == null)
+            return 1;
+        return list.size();
+    }
+
+    private void invokeSimple(String actionName, Serializable... params) {
+        invoke(retrieveAction(actionName), params);
     }
 
     public class MessageObserver implements SpaceObserver<IFact> {

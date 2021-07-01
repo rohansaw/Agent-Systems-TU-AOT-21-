@@ -55,9 +55,8 @@ public class ProxyBean extends AbstractBidderBean {
     private void handleMessage(JiacMessage message){
         Object payload = message.getPayload();
         log.info("--------------");
-        Wallet w = memory.read(new Wallet(bidderId, null));
-        if(w != null){
-            log.info(w.toString());
+        if(wallet != null){
+            log.info(wallet.toString());
         }
         log.info("Bidder RECEIVED:");
         log.info(payload);
