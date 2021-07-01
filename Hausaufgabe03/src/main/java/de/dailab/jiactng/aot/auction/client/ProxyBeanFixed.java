@@ -103,9 +103,12 @@ public class ProxyBeanFixed extends AbstractBidderBean {
     }
 
     private void calculateBundlesToBuy(){
-        // calculate bundles to buy
-        // then save the orders we satisfy with this - the bundles we sell
-        // also save which resources we can not sell with this strategy and are required to be sold in C
+        Collection<Item> futureBundles = initialItems;
+        for(Map.Entry<List<Resource>, Double> bundle: priceList.getPrices().entrySet()) {
+            // identify which bundles we want to sell and which bundles we should buy in A therefore
+            // this should be saved in bundlesToBuy (For A) and bundlesToSell (For B)
+            // add items that come in bundles, but can not be used for bundles in B to resourcesToSell
+        }
     }
 
     private void handleCallForBids(CallForBids msg){
@@ -129,11 +132,14 @@ public class ProxyBeanFixed extends AbstractBidderBean {
     }
 
     private void handleCFB_A(CallForBids msg) {
-        if(bundlesToBuy.containsKey(msg.getBundle())) {
-            Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
-            Double bid = bundlesToBuy.get(msg.getBundle());
-            sendBid(bid, msg.getCallId(), auctioneer);
-            bundlesToBuy.remove(msg.getBundle());
+        if(initialItems.contains(msg.getBundle())) {
+            initialItems.remove(msg.getBundle());
+            if(bundlesToBuy.containsKey(msg.getBundle())) {
+                Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
+                Double bid = bundlesToBuy.get(msg.getBundle());
+                sendBid(bid, msg.getCallId(), auctioneer);
+                bundlesToBuy.remove(msg.getBundle());
+            }
         }
     }
 
@@ -171,6 +177,9 @@ public class ProxyBeanFixed extends AbstractBidderBean {
             wallet.add(msg.getBundle());
             wallet.updateCredits(-msg.getPrice());
             account.addItem(msg.getBundle(), msg.getPrice());
+        } else if(msg.getBundle() != null && msg.getType() == InformBuy.BuyType.LOST) {
+            // Our strategy did not work out, so we need to recalculate
+            calculateBundlesToBuy();
         }
     }
 
