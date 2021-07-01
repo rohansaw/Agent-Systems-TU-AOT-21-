@@ -59,11 +59,12 @@ public class BidderBeanC extends AbstractBidderBean {
         auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
         turn = 0;
         countBidder = countBidders;
+        if(countBidder < 2) countBidder = 2;
     }
 
     public static final String CALL_FOR_BIDS = "BidderC#callForBids";
     @Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
-    public synchronized void callForBids(CallForBids msg) {
+    public void callForBids(CallForBids msg) {
         updateData();
 
         if(!msg.getOfferingBidder().equals(bidderId) && wallet.getCredits() >= msg.getMinOffer()) {
@@ -76,7 +77,7 @@ public class BidderBeanC extends AbstractBidderBean {
     public synchronized double getBid(CallForBids msg) {
         Set<Integer> sellWithoutBuy = new HashSet<>();
         HashMap<Integer, Double> profit = new HashMap<>();
-        double bid = 0;
+        double bid = account.getCostOfBundle(msg.getBundle());
 
         for (int cid : priceList.getCallIds().keySet()) {
             if (wallet.contains(priceList.getResList(cid))) {
@@ -111,6 +112,7 @@ public class BidderBeanC extends AbstractBidderBean {
                 profit.remove(maxProfit.getKey());
             }
         }
+
         return bid;
     }
 }
