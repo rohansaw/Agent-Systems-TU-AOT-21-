@@ -20,22 +20,23 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class ProxyBean extends AbstractBidderBean {
 
-    IGroupAddress groupAddress;
-    HashMap<Integer, Auctioneer> auctioneers;
-    Wallet wallet;
-    Account account;
-    PriceList priceList;
-    int countCFBfromB = 0;
-    int plSize = 0;
-    int countOnlyCFBB = 0;
-    int countBidder = 0;
+    private IGroupAddress groupAddress;
+    private HashMap<Integer, Auctioneer> auctioneers;
+    private Wallet wallet;
+    private Account account;
+    private PriceList priceList;
+    private int countCFBfromB = 0;
+    private int plSize = 0;
+    private int countOnlyCFBB = 0;
+    private int countBidder = 0;
 
     //only register for one auction
-    boolean ready = true;
+    private boolean ready = true;
 
     @Override
     public void doStart() throws Exception {
@@ -168,40 +169,11 @@ public class ProxyBean extends AbstractBidderBean {
     }
 
     private synchronized int getBidderCount() {
-        int count = 0;
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://130.149.154.9:8080/auctionobserver"))
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            int first = response.body().indexOf("[");
-            int last = response.body().indexOf("]");
-            int index = -1;
-            String list = "";
-            if(first > 0 && last > 0) {
-                list = response.body().substring(first, last + 1);
-                index = 0;
-            }
-            while (index != -1){
-                index = list.indexOf(", ", index);
-                if(index != -1){
-                    count++;
-                    index += 2;
-                }
-            }
-            count++;
-
-            //searchAllAgents not guaranteed to find all
-            //searchAllAgents finds itself
-        } catch (Exception e) {
-            count = thisAgent.searchAllAgents(new AgentDescription(null, "BidderAgent", null, null, null, null)).size();
-        }
-        if(count == 0)
-            count = thisAgent.searchAllAgents(new AgentDescription(null, "BidderAgent", null, null, null, null)).size();
-
-        return count;
+        AgentDescription description = new AgentDescription(null, "BidderAgent", null, null, null, null);
+        List<IAgentDescription> list = thisAgent.searchAllAgents(description);
+        if(list == null)
+            return 1;
+        return list.size();
     }
 
     private void invokeSimple(String actionName, Serializable... params) {

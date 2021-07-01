@@ -84,7 +84,7 @@ public class ProxyBeanFixed extends AbstractBidderBean {
     private synchronized void initialize(InitializeBidder msg) {
         wallet = msg.getWallet();
         if(wallet != null) {
-            account = new Account(wallet);
+            account = new Account(wallet, 1);
         } else {
             log.warn("Wallet was null ?!");
         }
@@ -94,11 +94,6 @@ public class ProxyBeanFixed extends AbstractBidderBean {
         auctioneers.put(msg.getAuctioneerId(), new Auctioneer(msg.getAuctioneerId(), sender, msg.getMode()));
     }
 
-    private synchronized int updatePriceList(CallForBids msg) {
-        if (msg.getBundle() == null)
-            return Integer.MAX_VALUE;
-        return priceList.setPrice(msg.getBundle(), msg.getMinOffer(), msg.getCallId());
-    }
 
     private void handleCallForBids(CallForBids msg){
         Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
@@ -109,7 +104,7 @@ public class ProxyBeanFixed extends AbstractBidderBean {
             case B:
                 countCFBfromB++;
                 int oldPlSize = plSize;
-                int plSize = updatePriceList(msg);
+                priceList.setPrice(msg.getBundle(), msg.getMinOffer(), msg.getCallId());
                 if(countCFBfromB >= plSize && plSize == oldPlSize) {
                     handleCFB_B(msg);
                     countCFBfromB = 0;
@@ -146,11 +141,6 @@ public class ProxyBeanFixed extends AbstractBidderBean {
             wallet.updateCredits(msg.getPrice());
             account.removeItem(msg.getBundle(), msg.getPrice());
         }
-    }
-
-    private synchronized void setPriceListZero(){
-        if(priceList != null)
-            priceList.setToZero();
     }
 
     public class MessageObserver implements SpaceObserver<IFact> {

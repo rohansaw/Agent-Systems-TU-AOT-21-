@@ -60,9 +60,9 @@ public class Account implements IFact {
     }
 
     public void addItem(List<Resource> res, double prize){
-        DoubleMatrix weights = calcWeights(res, prize);
+        double[] weights = calcWeights(res, prize);
         for(Resource r : res){
-            addResource(r, weights.get(r.ordinal()));
+            addResource(r, weights[r.ordinal()]);
         }
     }
 
@@ -74,9 +74,9 @@ public class Account implements IFact {
     }
 
     public void removeItem(List<Resource> res, double prize){
-        DoubleMatrix weights = calcWeights(res, prize);
+        double[] weights = calcWeights(res, prize);
         for(Resource r : res){
-            removeResource(r, weights.get(r.ordinal()));
+            removeResource(r, weights[r.ordinal()]);
         }
     }
 
@@ -109,35 +109,46 @@ public class Account implements IFact {
         }
     }
 
-    private DoubleMatrix calcWeights(List<Resource> res, double prize){
-        //P(j), P(k) unknown => j, k not in calculation
-        int[] count = new int[7];
-        double[][] matrix = new double[8][8];
-        double[] b = new double[8];
+    private double[] calcWeights(List<Resource> res, double prize){
+        HashMap<Integer, Integer> indexMap = new HashMap<>();
+        int[] count = new int[9];
+        int size = 0;
         for(Resource r : res){
+            if(count[r.ordinal()] == 0) {
+                indexMap.put(size, r.ordinal());
+                size++;
+            }
             count[r.ordinal()]++;
         }
 
-        for (int row = 0; row < 7; row++) {
-            if(count[row] == 0) continue;
-            double coef = probabilities[row] / count[row];
+        double[][] matrix = new double[size + 1][size + 1];
+        double[] b = new double[size + 1];
 
-            for (int col = 0; col < 7; col++) {
-                if (col == row || count[col] == 0) continue;
-                matrix[row][col] = coef * count[col];
+        for (int row = 0; row < size; row++) {
+            int row_res = indexMap.get(row);
+            double coef = probabilities[row_res] / count[row_res];
+
+            for (int col = 0; col < size; col++) {
+                if (col == row) continue;
+                matrix[row][col] = coef * count[indexMap.get(col)];
             }
 
-            matrix[row][7] = 1;
+            matrix[row][size] = 1;
             b[row] = coef * prize;
         }
-        for (int i = 0; i < 7; i++){
-            matrix[7][i] = count[i];
+        for (int i = 0; i < size; i++){
+            matrix[size][i] = count[indexMap.get(i)];
         }
-        b[7] = prize;
+        b[size] = prize;
 
         DoubleMatrix matrixA = new DoubleMatrix(matrix);
         DoubleMatrix matrixB = new DoubleMatrix(b);
-        return Solve.solve(matrixA, matrixB);
+        DoubleMatrix solution = Solve.solve(matrixA, matrixB);
+        double[] ret = new double[9];
+        for(int i = 0; i < size; i++){
+            ret[indexMap.get(i)] = solution.get(i);
+        }
+        return ret;
     }
 
     public int getCountBidders(){ return countBidders;}
