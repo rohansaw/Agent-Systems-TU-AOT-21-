@@ -74,6 +74,44 @@ public class BidderBeanC extends AbstractBidderBean {
         }
     }
 
+    private synchronized double getBid(CallForBids msg){
+        double profitWithoutBuy = calcMaxProfit(null, 0);
+        double profitWithBuy = calcMaxProfit(msg.getBundle(), msg.getMinOffer());
+        return profitWithoutBuy - profitWithBuy;
+    }
+
+    private synchronized double calcMaxProfit(List<Resource> res, double prize){
+        //greedy -> sell bundle with most value first
+        Wallet wallet = memory.read(new Wallet(bidderId, null));
+        Wallet w = new Wallet(wallet.getBidderId(), wallet.getCredits());
+        for (Resource r : Resource.values()) {
+            w.add(r, wallet.get(r));
+        }
+        if(res != null)
+            w.add(res);
+        if(prize != 0) // find better estimator for prize
+            account.addItem(res, prize);
+
+        boolean sold;
+        double profit = 0;
+
+        do{
+            sold = false;
+            Map.Entry<List<Resource>, Double> max = priceList.getPrices().entrySet()
+                    .stream()
+                    .max(Comparator.comparing(Map.Entry::getValue))
+                    .orElse(null);
+            if(max != null){
+                sold = true;
+                profit += max.getValue() - account.getCostOfBundle(max.getKey());
+                wallet.remove(max.getKey());
+            }
+        }while (sold);
+        return profit;
+    }
+
+    /*
+
     public synchronized double getBid(CallForBids msg) {
         Set<Integer> sellWithoutBuy = new HashSet<>();
         HashMap<Integer, Double> profit = new HashMap<>();
@@ -115,4 +153,5 @@ public class BidderBeanC extends AbstractBidderBean {
 
         return bid;
     }
+     */
 }

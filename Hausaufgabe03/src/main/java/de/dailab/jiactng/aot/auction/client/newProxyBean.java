@@ -17,7 +17,7 @@ import org.sercho.masp.space.event.WriteCallEvent;
 import java.io.Serializable;
 import java.util.*;
 
-public class ProxyBeanFixed extends AbstractBidderBean {
+public class newProxyBean extends AbstractBidderBean {
 
     IGroupAddress groupAddress;
     HashMap<Integer, Auctioneer> auctioneers;
