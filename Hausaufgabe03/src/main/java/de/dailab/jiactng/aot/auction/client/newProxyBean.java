@@ -26,23 +26,13 @@ public class newProxyBean extends AbstractBidderBean {
     int countCFBforB = 0;
     int plSize = 0;
     PriceList priceList = new PriceList(null);
-    List<Bid> offeredItems = new LinkedList<>();
-    HashMap<Resource, Integer> reservedResources = new HashMap<>();
     List<Item> initialItems = new LinkedList<>();
-    boolean isFixed = false;
-    HashMap<List<Resource>, Double> bundlesToBuy = new HashMap<>();
-    ArrayList<Resource> resourcesToSell = new ArrayList<>();
-    ArrayList<List<Resource>> bundlesToSell = new ArrayList<>();
 
     private int countOnlyCFBforB = 0;
     private int countBidder = 0;
 
     //only register for one auction
     private boolean ready = true;
-
-    private int countCFBforA = -1;
-
-    private int windowSize = 5;
 
     @Override
     public void doStart() throws Exception {
@@ -99,7 +89,6 @@ public class newProxyBean extends AbstractBidderBean {
             memory.removeAll(new Wallet(null, null));
             memory.removeAll(new Auctioneer(null, null, null));
             memory.removeAll(new PriceList(null));
-            // memory.removeAll(new PriceList(null));
             Register message = new Register(bidderId, groupToken);
             sendMessage(auctioneer, message);
         }
@@ -122,11 +111,14 @@ public class newProxyBean extends AbstractBidderBean {
     private void handleStartAuction(StartAuction msg, ICommunicationAddress sender) {
         auctioneers.put(msg.getAuctioneerId(), new Auctioneer(msg.getAuctioneerId(), sender, msg.getMode()));
         countOnlyCFBforB = 0;
-        if(msg.getMode() == StartAuction.Mode.A)
+        if(msg.getMode() == StartAuction.Mode.A) {
             account.setProbabilities(initialItems);
-        if(msg.getMode() == StartAuction.Mode.A && msg.getInitialItems() != null) {
-            isFixed = true;
             initialItems = new LinkedList<>(msg.getInitialItems());
+            invokeSimple(BidderBeanA3.ACTION_START_AUCTION, msg);
+        }else if(msg.getMode() == StartAuction.Mode.B) {
+            invokeSimple(BidderBeanB2.ACTION_START_AUCTION, msg);
+        }else{
+            invokeSimple(BidderBeanC.ACTION_START_AUCTION, msg);
         }
     }
 
@@ -136,8 +128,7 @@ public class newProxyBean extends AbstractBidderBean {
         Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
         switch (auctioneer.getMode()){
             case A:
-                countCFBforA++;
-                handleCFB_A(msg);
+                invokeSimple(BidderBeanA3.CALL_FOR_BIDS, msg);
                 break;
             case B:
                 countCFBforB++;
@@ -148,59 +139,21 @@ public class newProxyBean extends AbstractBidderBean {
                 }
                 break;
             case C:
-                handleCFB_C(msg);
-        }
-    }
-
-    private void handleCFB_A(CallForBids msg) {
-        if(initialItems.contains(msg.getBundle())) {
-            initialItems.remove(msg.getBundle());
-            if(bundlesToBuy.containsKey(msg.getBundle())) {
-                Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
-                Double bid = bundlesToBuy.get(msg.getBundle());
-                sendBid(bid, msg.getCallId(), auctioneer);
-                bundlesToBuy.remove(msg.getBundle());
-            }
-        }
-    }
-
-    private void handleCFB_B(CallForBids msg) {
-        if(wallet.contains(msg.getBundle()) && bundlesToSell.contains(msg.getBundle())) {
-            Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
-            sendBid(msg.getMinOffer(), msg.getCallId(), auctioneer);
-            // ImprovementIdea: maybe mark these resources as reserved, so that we dont use resources in mutliple sells and sell stuff we dont have
-        }
-    }
-
-    private Double calculateBidFor(Resource resource) {
-        // ToDo: Use some average value maybe to calcualte this?
-
-        return 100.0;
-    }
-
-
-    private void handleCFB_C(CallForBids msg) {
-        // ImprovementIdea: better would be to use a "bestResource" that should be sold. This would be the resource that
-        // we have the most in our wallet and that is also in the resourcesToSell list
-        for(Resource resource : resourcesToSell) {
-            List list = new ArrayList();
-            list.add(resource);
-            if(wallet.contains(list)) {
-                Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
-                Double bid = calculateBidFor(resource);
-                sendBid(bid, msg.getCallId(), auctioneer);
-                break;
-            }
+                invokeSimple(BidderBeanC.CALL_FOR_BIDS, msg);
         }
     }
 
     private synchronized void handleInformBuy(InformBuy msg) {
-        if (msg.getBundle() != null && msg.getType() == InformBuy.BuyType.WON) {
-            wallet.add(msg.getBundle());
-            wallet.updateCredits(-msg.getPrice());
-            account.addItem(msg.getBundle(), msg.getPrice());
-        } else if(msg.getBundle() != null && msg.getType() == InformBuy.BuyType.LOST) {
-            // Our strategy did not work out, so we need to recalculate
+        if (msg.getBundle() != null) {
+            if (msg.getType() == InformBuy.BuyType.WON) {
+                wallet.add(msg.getBundle());
+                wallet.updateCredits(-msg.getPrice());
+                account.addItem(msg.getBundle(), msg.getPrice());
+            } else if (msg.getType() == InformBuy.BuyType.LOST && msg.getCallId() < 200000) {
+                //msg.getCallId() < 200000 -> msg from A
+                // Our strategy did not work out, so we need to recalculate
+                invokeSimple(BidderBeanA3.UPDATE_BUY_LIST);
+            }
         }
     }
 
@@ -210,12 +163,6 @@ public class newProxyBean extends AbstractBidderBean {
             wallet.updateCredits(msg.getPrice());
             account.removeItem(msg.getBundle(), msg.getPrice());
         }
-    }
-
-    private void sendBid(Double bid, Integer callId, Auctioneer auctioneer) {
-        Bid message = new Bid(auctioneer.getAuctioneerId(), bidderId, callId, bid);
-        log.info("B sending Bid: "+ message);
-        sendMessage(auctioneer.getAddress(), message);
     }
 
     private synchronized int getBidderCount() {

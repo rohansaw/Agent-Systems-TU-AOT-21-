@@ -9,13 +9,13 @@ import de.dailab.jiactng.agentcore.knowledge.IFact;
 import de.dailab.jiactng.aot.auction.onto.*;
 
 import java.io.Serializable;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class AbstractBidderBean extends AbstractMethodExposingBean {
 
     protected String groupToken;
     protected String messageGroup;
     protected String bidderId;
+    protected int windowSize = 5;
 
     protected void sendMessage(ICommunicationAddress receiver, IFact payload) {
         Action sendAction = retrieveAction(ICommunicationBean.ACTION_SEND);
@@ -38,5 +38,5 @@ public class AbstractBidderBean extends AbstractMethodExposingBean {
         this.groupToken = groupToken;
     }
 
-
+    public void setWindowSize(int windowSize){this.windowSize = windowSize;}
 }

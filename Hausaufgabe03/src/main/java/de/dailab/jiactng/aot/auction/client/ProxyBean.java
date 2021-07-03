@@ -118,7 +118,7 @@ public class ProxyBean extends AbstractBidderBean {
         switch (msg.getMode()){
             case A:
                 account.setProbabilities(msg.getInitialItems());
-                invokeSimple(BidderBeanA.ACTION_START_AUCTION, msg, sender);
+                invokeSimple(BidderBeanA3.ACTION_START_AUCTION, msg, sender);
                 break;
             case B:
                 plSize = msg.getNumItems();
