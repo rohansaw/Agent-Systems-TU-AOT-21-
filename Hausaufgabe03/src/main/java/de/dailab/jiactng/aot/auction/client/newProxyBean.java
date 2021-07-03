@@ -168,19 +168,19 @@ public class newProxyBean extends AbstractBidderBean {
         if(wallet.contains(msg.getBundle()) && bundlesToSell.contains(msg.getBundle())) {
             Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
             sendBid(msg.getMinOffer(), msg.getCallId(), auctioneer);
-            // ToDo: maybe mark these resources as reserved, so that we dont use resources in mutliple sells and sell stuff we dont have
+            // ImprovementIdea: maybe mark these resources as reserved, so that we dont use resources in mutliple sells and sell stuff we dont have
         }
     }
 
     private Double calculateBidFor(Resource resource) {
-        // ToDo: Use soma average value maybe to calcualte this?
+        // ToDo: Use some average value maybe to calcualte this?
 
         return 100.0;
     }
 
 
     private void handleCFB_C(CallForBids msg) {
-        // ToDo: better would be to use a "bestResource" that should be sold. This would be the resource that
+        // ImprovementIdea: better would be to use a "bestResource" that should be sold. This would be the resource that
         // we have the most in our wallet and that is also in the resourcesToSell list
         for(Resource resource : resourcesToSell) {
             List list = new ArrayList();
