@@ -127,94 +127,10 @@ public class newProxyBean extends AbstractBidderBean {
         if(msg.getMode() == StartAuction.Mode.A && msg.getInitialItems() != null) {
             isFixed = true;
             initialItems = new LinkedList<>(msg.getInitialItems());
-            calculateBundlesToBuy();
         }
     }
 
-    private synchronized double calcMaxProfit(List<Resource> res){
-        //greedy -> sell bundle with most value first
-        List<Resource> alreadyBought = new ArrayList<>();
-        Wallet wallet = memory.read(new Wallet(bidderId, null));
-        Wallet w = new Wallet(wallet.getBidderId(), wallet.getCredits());
-        for (Resource r : Resource.values()) {
-            w.add(r, wallet.get(r));
-            for(int i = 0; i < wallet.get(r); i++){
-                alreadyBought.add(r);
-            }
-        }
-        w.add(res);
 
-        boolean sold;
-        double profit = 0;
-
-        do{
-            sold = false;
-            Map.Entry<List<Resource>, Double> max = priceList.getPrices().entrySet()
-                    .stream()
-                    .max(Comparator.comparing(Map.Entry::getValue))
-                    .orElse(null);
-            if(max != null){
-                sold = true;
-                profit += max.getValue();
-                wallet.remove(max.getKey());
-                for(Resource r : max.getKey()){
-                    if(alreadyBought.contains(r)){
-                        alreadyBought.remove(r);
-                        profit -= account.getAverageCost(r);
-                    }
-                }
-            }
-        }while (sold);
-        return profit;
-    }
-
-    private synchronized void calculateBundlesToBuy(){
-        //windowSize = 5 -> 32 possibilities for buy, not buy
-        //maybe calculate for every CFB(C) too -> 64 possibilities
-        // window = [countCFBforA, countCFBforA + windowSize[
-        if(countCFBforA + windowSize > initialItems.size())
-            windowSize = initialItems.size() - countCFBforA;
-        int possibilities = (int)Math.pow(2, windowSize);
-        ArrayList<Double> profit = new ArrayList(possibilities);
-        profit.add(0.0); // buy 0 bundles
-
-        double[] valueOfFirstBundle = new double[possibilities];
-
-        List<Integer> maxProfitIdx = new ArrayList<>();
-        double maxProfit = 0.0;
-
-        for(int pos = 1; pos < possibilities; pos++){
-            List<Resource> buyList = new LinkedList<>();
-            int mask = 1;
-            for(int i = countCFBforA; i < countCFBforA + windowSize; i++){
-                if((pos & mask) > 0) {
-                    buyList.addAll(initialItems.get(i).getBundle());
-                }
-                mask *= 2;
-            }
-
-            double p = calcMaxProfit(buyList);
-            if(p > maxProfit){
-                maxProfitIdx.clear();
-                maxProfit = p;
-            }
-            if(maxProfit == p && (pos & 1) > 0){ // only calc if first bundle of window is in set
-                maxProfitIdx.add(possibilities);
-                double[] weights = GaussianElimination.weightResources(buyList, account.getProbabilities(), profit.get(pos));
-                for(Resource r : initialItems.get(countCFBforA).getBundle()){
-                    valueOfFirstBundle[pos] += weights[r.ordinal()];
-                }
-            }
-            profit.add(p);
-        }
-        // decide on bundle set
-        // a) maxProfit with fewest bundles
-        // b) maxProfit with most bundles
-        // c) maxProfit with most single Res
-        double bid = 0.0;
-        //a
-
-    }
 
     private void handleCallForBids(CallForBids msg){
         Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
@@ -285,7 +201,6 @@ public class newProxyBean extends AbstractBidderBean {
             account.addItem(msg.getBundle(), msg.getPrice());
         } else if(msg.getBundle() != null && msg.getType() == InformBuy.BuyType.LOST) {
             // Our strategy did not work out, so we need to recalculate
-            calculateBundlesToBuy();
         }
     }
 
