@@ -36,20 +36,25 @@ public class BidderBeanC extends AbstractBidderBean {
     }
 
     private synchronized void updateData() {
-        Wallet w = memory.read(new Wallet(bidderId, null));
-        wallet = new Wallet(w.getBidderId(), w.getCredits());
-        for (Resource r : Resource.values()) {
-            wallet.add(r, w.get(r));
+        lock.readLock().lock();
+        try {
+            Wallet w = memory.read(new Wallet(bidderId, null));
+            wallet = new Wallet(w.getBidderId(), w.getCredits());
+            for (Resource r : Resource.values()) {
+                wallet.add(r, w.get(r));
+            }
+
+            priceList = memory.read(new PriceList((PriceList) null));
+            priceList = new PriceList(priceList);
+
+            account = memory.read(new Account((Account) null));
+            account = new Account(account);
+        }finally {
+            lock.readLock().unlock();
         }
-
-        priceList = memory.read(new PriceList((PriceList) null));
-        priceList = new PriceList(priceList);
-
-        account = memory.read(new Account((Account) null));
-        account = new Account(account);
     }
 
-    private synchronized void sellItem() {
+    private void sellItem() {
         updateData();
         if (wallet.get(Resource.G) > 0) {
             List<Resource> bundle = new LinkedList<>();
@@ -62,7 +67,7 @@ public class BidderBeanC extends AbstractBidderBean {
     public static final String ACTION_START_AUCTION = "BidderC#startAuction";
 
     @Expose(name = ACTION_START_AUCTION, scope = ActionScope.AGENT)
-    public synchronized void startAuction(StartAuction msg, ICommunicationAddress address, int countBidders) {
+    public void startAuction(StartAuction msg, ICommunicationAddress address, int countBidders) {
         auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
         turn = 0;
         countBidder = countBidders;
@@ -74,7 +79,6 @@ public class BidderBeanC extends AbstractBidderBean {
     @Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
     public void callForBids(CallForBids msg) {
         updateData();
-
         if (!msg.getOfferingBidder().equals(bidderId) && wallet.getCredits() >= msg.getMinOffer()) {
             double bid = getBid(msg) * ((countBidder - 1) / countBidder);
             if (bid >= msg.getMinOffer())
@@ -82,13 +86,14 @@ public class BidderBeanC extends AbstractBidderBean {
         }
     }
 
-    private synchronized double getBid(CallForBids msg) {
+    private double getBid(CallForBids msg) {
         double profitWithoutBuy = calcMaxProfit(null, 0);
         double profitWithBuy = calcMaxProfit(msg.getBundle(), msg.getMinOffer());
         return profitWithoutBuy - profitWithBuy;
     }
 
-    private synchronized double calcMaxProfit(List<Resource> res, double prize) {
+    private double calcMaxProfit(List<Resource> res, double prize) {
+        updateData();
         Wallet wallet = memory.read(new Wallet(bidderId, null));
         Wallet w = new Wallet(wallet.getBidderId(), wallet.getCredits());
         for (Resource r : Resource.values()) {
@@ -101,14 +106,14 @@ public class BidderBeanC extends AbstractBidderBean {
 
         double profit = 0;
         while (true) {
-            List<Map.Entry<List<Resource>, Double>> buy = priceList.getPrices().entrySet()
+            List<Map.Entry<Integer, List<Resource>>> buy = priceList.getBundles().entrySet()
                     .stream()
-                    .filter(e -> wallet.contains(e.getKey())).collect(Collectors.toList());
+                    .filter(e -> wallet.contains(e.getValue())).collect(Collectors.toList());
             if (buy.size() == 0)
                 break;
             List<ResProfitPair> profitList = new ArrayList<>(buy.size());
-            for (Map.Entry<List<Resource>, Double> elem : buy) {
-                profitList.add(new ResProfitPair(elem.getKey(), elem.getValue() - account.getCostOfBundle(elem.getKey())));
+            for (Map.Entry<Integer, List<Resource>> elem : buy) {
+                profitList.add(new ResProfitPair(elem.getValue(), priceList.getPrice(elem.getKey()) - account.getCostOfBundle(elem.getValue()), elem.getKey()));
             }
             ResProfitPair max = profitList.stream()
                     .max(Comparator.comparing(ResProfitPair::getProfit))
@@ -116,9 +121,8 @@ public class BidderBeanC extends AbstractBidderBean {
             if (max != null) {
                 profit += max.getProfit();
                 wallet.remove(max.getRes());
-                Integer cid = priceList.getCallId(max.getRes());
-                priceList.setPrice(max.getProfit() - 5, cid);
-                account.removeItem(max.getRes(), priceList.getPrice(max.getRes()));
+                account.removeItem(max.getRes(), priceList.getPrice(max.getCid()));
+                priceList.setPrice(priceList.getPrice(max.getCid()) - 5, max.getCid());
             } else {
                 break;
             }

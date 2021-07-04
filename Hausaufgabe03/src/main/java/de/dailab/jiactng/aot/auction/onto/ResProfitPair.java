@@ -4,14 +4,17 @@ import java.util.List;
 
 public class ResProfitPair{
     private final List<Resource> res;
-    private final Double profit;
-    public ResProfitPair(List<Resource> res, double profit){
+    private final double profit;
+    private final int cid;
+    public ResProfitPair(List<Resource> res, double profit, int cid){
         this.res = res;
         this.profit = profit;
+        this.cid = cid;
     }
-    public Double getProfit(){
+    public double getProfit(){
         return profit;
     }
+    public int getCid(){return cid;}
     public List<Resource> getRes(){
         return res;
     }

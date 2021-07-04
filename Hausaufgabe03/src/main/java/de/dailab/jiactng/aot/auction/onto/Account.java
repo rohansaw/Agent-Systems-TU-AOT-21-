@@ -1,5 +1,9 @@
 package de.dailab.jiactng.aot.auction.onto;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -12,10 +16,10 @@ import de.dailab.jiactng.agentcore.knowledge.IFact;
 public class Account implements IFact {
     private static final long serialVersionUID = 184766311824118260L;
 
-    private final Map<Resource, Integer> resourcesCount;
+    private final Map<Integer, Integer> resourcesCount;
 
     //average cost of single Resource
-    private final Map<Resource, Double> costAverage;
+    private final Map<Integer, Double> costAverage;
 
     private int countBidders;
 
@@ -26,37 +30,57 @@ public class Account implements IFact {
         costAverage = new HashMap<>();
         for(Resource r : Resource.values()){
             if(wallet != null) {
-                resourcesCount.put(r, wallet.get(r));
+                resourcesCount.put(r.ordinal(), wallet.get(r));
             }else{
-                resourcesCount.put(r, 0);
+                resourcesCount.put(r.ordinal(), 0);
             }
-            costAverage.put(r, 0.0);
+            costAverage.put(r.ordinal(), 0.0);
         }
         this.countBidders = countBidders;
         probabilities = new double[9];
     }
 
+    private Object deepCopy(Object o){
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(bos);
+            out.writeObject(o);
+
+            //De-serialization of object
+            ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+            ObjectInputStream in = new ObjectInputStream(bis);
+            return in.readObject();
+        }catch (Exception e){
+            return null;
+        }
+    }
+
     public Account(Account account){
-        probabilities = new double[9];
+        this.probabilities = new double[9];
+        this.resourcesCount = new HashMap<>();
+        this.costAverage = new HashMap<>();
         if(account != null) {
-            resourcesCount = new HashMap<>(account.getResourcesCount());
-            costAverage = new HashMap<>(account.getCostAverage());
+            for(Map.Entry<Integer, Integer> e : account.getResourcesCount().entrySet()){
+                this.resourcesCount.put(e.getKey().intValue(), e.getValue().intValue());
+            }
+            for(Map.Entry<Integer, Double> e : account.getCostAverage().entrySet()){
+                this.costAverage.put(e.getKey().intValue(), e.getValue().doubleValue());
+            }
+
             countBidders = account.getCountBidders();
             for(int i = 0; i < 9; i++){
                 probabilities[i] = account.getProbabilities()[i];
             }
         }else{
-            resourcesCount = new HashMap<>();
-            costAverage = new HashMap<>();
             countBidders = 1;
         }
     }
 
     private void addResource(Resource res, double price){
-        int count = resourcesCount.get(res) + 1;
-        resourcesCount.replace(res, count);
-        double cost = costAverage.get(res);
-        costAverage.replace(res, ((count - 1) * cost + price) / count);
+        int count = resourcesCount.get(res.ordinal()) + 1;
+        resourcesCount.replace(res.ordinal(), count);
+        double cost = costAverage.get(res.ordinal());
+        costAverage.replace(res.ordinal(), ((count - 1) * cost + price) / count);
     }
 
     public void addItem(List<Resource> res, double prize){
@@ -67,10 +91,10 @@ public class Account implements IFact {
     }
 
     private void removeResource(Resource res, double price){
-        int count = resourcesCount.get(res) - 1;
-        resourcesCount.replace(res, count);
-        double cost = costAverage.get(res);
-        costAverage.replace(res, ((count + 1) * cost - price) / count);
+        int count = resourcesCount.get(res.ordinal()) - 1;
+        resourcesCount.replace(res.ordinal(), count);
+        double cost = costAverage.get(res.ordinal());
+        costAverage.replace(res.ordinal(), ((count + 1) * cost - price) / count);
     }
 
     public void removeItem(List<Resource> res, double prize){
@@ -81,7 +105,7 @@ public class Account implements IFact {
     }
 
     public double getAverageCost(Resource res){
-        return costAverage.get(res);
+        return costAverage.get(res.ordinal());
     }
 
     public double getCostOfBundle(List<Resource> res){
@@ -101,9 +125,9 @@ public class Account implements IFact {
                 counter++;
             }
         }
-        probabilities[Resource.J.ordinal()] = countBidders * resourcesCount.get(Resource.J);
-        probabilities[Resource.K.ordinal()] = countBidders * resourcesCount.get(Resource.K);
-        counter += countBidders * resourcesCount.get(Resource.J) + countBidders * resourcesCount.get(Resource.K);
+        probabilities[Resource.J.ordinal()] = countBidders * resourcesCount.get(Resource.J.ordinal());
+        probabilities[Resource.K.ordinal()] = countBidders * resourcesCount.get(Resource.K.ordinal());
+        counter += countBidders * resourcesCount.get(Resource.J.ordinal()) + countBidders * resourcesCount.get(Resource.K.ordinal());
         for(int i = 0; i < 9; i++){
             probabilities[i] /= counter;
         }
@@ -116,15 +140,15 @@ public class Account implements IFact {
     }
 
     public Integer get(Resource resource) {
-        return this.resourcesCount.computeIfAbsent(resource, r -> 0);
+        return this.resourcesCount.computeIfAbsent(resource.ordinal(), r -> 0);
     }
 
     public int getCountBidders(){ return countBidders;}
     public double[] getProbabilities(){ return probabilities;}
-    public Map<Resource, Integer> getResourcesCount(){
+    public Map<Integer, Integer> getResourcesCount(){
         return resourcesCount;
     }
-    public Map<Resource, Double> getCostAverage(){
+    public Map<Integer, Double> getCostAverage(){
         return costAverage;
     }
 }

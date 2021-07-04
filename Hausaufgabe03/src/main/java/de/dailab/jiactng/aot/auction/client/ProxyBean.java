@@ -48,7 +48,7 @@ public class ProxyBean extends AbstractBidderBean {
     }
 
     @Override
-    public synchronized void execute(){
+    public void execute(){
         countOnlyCFBForB++;
     }
 
@@ -86,25 +86,35 @@ public class ProxyBean extends AbstractBidderBean {
         }
     }
 
-    private synchronized void register(ICommunicationAddress auctioneer) {
+    private void register(ICommunicationAddress auctioneer) {
         if(ready) {
-            ready = false;
-            auctioneers = new HashMap<>();
-            memory.removeAll(new Wallet(null, null));
-            memory.removeAll(new Auctioneer(null, null, null));
-            memory.removeAll(new PriceList((PriceList) null));
+            lock.writeLock().lock();
+            try {
+                ready = false;
+                auctioneers = new HashMap<>();
+                memory.removeAll(new Wallet(null, null));
+                memory.removeAll(new Auctioneer(null, null, null));
+                memory.removeAll(new PriceList((PriceList) null));
+            }finally {
+                lock.writeLock().unlock();
+            }
             Register message = new Register(bidderId, groupToken);
             sendMessage(auctioneer, message);
         }
     }
 
-    private synchronized void initialize(InitializeBidder msg) {
+    private void initialize(InitializeBidder msg) {
         wallet = msg.getWallet();
         if(wallet != null) {
             countBidder = getBidderCount();
-            account = new Account(wallet, countBidder);
-            memory.write(wallet);
-            memory.write(account);
+            lock.writeLock().lock();
+            try {
+                account = new Account(wallet, countBidder);
+                memory.write(wallet);
+                memory.write(account);
+            }finally {
+                lock.writeLock().unlock();
+            }
         } else {
             log.warn("Wallet was null ?!");
         }
@@ -115,13 +125,24 @@ public class ProxyBean extends AbstractBidderBean {
         auctioneers.put(msg.getAuctioneerId(), new Auctioneer(msg.getAuctioneerId(), sender, msg.getMode()));
         switch (msg.getMode()){
             case A:
-                account.setProbabilities(msg.getInitialItems());
+                lock.writeLock().lock();
+                try {
+                    account.setProbabilities(msg.getInitialItems());
+                }finally {
+                    lock.writeLock().unlock();
+                }
                 invokeSimple(BidderBeanA3.ACTION_START_AUCTION, msg, sender);
                 break;
             case B:
                 plSize = msg.getNumItems();
-                priceList = new PriceList(msg);
-                memory.write(priceList);
+                lock.writeLock().lock();
+                try {
+                    priceList = new PriceList(msg);
+                    memory.write(priceList);
+                }finally {
+                    lock.writeLock().unlock();
+                }
+
                 //update list after priceList ist initialized
                 invokeSimple(BidderBeanA3.UPDATE_BUY_LIST);
                 invokeSimple(BidderBeanB2.ACTION_START_AUCTION, msg, sender);
@@ -131,7 +152,7 @@ public class ProxyBean extends AbstractBidderBean {
         }
     }
 
-    private synchronized void handleCallForBids(CallForBids msg){
+    private void handleCallForBids(CallForBids msg){
         Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
         switch (auctioneer.getMode()){
             case A:
@@ -140,7 +161,12 @@ public class ProxyBean extends AbstractBidderBean {
                 break;
             case B:
                 countCFBforB++;
-                priceList.setPrice(msg.getBundle(), msg.getMinOffer(), msg.getCallId());
+                lock.writeLock().lock();
+                try {
+                    priceList.setPrice(msg.getBundle(), msg.getMinOffer(), msg.getCallId());
+                }finally {
+                    lock.writeLock().unlock();
+                }
                 if(countCFBforB == plSize) {
                     invokeSimple(BidderBeanB2.CALL_FOR_BIDS, countOnlyCFBForB >= 2);
                     countCFBforB = 0;
@@ -153,11 +179,16 @@ public class ProxyBean extends AbstractBidderBean {
         }
     }
 
-    private synchronized void handleInformBuy(InformBuy msg) {
+    private void handleInformBuy(InformBuy msg) {
         if (msg.getType() == InformBuy.BuyType.WON) {
-            wallet.add(msg.getBundle());
-            wallet.updateCredits(-msg.getPrice());
-            account.addItem(msg.getBundle(), msg.getPrice());
+            lock.writeLock().lock();
+            try {
+                wallet.add(msg.getBundle());
+                wallet.updateCredits(-msg.getPrice());
+                account.addItem(msg.getBundle(), msg.getPrice());
+            }finally {
+                lock.writeLock().unlock();
+            }
         }else if (msg.getType() == InformBuy.BuyType.LOST && msg.getCallId() < 200000) {
             //msg.getCallId() < 200000 -> msg from A
             // Our strategy did not work out, so we need to recalculate
@@ -165,15 +196,20 @@ public class ProxyBean extends AbstractBidderBean {
         }
     }
 
-    private synchronized void handleInformSell(InformSell msg) {
+    private void handleInformSell(InformSell msg) {
         if (msg.getBundle() != null && msg.getType() == InformSell.SellType.SOLD) {
-            wallet.remove(msg.getBundle());
-            wallet.updateCredits(msg.getPrice());
-            account.removeItem(msg.getBundle(), msg.getPrice());
+            lock.writeLock().lock();
+            try {
+                wallet.remove(msg.getBundle());
+                wallet.updateCredits(msg.getPrice());
+                account.removeItem(msg.getBundle(), msg.getPrice());
+            }finally {
+                lock.writeLock().unlock();
+            }
         }
     }
 
-    private synchronized int getBidderCount() {
+    private int getBidderCount() {
         AgentDescription description = new AgentDescription(null, "BidderAgent", null, null, null, null);
         List<IAgentDescription> list = thisAgent.searchAllAgents(description);
         if(list == null)
@@ -190,7 +226,7 @@ public class ProxyBean extends AbstractBidderBean {
 
         @SuppressWarnings("rawtypes")
         @Override
-        public void notify(SpaceEvent<? extends IFact> event) {
+        public synchronized void notify(SpaceEvent<? extends IFact> event) {
             if (event instanceof WriteCallEvent) {
                 WriteCallEvent writeEvent = (WriteCallEvent) event;
                 if (writeEvent.getObject() instanceof JiacMessage) {

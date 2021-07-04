@@ -9,6 +9,7 @@ import de.dailab.jiactng.agentcore.knowledge.IFact;
 import de.dailab.jiactng.aot.auction.onto.*;
 
 import java.io.Serializable;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class AbstractBidderBean extends AbstractMethodExposingBean {
 
@@ -16,8 +17,9 @@ public class AbstractBidderBean extends AbstractMethodExposingBean {
     protected String messageGroup;
     protected String bidderId;
     protected int windowSize = 10;
+    protected ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    protected void sendMessage(ICommunicationAddress receiver, IFact payload) {
+    protected synchronized void sendMessage(ICommunicationAddress receiver, IFact payload) {
         Action sendAction = retrieveAction(ICommunicationBean.ACTION_SEND);
         JiacMessage message = new JiacMessage(payload);
         invoke(sendAction, new Serializable[] {message, receiver});

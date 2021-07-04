@@ -2,6 +2,10 @@ package de.dailab.jiactng.aot.auction.onto;
 
 import de.dailab.jiactng.agentcore.knowledge.IFact;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,13 +27,21 @@ public class PriceList implements IFact {
 
     public PriceList(PriceList pl) {
         if(pl != null) {
-            purchasePrices = new HashMap<>(pl.getPurchasePrices());
-            bundles = new HashMap<>(pl.getBundles());
-        }else {
-            purchasePrices = new HashMap<>();
-            bundles = new HashMap<>();
+            this.purchasePrices = new HashMap<>();
+            for(Map.Entry<Integer, Double> e : pl.getPurchasePrices().entrySet()){
+                this.purchasePrices.put(e.getKey().intValue(), e.getValue().doubleValue());
+            }
+            this.bundles = new HashMap<>();
+            for(Map.Entry<Integer, List<Resource>> e : pl.getBundles().entrySet()){
+                this.bundles.put(e.getKey().intValue(), new ArrayList<>(e.getValue()));
+            }
+        }else{
+            this.purchasePrices = new HashMap<>();
+            this.bundles = new HashMap<>();
         }
     }
+
+
 
     // This List contains the current Price for every resource bundle that can be achieved when
     // selling it in Auction B
@@ -40,6 +52,8 @@ public class PriceList implements IFact {
         }
         return ret;
     }
+
+
 
     public double getPrice(List<Resource> res){
         Integer cid = getCallId(res);
@@ -82,7 +96,8 @@ public class PriceList implements IFact {
     }
 
     public void setPrice(double price, int callId) {
-        purchasePrices.put(callId, price);
+        if (purchasePrices.containsKey(callId))
+            purchasePrices.put(callId, price);
     }
 
     public int getSize(){

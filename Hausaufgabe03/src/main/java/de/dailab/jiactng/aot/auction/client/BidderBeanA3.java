@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 public class BidderBeanA3 extends AbstractBidderBean {
 
-    private int turn = 0;
     private Wallet wallet;
     private Auctioneer auctioneer;
     private PriceList priceList;
@@ -34,14 +33,12 @@ public class BidderBeanA3 extends AbstractBidderBean {
 
     @Override
     public void execute() {
-        turn++;
+        return;
     }
 
     @IMethodExposingBean.Expose(name = ACTION_START_AUCTION, scope = ActionScope.AGENT)
-    public synchronized void startAuction(StartAuction msg, ICommunicationAddress address) {
-        wallet = memory.read(new Wallet(bidderId, null));
+    public void startAuction(StartAuction msg, ICommunicationAddress address) {
         auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
-        turn = 0;
         initialItems = new LinkedList<>(msg.getInitialItems());
     }
 
@@ -61,14 +58,33 @@ public class BidderBeanA3 extends AbstractBidderBean {
     }
 
     @IMethodExposingBean.Expose(name = UPDATE_BUY_LIST, scope = ActionScope.AGENT)
-    public synchronized void updateBuyList() {
-        updateData();
+    public void updateBuyList() {
         countCFB++;
         buyList = getBundlesToBuy();
         countCFB--;
     }
 
+    private synchronized void updateData() {
+        lock.readLock().lock();
+        try {
+            Wallet w = memory.read(new Wallet(bidderId, null));
+            wallet = new Wallet(w.getBidderId(), w.getCredits());
+            for (Resource r : Resource.values()) {
+                wallet.add(r, w.get(r));
+            }
+
+            priceList = memory.read(new PriceList((PriceList) null));
+            priceList = new PriceList(priceList);
+
+            account = memory.read(new Account((Account) null));
+            account = new Account(account);
+        }finally {
+            lock.readLock().unlock();
+        }
+    }
+
     private double calculateBid() {
+        updateData();
         double bid = 0.0;
         if ((buyList & 1) > 0) {
             int windowEnd = countCFB + windowSize - (countCFB % windowSize);
@@ -89,55 +105,37 @@ public class BidderBeanA3 extends AbstractBidderBean {
                 bid += weights[r.ordinal()];
             }
         }
+        buyList >>= 1;
         return bid;
     }
 
-
-    private synchronized void updateData() {
-        Wallet w = memory.read(new Wallet(bidderId, null));
-        wallet = new Wallet(w.getBidderId(), w.getCredits());
-        for (Resource r : Resource.values()) {
-            wallet.add(r, w.get(r));
-        }
-
-        priceList = memory.read(new PriceList((PriceList) null));
-        priceList = new PriceList(priceList);
-
-        account = memory.read(new Account((Account) null));
-        account = new Account(account);
-    }
-
-
-    private synchronized double calcMaxProfit(List<Resource> res) {
+    private double calcMaxProfit(List<Resource> res) {
         //greedy -> sell bundle with most value first
         updateData();
         List<Resource> alreadyBought = new ArrayList<>();
-        Wallet wallet = memory.read(new Wallet(bidderId, null));
-        Wallet w = new Wallet(wallet.getBidderId(), wallet.getCredits());
-        for (Resource r : Resource.values()) {
-            w.add(r, wallet.get(r));
+        for(Resource r : Resource.values()) {
             for (int i = 0; i < wallet.get(r); i++) {
                 alreadyBought.add(r);
             }
         }
-        w.add(res);
+
+        wallet.add(res);
 
         boolean sold;
         double profit = -20 * res.size();
         do {
             sold = false;
-            Map.Entry<List<Resource>, Double> max = priceList.getPrices().entrySet()
+            Map.Entry<Integer, Double> max = priceList.getPurchasePrices().entrySet()
                     .stream()
-                    .filter(e -> w.contains(e.getKey()))
+                    .filter(e -> wallet.contains(priceList.getResList(e.getKey())))
                     .max(Map.Entry.comparingByValue())
                     .orElse(null);
             if (max != null) {
                 sold = true;
                 profit += max.getValue();
-                w.remove(max.getKey());
-                Integer cid = priceList.getCallId(max.getKey());
-                priceList.setPrice(max.getValue() - 5, cid);
-                for (Resource r : max.getKey()) {
+                wallet.remove(priceList.getResList(max.getKey()));
+                priceList.setPrice(max.getValue() - 5, max.getKey());
+                for (Resource r : priceList.getResList(max.getKey())) {
                     if (alreadyBought.contains(r)) {
                         alreadyBought.remove(r);
                         profit -= account.getAverageCost(r) + 20;
