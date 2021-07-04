@@ -63,7 +63,8 @@ public class BidderBeanB2 extends AbstractBidderBean {
                 break;
             List<ResProfitPair> profitList = new ArrayList<>(buy.size());
             for (Map.Entry<List<Resource>, Double> elem : buy) {
-                profitList.add(new ResProfitPair(elem.getKey(), elem.getValue() - account.getCostOfBundle(elem.getKey())));
+                double profit = (elem.getValue() - account.getCostOfBundle(elem.getKey())) + elem.getKey().size() * 20;
+                profitList.add(new ResProfitPair(elem.getKey(), profit));
             }
             ResProfitPair max = profitList.stream()
                     .max(Comparator.comparing(ResProfitPair::getProfit))
