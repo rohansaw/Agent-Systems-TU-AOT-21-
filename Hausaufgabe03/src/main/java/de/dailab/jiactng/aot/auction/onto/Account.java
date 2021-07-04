@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import de.dailab.jiactng.agentcore.knowledge.IFact;
 
@@ -106,6 +107,16 @@ public class Account implements IFact {
         for(int i = 0; i < 9; i++){
             probabilities[i] /= counter;
         }
+    }
+
+    public boolean contains(List<Resource> bundle) {
+        return bundle.stream()
+                .collect(Collectors.groupingBy(k -> k, Collectors.counting())).entrySet().stream()
+                .allMatch(e -> get(e.getKey()) >= e.getValue());
+    }
+
+    public Integer get(Resource resource) {
+        return this.resourcesCount.computeIfAbsent(resource, r -> 0);
     }
 
     public int getCountBidders(){ return countBidders;}

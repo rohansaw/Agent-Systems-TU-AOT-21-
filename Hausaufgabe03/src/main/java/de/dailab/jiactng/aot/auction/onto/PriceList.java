@@ -10,15 +10,24 @@ public class PriceList implements IFact {
 
     private final HashMap<Integer, Double> purchasePrices;
 
-    private final HashMap<Integer, List<Resource>> callIds;
+    private final HashMap<Integer, List<Resource>> bundles;
+
+    public PriceList(StartAuction msg) {
+            purchasePrices = new HashMap<>();
+            bundles = new HashMap<>();
+        for(Item i : msg.getInitialItems()){
+            purchasePrices.put(i.getCallId(), i.getPrice());
+            bundles.put(i.getCallId(), i.getBundle());
+        }
+    }
 
     public PriceList(PriceList pl) {
         if(pl != null) {
             purchasePrices = new HashMap<>(pl.getPurchasePrices());
-            callIds = new HashMap<>(pl.getCallIds());
+            bundles = new HashMap<>(pl.getBundles());
         }else {
             purchasePrices = new HashMap<>();
-            callIds = new HashMap<>();
+            bundles = new HashMap<>();
         }
     }
 
@@ -26,8 +35,8 @@ public class PriceList implements IFact {
     // selling it in Auction B
     public HashMap<List<Resource>, Double> getPrices() {
         HashMap<List<Resource>, Double> ret = new HashMap<>();
-        for(Integer i : callIds.keySet()){
-            ret.put(callIds.get(i), purchasePrices.get(i));
+        for(Integer i : bundles.keySet()){
+            ret.put(bundles.get(i), purchasePrices.get(i));
         }
         return ret;
     }
@@ -47,14 +56,14 @@ public class PriceList implements IFact {
 
     public List<Resource> getResList(int callId){
         if(purchasePrices.containsKey(callId))
-            return callIds.get(callId);
+            return bundles.get(callId);
         return new LinkedList<>();
     }
 
     public Integer getCallId(List<Resource> res) {
         Wallet w = new Wallet(null, 0.0);
         w.add(res);
-        for (Map.Entry<Integer, List<Resource>> entry : callIds.entrySet()) {
+        for (Map.Entry<Integer, List<Resource>> entry : bundles.entrySet()) {
             if (entry.getValue().size() == res.size() && w.contains(entry.getValue())) {
                 return entry.getKey();
             }
@@ -66,18 +75,22 @@ public class PriceList implements IFact {
         Integer cId = getCallId(res);
         if(cId != null){
             purchasePrices.remove(cId);
-            callIds.remove(cId);
+            bundles.remove(cId);
         }
         purchasePrices.put(callId, price);
-        callIds.put(callId, res);
+        bundles.put(callId, res);
+    }
+
+    public void setPrice(double price, int callId) {
+        purchasePrices.put(callId, price);
     }
 
     public int getSize(){
         return purchasePrices.size();
     }
 
-    public HashMap<Integer, List<Resource>> getCallIds(){
-        return callIds;
+    public HashMap<Integer, List<Resource>> getBundles(){
+        return bundles;
     }
 
     public HashMap<Integer, Double> getPurchasePrices(){

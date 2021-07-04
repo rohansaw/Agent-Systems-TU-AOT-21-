@@ -21,23 +21,25 @@
 	<bean name="BidderAgent" parent="SimpleAgent" scope="prototype">
 		<property name="agentBeans">
 			<list>
-				<bean name="BidderBeanA" class="de.dailab.jiactng.aot.auction.client.BidderBeanA" scope="prototype">
+				<bean name="BidderBeanA" class="de.dailab.jiactng.aot.auction.client.BidderBeanA3" scope="prototype">
 					<property name="logLevel" value="INFO" />
 					<property name="executionInterval" value="2000" />
 					
 					<property name="bidderId" value="Bidder_18" />
 					<property name="groupToken" value="Group18_91679" />
 					<property name="messageGroup" value="de.dailab.jiactng.aot.auction" />
+					<property name="windowSize" value="6" />
 					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
 				</bean>
 
-				<bean name="BidderBeanB" class="de.dailab.jiactng.aot.auction.client.BidderBeanB" scope="prototype">
+				<bean name="BidderBeanB" class="de.dailab.jiactng.aot.auction.client.BidderBeanB2" scope="prototype">
 					<property name="logLevel" value="INFO" />
 					<property name="executionInterval" value="2000" />
 
 					<property name="bidderId" value="Bidder_18" />
 					<property name="groupToken" value="Group18_91679" />
 					<property name="messageGroup" value="de.dailab.jiactng.aot.auction" />
+					<property name="windowSize" value="6" />
 					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
 				</bean>
 
@@ -48,6 +50,7 @@
 					<property name="bidderId" value="Bidder_18" />
 					<property name="groupToken" value="Group18_91679" />
 					<property name="messageGroup" value="de.dailab.jiactng.aot.auction" />
+					<property name="windowSize" value="6" />
 					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
 				</bean>
 
@@ -58,6 +61,7 @@
 					<property name="bidderId" value="Bidder_18" />
 					<property name="groupToken" value="Group18_91679" />
 					<property name="messageGroup" value="de.dailab.jiactng.aot.auction" />
+					<property name="windowSize" value="6" />
 					<!-- XXX add more properties if needed, e.g. for fine-tuning strategies -->
 				</bean>
 			</list>

@@ -5,6 +5,7 @@ import de.dailab.jiactng.agentcore.comm.ICommunicationAddress;
 import de.dailab.jiactng.aot.auction.onto.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class BidderBeanB2 extends AbstractBidderBean {
 
@@ -13,6 +14,7 @@ public class BidderBeanB2 extends AbstractBidderBean {
     Auctioneer auctioneer;
     PriceList priceList;
     Account account;
+    int countAllCFB = 0;
 
     @Override
     public void doStart() throws Exception {
@@ -29,7 +31,7 @@ public class BidderBeanB2 extends AbstractBidderBean {
             wallet.add(r, w.get(r));
         }
 
-        priceList = memory.read(new PriceList(null));
+        priceList = memory.read(new PriceList((PriceList) null));
         priceList = new PriceList(priceList);
 
         account = memory.read(new Account((Account) null));
@@ -46,29 +48,41 @@ public class BidderBeanB2 extends AbstractBidderBean {
 
     public static final String CALL_FOR_BIDS = "BidderB#callForBids";
     @Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
-    public void callForBids(boolean sellAll) {
-        updateData();
-        HashMap<Integer, Double> profit = new HashMap<>();
+    public synchronized void callForBids(boolean sellAll) {
+        countAllCFB++;
+        if (countAllCFB % windowSize != 0)
+            return;
 
-        for (int cid : priceList.getCallIds().keySet()) {
-            if (wallet.contains(priceList.getResList(cid))) {
-                double prof = priceList.getPrice(cid) - account.getCostOfBundle(priceList.getResList(cid));
-                if (prof > 0 || sellAll)
-                    profit.put(cid, prof);
+        updateData();
+
+        while (true) {
+            List<Map.Entry<List<Resource>, Double>> buy = priceList.getPrices().entrySet()
+                    .stream()
+                    .filter(e -> wallet.contains(e.getKey())).collect(Collectors.toList());
+            if (buy.size() == 0)
+                break;
+            List<ResProfitPair> profitList = new ArrayList<>(buy.size());
+            for (Map.Entry<List<Resource>, Double> elem : buy) {
+                profitList.add(new ResProfitPair(elem.getKey(), elem.getValue() - account.getCostOfBundle(elem.getKey())));
+            }
+            ResProfitPair max = profitList.stream()
+                    .max(Comparator.comparing(ResProfitPair::getProfit))
+                    .orElse(null);
+            if (max != null && (max.getProfit() > 0 || sellAll)) {
+                wallet.remove(max.getRes());
+                Integer cid = priceList.getCallId(max.getRes());
+                priceList.setPrice(max.getProfit() - 5, cid);
+                account.removeItem(max.getRes(), priceList.getPrice(max.getRes()));
+                sendBid(cid);
+            } else {
+                break;
             }
         }
-        Map.Entry<Integer, Double> maxProfit = profit.entrySet().stream()
-                .max(Map.Entry.comparingByValue()).orElse(null);
-        if (maxProfit != null) {
-            sendBid(maxProfit.getValue(), maxProfit.getKey());
-        }
     }
 
-
-    private void sendBid(Double bid, Integer callId) {
+    private void sendBid(Integer callId) {
         Bid message = new Bid(auctioneer.getAuctioneerId(), bidderId, callId, null);
-        log.info("B sending Bid: "+ message);
+        log.info("B sending Bid: " + message);
         sendMessage(auctioneer.getAddress(), message);
     }
-
 }

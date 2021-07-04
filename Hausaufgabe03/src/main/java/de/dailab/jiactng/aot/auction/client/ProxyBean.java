@@ -30,10 +30,10 @@ public class ProxyBean extends AbstractBidderBean {
     private Wallet wallet;
     private Account account;
     private PriceList priceList;
-    private int countCFBforB = 0;
     private int plSize = 0;
-    private int countOnlyCFBforB = 0;
     private int countBidder = 0;
+    private int countCFBforB = 0;
+    private int countOnlyCFBForB = 0;
 
     //only register for one auction
     private boolean ready = true;
@@ -49,7 +49,7 @@ public class ProxyBean extends AbstractBidderBean {
 
     @Override
     public synchronized void execute(){
-        countOnlyCFBforB++;
+        countOnlyCFBForB++;
     }
 
     private void handleMessage(JiacMessage message){
@@ -92,7 +92,7 @@ public class ProxyBean extends AbstractBidderBean {
             auctioneers = new HashMap<>();
             memory.removeAll(new Wallet(null, null));
             memory.removeAll(new Auctioneer(null, null, null));
-            memory.removeAll(new PriceList(null));
+            memory.removeAll(new PriceList((PriceList) null));
             Register message = new Register(bidderId, groupToken);
             sendMessage(auctioneer, message);
         }
@@ -103,8 +103,6 @@ public class ProxyBean extends AbstractBidderBean {
         if(wallet != null) {
             countBidder = getBidderCount();
             account = new Account(wallet, countBidder);
-            priceList = new PriceList(null);
-            memory.write(priceList);
             memory.write(wallet);
             memory.write(account);
         } else {
@@ -113,8 +111,8 @@ public class ProxyBean extends AbstractBidderBean {
     }
 
     private void handleStartAuction(StartAuction msg, ICommunicationAddress sender) {
+        countOnlyCFBForB = 0;
         auctioneers.put(msg.getAuctioneerId(), new Auctioneer(msg.getAuctioneerId(), sender, msg.getMode()));
-        countOnlyCFBforB = 0;
         switch (msg.getMode()){
             case A:
                 account.setProbabilities(msg.getInitialItems());
@@ -122,7 +120,11 @@ public class ProxyBean extends AbstractBidderBean {
                 break;
             case B:
                 plSize = msg.getNumItems();
-                invokeSimple(BidderBeanB.ACTION_START_AUCTION, msg, sender);
+                priceList = new PriceList(msg);
+                memory.write(priceList);
+                //update list after priceList ist initialized
+                invokeSimple(BidderBeanA3.UPDATE_BUY_LIST);
+                invokeSimple(BidderBeanB2.ACTION_START_AUCTION, msg, sender);
                 break;
             case C:
                 invokeSimple(BidderBeanC.ACTION_START_AUCTION, msg, sender, countBidder);
@@ -133,28 +135,33 @@ public class ProxyBean extends AbstractBidderBean {
         Auctioneer auctioneer = auctioneers.get(msg.getAuctioneerId());
         switch (auctioneer.getMode()){
             case A:
-                invokeSimple(BidderBeanA.CALL_FOR_BIDS, msg);
+                countOnlyCFBForB = 0;
+                invokeSimple(BidderBeanA3.CALL_FOR_BIDS, msg);
                 break;
             case B:
                 countCFBforB++;
                 priceList.setPrice(msg.getBundle(), msg.getMinOffer(), msg.getCallId());
                 if(countCFBforB == plSize) {
-                    invokeSimple(BidderBeanB.CALL_FOR_BIDS, countOnlyCFBforB >= 2);
+                    invokeSimple(BidderBeanB2.CALL_FOR_BIDS, countOnlyCFBForB >= 2);
                     countCFBforB = 0;
                 }
                 break;
             case C:
                 //after auction C closed only B is open for sell
-                countOnlyCFBforB = 0;
+                countOnlyCFBForB = 0;
                 invokeSimple(BidderBeanC.CALL_FOR_BIDS, msg);
         }
     }
 
     private synchronized void handleInformBuy(InformBuy msg) {
-        if (msg.getBundle() != null && msg.getType() == InformBuy.BuyType.WON) {
+        if (msg.getType() == InformBuy.BuyType.WON) {
             wallet.add(msg.getBundle());
             wallet.updateCredits(-msg.getPrice());
             account.addItem(msg.getBundle(), msg.getPrice());
+        }else if (msg.getType() == InformBuy.BuyType.LOST && msg.getCallId() < 200000) {
+            //msg.getCallId() < 200000 -> msg from A
+            // Our strategy did not work out, so we need to recalculate
+            invokeSimple(BidderBeanA3.UPDATE_BUY_LIST);
         }
     }
 

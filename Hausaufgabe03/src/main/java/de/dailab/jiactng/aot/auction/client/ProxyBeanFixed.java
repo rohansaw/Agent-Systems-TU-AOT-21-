@@ -25,7 +25,7 @@ public class ProxyBeanFixed extends AbstractBidderBean {
     Account account;
     int countCFBforB = 0;
     int plSize = 0;
-    PriceList priceList = new PriceList(null);
+    PriceList priceList = new PriceList((PriceList) null);
     List<Bid> offeredItems = new LinkedList<>();
     HashMap<Resource, Integer> reservedResources = new HashMap<>();
     List<Item> initialItems = new LinkedList<>();
@@ -98,7 +98,7 @@ public class ProxyBeanFixed extends AbstractBidderBean {
             auctioneers = new HashMap<>();
             memory.removeAll(new Wallet(null, null));
             memory.removeAll(new Auctioneer(null, null, null));
-            memory.removeAll(new PriceList(null));
+            memory.removeAll(new PriceList((PriceList) null));
             // memory.removeAll(new PriceList(null));
             Register message = new Register(bidderId, groupToken);
             sendMessage(auctioneer, message);
@@ -110,7 +110,7 @@ public class ProxyBeanFixed extends AbstractBidderBean {
         if(wallet != null) {
             countBidder = getBidderCount();
             account = new Account(wallet, countBidder);
-            priceList = new PriceList(null);
+            priceList = new PriceList((PriceList) null);
             memory.write(priceList);
             memory.write(wallet);
             memory.write(account);

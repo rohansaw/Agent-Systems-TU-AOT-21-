@@ -43,9 +43,6 @@ public class BidderBeanA3 extends AbstractBidderBean {
         auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
         turn = 0;
         initialItems = new LinkedList<>(msg.getInitialItems());
-        countCFB++;
-        buyList = getBundlesToBuy();
-        countCFB--;
     }
 
     @IMethodExposingBean.Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
@@ -56,7 +53,7 @@ public class BidderBeanA3 extends AbstractBidderBean {
         if (bid >= cfb.getMinOffer()) {
             sendBid(bid, cfb.getCallId());
         }
-        if(countCFB % windowSize == windowSize - 1) {
+        if (countCFB % windowSize == windowSize - 1) {
             countCFB++;
             buyList = getBundlesToBuy();
             countCFB--;
@@ -65,12 +62,15 @@ public class BidderBeanA3 extends AbstractBidderBean {
 
     @IMethodExposingBean.Expose(name = UPDATE_BUY_LIST, scope = ActionScope.AGENT)
     public synchronized void updateBuyList() {
+        updateData();
+        countCFB++;
         buyList = getBundlesToBuy();
+        countCFB--;
     }
 
-    private double calculateBid(){
+    private double calculateBid() {
         double bid = 0.0;
-        if((buyList & 1) > 0) {
+        if ((buyList & 1) > 0) {
             int windowEnd = countCFB + windowSize - (countCFB % windowSize);
             if (windowEnd > initialItems.size())
                 windowEnd = initialItems.size() - countCFB;
@@ -85,7 +85,7 @@ public class BidderBeanA3 extends AbstractBidderBean {
 
             double profit = calcMaxProfit(resList);
             double[] weights = GaussianElimination.weightResources(resList, account.getProbabilities(), profit);
-            for (Resource r : initialItems.get(countCFB).getBundle()){
+            for (Resource r : initialItems.get(countCFB).getBundle()) {
                 bid += weights[r.ordinal()];
             }
         }
@@ -100,7 +100,7 @@ public class BidderBeanA3 extends AbstractBidderBean {
             wallet.add(r, w.get(r));
         }
 
-        priceList = memory.read(new PriceList(null));
+        priceList = memory.read(new PriceList((PriceList) null));
         priceList = new PriceList(priceList);
 
         account = memory.read(new Account((Account) null));
@@ -110,6 +110,7 @@ public class BidderBeanA3 extends AbstractBidderBean {
 
     private synchronized double calcMaxProfit(List<Resource> res) {
         //greedy -> sell bundle with most value first
+        updateData();
         List<Resource> alreadyBought = new ArrayList<>();
         Wallet wallet = memory.read(new Wallet(bidderId, null));
         Wallet w = new Wallet(wallet.getBidderId(), wallet.getCredits());
@@ -122,22 +123,24 @@ public class BidderBeanA3 extends AbstractBidderBean {
         w.add(res);
 
         boolean sold;
-        double profit = 0;
-
+        double profit = -20 * res.size();
         do {
             sold = false;
             Map.Entry<List<Resource>, Double> max = priceList.getPrices().entrySet()
                     .stream()
-                    .max(Comparator.comparing(Map.Entry::getValue))
+                    .filter(e -> w.contains(e.getKey()))
+                    .max(Map.Entry.comparingByValue())
                     .orElse(null);
             if (max != null) {
                 sold = true;
                 profit += max.getValue();
-                wallet.remove(max.getKey());
+                w.remove(max.getKey());
+                Integer cid = priceList.getCallId(max.getKey());
+                priceList.setPrice(max.getValue() - 5, cid);
                 for (Resource r : max.getKey()) {
                     if (alreadyBought.contains(r)) {
                         alreadyBought.remove(r);
-                        profit -= account.getAverageCost(r);
+                        profit -= account.getAverageCost(r) + 20;
                     }
                 }
             }
@@ -154,7 +157,6 @@ public class BidderBeanA3 extends AbstractBidderBean {
             windowEnd = initialItems.size() - countCFB;
 
         int possibilities = (int) Math.pow(2, windowEnd - countCFB);
-        ArrayList<Double> profit = new ArrayList(possibilities);
         int[] resCount = new int[possibilities];
         List<Integer> maxProfitIdx = new ArrayList<>();
         double maxProfit = 0.0;
@@ -179,7 +181,6 @@ public class BidderBeanA3 extends AbstractBidderBean {
             if (maxProfit == p) { // only calc if first bundle of window is in set
                 maxProfitIdx.add(pos);
             }
-            profit.add(p);
         }
         // decide on bundle set
         // maxProfit with fewest bundles and most res

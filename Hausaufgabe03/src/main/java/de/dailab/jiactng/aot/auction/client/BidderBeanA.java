@@ -52,7 +52,7 @@ public class BidderBeanA extends AbstractBidderBean {
 	}
 
 	private synchronized void calculateResourceValues() {
-		PriceList priceList = memory.read(new PriceList(null));
+		PriceList priceList = memory.read(new PriceList((PriceList) null));
 		for(Resource resource : Resource.values()) {
 			if (resource.equals(Resource.G)) {
 				resourceValues.put(resource, -20.0);
@@ -83,7 +83,7 @@ public class BidderBeanA extends AbstractBidderBean {
 	}
 
 	private synchronized Double calculateGreedyBid(List<Resource> resources){
-		PriceList priceList = memory.read(new PriceList(null));
+		PriceList priceList = memory.read(new PriceList((PriceList) null));
 		Wallet wallet = memory.read(new Wallet(null, null));
 		Account account = memory.read(new Account((Account) null));
 		Double bestValue = 0.0;

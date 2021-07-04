@@ -29,7 +29,7 @@ public class BidderBeanB extends AbstractBidderBean {
             wallet.add(r, w.get(r));
         }
 
-        priceList = memory.read(new PriceList(null));
+        priceList = memory.read(new PriceList((PriceList) null));
         priceList = new PriceList(priceList);
 
         account = memory.read(new Account((Account) null));
@@ -50,7 +50,7 @@ public class BidderBeanB extends AbstractBidderBean {
         updateData();
         HashMap<Integer, Double> profit = new HashMap<>();
 
-        for (int cid : priceList.getCallIds().keySet()) {
+        for (int cid : priceList.getBundles().keySet()) {
             if (wallet.contains(priceList.getResList(cid))) {
                 double prof = priceList.getPrice(cid) - account.getCostOfBundle(priceList.getResList(cid));
                 if (prof > 0 || sellAll)

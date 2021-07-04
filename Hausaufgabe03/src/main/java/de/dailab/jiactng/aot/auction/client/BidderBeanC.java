@@ -6,6 +6,7 @@ import de.dailab.jiactng.aot.auction.onto.*;
 
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class BidderBeanC extends AbstractBidderBean {
 
@@ -26,7 +27,7 @@ public class BidderBeanC extends AbstractBidderBean {
 
     @Override
     public void execute() {
-        if(turn >= 0) {
+        if (turn >= 0) {
             sellItem();
             turn++;
         }
@@ -41,72 +42,87 @@ public class BidderBeanC extends AbstractBidderBean {
             wallet.add(r, w.get(r));
         }
 
-        priceList = memory.read(new PriceList(null));
+        priceList = memory.read(new PriceList((PriceList) null));
         priceList = new PriceList(priceList);
 
         account = memory.read(new Account((Account) null));
         account = new Account(account);
     }
 
-    private synchronized void sellItem(){
-        //updateData();
-
+    private synchronized void sellItem() {
+        updateData();
+        if (wallet.get(Resource.G) > 0) {
+            List<Resource> bundle = new LinkedList<>();
+            bundle.add(Resource.G);
+            Offer offer = new Offer(auctioneer.getAuctioneerId(), bidderId, bundle, 20.0);
+            sendMessage(auctioneer.getAddress(), offer);
+        }
     }
 
     public static final String ACTION_START_AUCTION = "BidderC#startAuction";
+
     @Expose(name = ACTION_START_AUCTION, scope = ActionScope.AGENT)
     public synchronized void startAuction(StartAuction msg, ICommunicationAddress address, int countBidders) {
         auctioneer = new Auctioneer(msg.getAuctioneerId(), address, msg.getMode());
         turn = 0;
         countBidder = countBidders;
-        if(countBidder < 2) countBidder = 2;
+        if (countBidder < 2) countBidder = 2;
     }
 
     public static final String CALL_FOR_BIDS = "BidderC#callForBids";
+
     @Expose(name = CALL_FOR_BIDS, scope = ActionScope.AGENT)
     public void callForBids(CallForBids msg) {
         updateData();
 
-        if(!msg.getOfferingBidder().equals(bidderId) && wallet.getCredits() >= msg.getMinOffer()) {
+        if (!msg.getOfferingBidder().equals(bidderId) && wallet.getCredits() >= msg.getMinOffer()) {
             double bid = getBid(msg) * ((countBidder - 1) / countBidder);
-            if(bid > msg.getMinOffer())
+            if (bid >= msg.getMinOffer())
                 sendMessage(auctioneer.getAddress(), new Bid(msg.getAuctioneerId(), bidderId, msg.getCallId(), bid));
         }
     }
 
-    private synchronized double getBid(CallForBids msg){
+    private synchronized double getBid(CallForBids msg) {
         double profitWithoutBuy = calcMaxProfit(null, 0);
         double profitWithBuy = calcMaxProfit(msg.getBundle(), msg.getMinOffer());
         return profitWithoutBuy - profitWithBuy;
     }
 
-    private synchronized double calcMaxProfit(List<Resource> res, double prize){
-        //greedy -> sell bundle with most value first
+    private synchronized double calcMaxProfit(List<Resource> res, double prize) {
         Wallet wallet = memory.read(new Wallet(bidderId, null));
         Wallet w = new Wallet(wallet.getBidderId(), wallet.getCredits());
         for (Resource r : Resource.values()) {
             w.add(r, wallet.get(r));
         }
-        if(res != null)
+        if (res != null)
             w.add(res);
-        if(prize != 0) // find better estimator for prize
+        if (prize != 0) // find better estimator for prize
             account.addItem(res, prize);
 
-        boolean sold;
         double profit = 0;
-
-        do{
-            sold = false;
-            Map.Entry<List<Resource>, Double> max = priceList.getPrices().entrySet()
+        while (true) {
+            List<Map.Entry<List<Resource>, Double>> buy = priceList.getPrices().entrySet()
                     .stream()
-                    .max(Comparator.comparing(Map.Entry::getValue))
-                    .orElse(null);
-            if(max != null){
-                sold = true;
-                profit += max.getValue() - account.getCostOfBundle(max.getKey());
-                wallet.remove(max.getKey());
+                    .filter(e -> wallet.contains(e.getKey())).collect(Collectors.toList());
+            if (buy.size() == 0)
+                break;
+            List<ResProfitPair> profitList = new ArrayList<>(buy.size());
+            for (Map.Entry<List<Resource>, Double> elem : buy) {
+                profitList.add(new ResProfitPair(elem.getKey(), elem.getValue() - account.getCostOfBundle(elem.getKey())));
             }
-        }while (sold);
+            ResProfitPair max = profitList.stream()
+                    .max(Comparator.comparing(ResProfitPair::getProfit))
+                    .orElse(null);
+            if (max != null) {
+                profit += max.getProfit();
+                wallet.remove(max.getRes());
+                Integer cid = priceList.getCallId(max.getRes());
+                priceList.setPrice(max.getProfit() - 5, cid);
+                account.removeItem(max.getRes(), priceList.getPrice(max.getRes()));
+            } else {
+                break;
+            }
+        }
         return profit;
     }
 

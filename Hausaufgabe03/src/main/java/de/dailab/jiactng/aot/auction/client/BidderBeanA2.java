@@ -60,7 +60,7 @@ public class BidderBeanA2 extends AbstractBidderBean {
     }
 
     private synchronized void calculateResourceValues() {
-        PriceList priceList = memory.read(new PriceList(null));
+        PriceList priceList = memory.read(new PriceList((PriceList) null));
         for(Resource resource : Resource.values()) {
             if (resource.equals(Resource.G)) {
                 resourceValues.put(resource, -20.0);
