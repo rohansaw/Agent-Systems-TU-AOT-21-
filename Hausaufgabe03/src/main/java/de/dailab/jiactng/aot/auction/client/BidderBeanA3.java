@@ -149,8 +149,7 @@ public class BidderBeanA3 extends AbstractBidderBean {
     }
 
     private int getBundlesToBuy() {
-        //windowSize = 5 -> 32 possibilities for buy, not buy
-        //maybe calculate for every CFB(C) too -> 64 possibilities
+        // 2^windowSize possibilities for buy, not buy
         // window = [countCFB, countCFB + windowEnd[
         int windowEnd = countCFB + windowSize - (countCFB % windowSize);
         if (windowEnd > initialItems.size())

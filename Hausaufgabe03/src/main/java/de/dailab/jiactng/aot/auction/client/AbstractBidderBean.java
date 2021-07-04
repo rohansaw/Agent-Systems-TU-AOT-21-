@@ -15,7 +15,7 @@ public class AbstractBidderBean extends AbstractMethodExposingBean {
     protected String groupToken;
     protected String messageGroup;
     protected String bidderId;
-    protected int windowSize = 6;
+    protected int windowSize = 10;
 
     protected void sendMessage(ICommunicationAddress receiver, IFact payload) {
         Action sendAction = retrieveAction(ICommunicationBean.ACTION_SEND);
